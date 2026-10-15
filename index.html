@@ -6,7 +6,7 @@
     <title>GST Beast Pro - Compliance, Recon &amp; GSTR-9 Suite</title>
     <link rel="manifest" href="manifest.json">
     <link rel="icon" type="image/png" href="./Logo.png">
-<link rel="apple-touch-icon" href="./Logo.png">
+    <link rel="apple-touch-icon" href="./Logo.png">
     <meta name="theme-color" content="#070b14">
     <script>
         if ('serviceWorker' in navigator) {
@@ -20,6 +20,12 @@
         }
     </script>
     <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script>
+        if (window.pdfjsLib) {
+            window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+        }
+    </script>
 
     <style>
         :root {
@@ -81,6 +87,7 @@
             border: 1px solid var(--border-light); border-radius: 12px; padding: 14px 16px;
         }
         .brand-left { display: flex; align-items: center; gap: 12px; }
+        .app-logo-img { width: 44px; height: 44px; border-radius: 10px; object-fit: cover; border: 1px solid var(--border-light); }
 
         h2 { font-size: 1rem; font-weight: 700; margin-bottom: 14px; display: flex; align-items: center; justify-content: space-between; color: var(--text-main); }
         .form-group { margin-bottom: 11px; }
@@ -98,11 +105,27 @@
         .btn-primary { background: linear-gradient(135deg, #3b82f6, #2563eb); color: white; }
         .btn-primary:hover { filter: brightness(1.1); }
         .btn-success { background: linear-gradient(135deg, #10b981, #059669); color: #041f14; font-weight: 700; }
+        .btn-warning { background: linear-gradient(135deg, #f59e0b, #d97706); color: #1f1202; font-weight: 700; }
         .btn-chip {
             width: auto; padding: 3px 8px; font-size: 0.68rem; border-radius: 4px;
             background: rgba(59, 130, 246, 0.15); color: #93c5fd; border: 1px solid rgba(59, 130, 246, 0.35);
         }
         .btn-chip:hover { background: var(--primary); color: #fff; }
+
+        /* 60-Min Cloud Timer Badge */
+        .cloud-timer-pill {
+            font-family: monospace; font-size: 0.72rem; font-weight: 700;
+            padding: 2px 7px; border-radius: 12px; border: 1px solid var(--border);
+            background: var(--surface-input); color: var(--text-muted); display: inline-block;
+        }
+        .cloud-timer-pill.timer-active { color: #6ee7b7; border-color: var(--success); background: rgba(16, 185, 129, 0.12); }
+        .cloud-timer-pill.timer-warn { color: #fcd34d; border-color: var(--warning); background: rgba(245, 158, 11, 0.2); animation: pulseWarn 1.2s infinite; }
+        .cloud-timer-pill.timer-expired { color: #fca5a5; border-color: var(--danger); background: rgba(239, 68, 68, 0.18); }
+
+        @keyframes pulseWarn {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.75; transform: scale(0.98); }
+        }
 
         .fy-matrix-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-top: 10px; }
         .fy-month-block {
@@ -297,10 +320,25 @@
         <div class="sidebar">
             <div class="brand-header">
                 <div class="brand-left">
-                    <img src="./Logo.png" alt="GST Beast Pro" style="width:44px; height:44px; border-radius:10px; object-fit:cover;">
+                    <img src="./Logo.png" alt="Logo" class="app-logo-img" onerror="this.style.display='none'; document.getElementById('fallback-svg-logo').style.display='block';">
+                    <svg id="fallback-svg-logo" style="display:none;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="44" height="44">
+                        <defs>
+                            <linearGradient id="lbg" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#1e293b" /><stop offset="100%" stop-color="#090d16" /></linearGradient>
+                            <linearGradient id="lg" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#3b82f6" /><stop offset="100%" stop-color="#8b5cf6" /></linearGradient>
+                            <linearGradient id="lb1" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#60a5fa" /><stop offset="100%" stop-color="#3b82f6" /></linearGradient>
+                            <linearGradient id="lb2" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#a78bfa" /><stop offset="100%" stop-color="#8b5cf6" /></linearGradient>
+                            <linearGradient id="lchk" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#10b981" /><stop offset="100%" stop-color="#059669" /></linearGradient>
+                        </defs>
+                        <rect width="512" height="512" rx="120" fill="url(#lbg)" />
+                        <path d="M 256 96 A 160 160 0 1 0 416 256 H 320" fill="none" stroke="url(#lg)" stroke-width="44" stroke-linecap="round" stroke-linejoin="round" />
+                        <rect x="156" y="250" width="32" height="86" rx="16" fill="url(#lb1)" />
+                        <rect x="208" y="190" width="32" height="146" rx="16" fill="url(#lb2)" />
+                        <rect x="260" y="130" width="32" height="206" rx="16" fill="url(#lb1)" />
+                        <path d="M 170 300 L 240 360 L 390 180" fill="none" stroke="url(#lchk)" stroke-width="36" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
                     <div>
                         <div style="font-size: 1.15rem; font-weight: 800;">GST Beast Pro</div>
-                        <div style="font-size: 0.7rem; color: var(--success); font-weight: 700;">Rule 88A &bull; GSTR-9 PDF Engine</div>
+                        <div style="font-size: 0.7rem; color: var(--success); font-weight: 700;">2B JSON + 3B/R1 PDF Reader</div>
                     </div>
                 </div>
                 <button type="button" class="btn-inline" onclick="openSettingsModal()">&#9881; Desk</button>
@@ -320,9 +358,9 @@
             <div class="panel-card">
                 <h2>
                     <span id="form-title">Client &amp; Return Entry</span>
-                    <button type="button" class="btn-chip" onclick="document.getElementById('portal-json-input').click()">Import Portal JSON</button>
+                    <button type="button" class="btn-chip" onclick="document.getElementById('portal-json-input').click()">&#128194; Import 2B JSON / 3B &amp; R1 PDF</button>
                 </h2>
-                <input type="file" id="portal-json-input" accept=".json" style="display:none;" onchange="handlePortalJsonImport(event)">
+                <input type="file" id="portal-json-input" accept=".json,.pdf,application/json,application/pdf" multiple style="display:none;" onchange="handlePortalFileImport(event)">
                 <input type="hidden" id="editing-client-id" value="">
 
                 <div class="split-2">
@@ -464,9 +502,13 @@
                 <input type="file" id="import-file-input" accept=".json" onchange="restoreSystemDatabase(event)" style="display:none;">
 
                 <div style="border-top: 1px solid var(--border); padding-top: 12px;">
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
                         <span style="font-size:0.78rem; font-weight:700; color:var(--primary);">Google Drive Cloud</span>
                         <span id="cloud-status" style="font-size:0.72rem; color:var(--text-muted);">Offline</span>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                        <span style="font-size:0.7rem; color:var(--text-muted);">60-Min Session Timer:</span>
+                        <span id="cloud-timer-badge" class="cloud-timer-pill">--:--</span>
                     </div>
                     <div class="split-3">
                         <button type="button" class="btn-inline" style="color:var(--primary); border-color:var(--primary);" onclick="initializeGoogleAuth()">Connect</button>
@@ -689,6 +731,25 @@
         </div>
     </div>
 
+    <!-- MODAL 4: GOOGLE DRIVE < 5 MIN SESSION EXPIRY WARNING POP-UP -->
+    <div class="modal-backdrop" id="session-warning-modal" style="z-index: 9500;">
+        <div class="modal-card" style="max-width: 420px; text-align: center; border-color: var(--warning);">
+            <div style="font-size: 2.2rem; margin-bottom: 6px;">&#9200;</div>
+            <h2 id="session-modal-title" style="justify-content: center; color: var(--warning); margin-bottom: 8px;">Cloud Session Expiring Soon</h2>
+            <p id="session-modal-desc" style="font-size: 0.84rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 14px;">
+                Your 60-minute Google Drive connection has less than 5 minutes remaining. Re-establish connection now so automatic cloud backups continue without interruption.
+            </p>
+            <div style="background: var(--surface-input); border: 1px solid var(--border); border-radius: 8px; padding: 10px; margin-bottom: 16px;">
+                <span style="font-size: 0.75rem; color: var(--text-muted);">Time Remaining:</span><br>
+                <strong id="modal-session-countdown" style="font-size: 1.5rem; font-family: monospace; color: var(--warning);">04:59</strong>
+            </div>
+            <div class="split-2">
+                <button type="button" class="btn-inline" onclick="closeModal('session-warning-modal')">Remind Later</button>
+                <button type="button" class="btn-warning" onclick="reconnectGoogleDriveSession()">&#128260; Reconnect Now</button>
+            </div>
+        </div>
+    </div>
+
     <!-- PRINT AREA 1: MONTHLY TAX COMPUTATION & BILLING CHALLAN -->
     <div id="print-area">
         <div class="print-header">
@@ -755,6 +816,7 @@
 
         var gDriveAccessToken = null;
         var gDriveTokenExpiry = 0;
+        var sessionWarningShown = false;
         var gDriveFileId = localStorage.getItem('gst_drive_file_id');
         var syncTimeout = null;
         var activeFilterPill = 'ALL';
@@ -897,7 +959,7 @@
             document.getElementById('remove-logo-btn').style.display = 'none';
         };
 
-        // --- GOOGLE DRIVE CLOUD SYNC ---
+        // --- GOOGLE DRIVE CLOUD SYNC & 60-MIN COUNTDOWN + <5 MIN POP-UP ---
         window.initializeGoogleAuth = function() {
             try {
                 var tokenClient = google.accounts.oauth2.initTokenClient({
@@ -906,9 +968,15 @@
                     callback: function(response) {
                         if (response.error !== undefined) throw (response);
                         gDriveAccessToken = response.access_token;
-                        gDriveTokenExpiry = Date.now() + ((response.expires_in || 3599) * 1000);
+                        // Standard 60-minute (3600s) Google OAuth session window
+                        var durationSec = Number(response.expires_in) || 3600;
+                        gDriveTokenExpiry = Date.now() + (durationSec * 1000);
+                        sessionWarningShown = false;
+
+                        closeModal('session-warning-modal');
                         document.getElementById('cloud-status').innerHTML = "Connected";
-                        showToast("Google Drive Connected");
+                        updateCloudSessionTimer();
+                        showToast("Google Drive Connected (60m Session Active)");
                         findDriveFileIdSilent();
                     }
                 });
@@ -918,10 +986,62 @@
             }
         };
 
-        function checkDriveTokenHealth() {
-            if (gDriveAccessToken && Date.now() >= gDriveTokenExpiry) {
+        window.reconnectGoogleDriveSession = function() {
+            closeModal('session-warning-modal');
+            initializeGoogleAuth();
+        };
+
+        function updateCloudSessionTimer() {
+            var badge = document.getElementById('cloud-timer-badge');
+            var modalCountdown = document.getElementById('modal-session-countdown');
+            if (!badge) return;
+
+            if (!gDriveAccessToken || gDriveTokenExpiry <= 0) {
+                badge.textContent = "--:--";
+                badge.className = "cloud-timer-pill";
+                return;
+            }
+
+            var remainingMs = gDriveTokenExpiry - Date.now();
+            var remainingSec = Math.floor(remainingMs / 1000);
+
+            if (remainingSec <= 0) {
                 gDriveAccessToken = null;
+                gDriveTokenExpiry = 0;
+                badge.textContent = "00:00 (Expired)";
+                badge.className = "cloud-timer-pill timer-expired";
                 document.getElementById('cloud-status').innerHTML = "Session Expired";
+                if (modalCountdown) {
+                    modalCountdown.textContent = "00:00";
+                    modalCountdown.style.color = "var(--danger)";
+                }
+                document.getElementById('session-modal-title').textContent = "Cloud Session Expired";
+                document.getElementById('session-modal-desc').textContent = "Your 60-minute Google Drive connection has expired. Reconnect now to resume automatic cloud backups.";
+                document.getElementById('session-warning-modal').style.display = 'flex';
+                return;
+            }
+
+            var mins = Math.floor(remainingSec / 60);
+            var secs = remainingSec % 60;
+            var formattedTime = String(mins).padStart(2, '0') + ":" + String(secs).padStart(2, '0');
+            badge.textContent = formattedTime;
+
+            if (modalCountdown) {
+                modalCountdown.textContent = formattedTime;
+            }
+
+            // Trigger Warning State & Pop-up when < 5 minutes (300 seconds) remain
+            if (remainingSec <= 300) {
+                badge.className = "cloud-timer-pill timer-warn";
+                if (!sessionWarningShown) {
+                    sessionWarningShown = true;
+                    document.getElementById('session-modal-title').textContent = "Cloud Session Expiring Soon";
+                    document.getElementById('session-modal-desc').textContent = "Your 60-minute Google Drive connection has less than 5 minutes remaining. Re-establish connection now so automatic cloud backups continue without interruption.";
+                    if (modalCountdown) modalCountdown.style.color = "var(--warning)";
+                    document.getElementById('session-warning-modal').style.display = 'flex';
+                }
+            } else {
+                badge.className = "cloud-timer-pill timer-active";
             }
         }
 
@@ -939,12 +1059,18 @@
         }
 
         window.forceBackupToDrive = function() {
-            if (!gDriveAccessToken) return alert("Please click 'Connect' first to authenticate with Google Drive.");
+            if (!gDriveAccessToken || Date.now() >= gDriveTokenExpiry) {
+                document.getElementById('session-warning-modal').style.display = 'flex';
+                return;
+            }
             performCloudSync();
         };
 
         window.restoreFromDrive = async function() {
-            if (!gDriveAccessToken) return alert("Please click 'Connect' first to authenticate.");
+            if (!gDriveAccessToken || Date.now() >= gDriveTokenExpiry) {
+                document.getElementById('session-warning-modal').style.display = 'flex';
+                return;
+            }
             if (!confirm("Overwrite local screen data with your Google Drive backup?")) return;
 
             document.getElementById('cloud-status').innerHTML = "Restoring...";
@@ -978,7 +1104,7 @@
         };
 
         async function performCloudSync() {
-            if (!gDriveAccessToken) return;
+            if (!gDriveAccessToken || Date.now() >= gDriveTokenExpiry) return;
             document.getElementById('cloud-status').innerHTML = "Syncing...";
             var fileContent = JSON.stringify(db, null, 2);
             try {
@@ -1169,80 +1295,351 @@
             }
         };
 
-        // --- PORTAL JSON IMPORTER ---
-        window.handlePortalJsonImport = function(event) {
-            var file = event.target.files[0];
-            if (!file) return;
-            var reader = new FileReader();
-            reader.onload = function(evt) {
-                try {
-                    var j = JSON.parse(evt.target.result);
-                    var root = j.data || j;
-                    if (root.gstin && !document.getElementById('client-gstin').value) {
-                        document.getElementById('client-gstin').value = root.gstin;
-                        validateGSTIN();
-                    }
-                    if (root.itcsumm && root.itcsumm.itcavl && root.itcsumm.itcavl.nonrevsup) {
-                        var n = root.itcsumm.itcavl.nonrevsup;
-                        document.getElementById('itc-2b-igst').value = (n.igst || 0).toFixed(2);
-                        document.getElementById('itc-2b-cgst').value = (n.cgst || 0).toFixed(2);
-                        document.getElementById('itc-2b-sgst').value = (n.sgst || 0).toFixed(2);
-                        if (root.itcsumm.itcavl.revsup) {
-                            var r = root.itcsumm.itcavl.revsup;
-                            document.getElementById('rcm-igst').value = (r.igst || 0).toFixed(2);
-                            document.getElementById('rcm-cgst').value = (r.cgst || 0).toFixed(2);
-                            document.getElementById('rcm-sgst').value = (r.sgst || 0).toFixed(2);
-                        }
-                        showToast("Imported GSTR-2B JSON summary!");
-                    } else if (root.sup_details || root.itc_elg) {
-                        if (root.sup_details && root.sup_details.osup_det) {
-                            var o = root.sup_details.osup_det;
-                            document.getElementById('out-igst').value = (o.iamt || 0).toFixed(2);
-                            document.getElementById('out-cgst').value = (o.camt || 0).toFixed(2);
-                            document.getElementById('out-sgst').value = (o.samt || 0).toFixed(2);
-                        }
-                        if (root.sup_details && root.sup_details.isup_rev) {
-                            var rv = root.sup_details.isup_rev;
-                            document.getElementById('rcm-igst').value = (rv.iamt || 0).toFixed(2);
-                            document.getElementById('rcm-cgst').value = (rv.camt || 0).toFixed(2);
-                            document.getElementById('rcm-sgst').value = (rv.samt || 0).toFixed(2);
-                        }
-                        if (root.itc_elg && Array.isArray(root.itc_elg.itc_avl)) {
-                            var ii = 0, cc = 0, ss = 0;
-                            root.itc_elg.itc_avl.forEach(function(row) {
-                                ii += (row.iamt || 0); cc += (row.camt || 0); ss += (row.samt || 0);
-                            });
-                            document.getElementById('itc-igst').value = ii.toFixed(2);
-                            document.getElementById('itc-cgst').value = cc.toFixed(2);
-                            document.getElementById('itc-sgst').value = ss.toFixed(2);
-                        }
-                        showToast("Imported GSTR-3B JSON figures!");
-                    } else if (root.b2b || root.b2cs) {
-                        var i1 = 0, c1 = 0, s1 = 0;
-                        (root.b2b || []).forEach(function(party) {
-                            (party.inv || []).forEach(function(inv) {
-                                (inv.itms || []).forEach(function(it) {
-                                    var d = it.itm_det || {};
-                                    i1 += (d.iamt || 0); c1 += (d.camt || 0); s1 += (d.samt || 0);
-                                });
-                            });
-                        });
-                        (root.b2cs || []).forEach(function(row) {
-                            i1 += (row.iamt || 0); c1 += (row.camt || 0); s1 += (row.samt || 0);
-                        });
-                        document.getElementById('out-igst').value = i1.toFixed(2);
-                        document.getElementById('out-cgst').value = c1.toFixed(2);
-                        document.getElementById('out-sgst').value = s1.toFixed(2);
-                        showToast("Imported GSTR-1 Output Tax totals!");
-                    } else {
-                        alert("Unrecognized JSON structure. Select a valid GSTR-2B, 3B, or R1 JSON.");
-                    }
-                } catch (e) {
-                    alert("Failed to parse JSON file.");
-                }
-                event.target.value = '';
+        // --- UNIFIED GST PORTAL IMPORTER (GSTR-2B JSON + FILED GSTR-3B & GSTR-1 PDF READER) ---
+        function parsePortalDateToISO(dStr) {
+            if (!dStr) return "";
+            var clean = dStr.trim().replace(/\./g, '/').replace(/-/g, '/');
+            var parts = clean.split('/');
+            if (parts.length === 3) {
+                if (parts[0].length === 4) return parts[0] + "-" + parts[1].padStart(2, '0') + "-" + parts[2].padStart(2, '0');
+                return parts[2].substring(0, 4) + "-" + parts[1].padStart(2, '0') + "-" + parts[0].padStart(2, '0');
+            }
+            return "";
+        }
+
+        function detectPeriodFromPdfText(text) {
+            var monthMap = {
+                "january": "01", "jan": "01", "february": "02", "feb": "02", "march": "03", "mar": "03",
+                "april": "04", "apr": "04", "may": "05", "june": "06", "jun": "06",
+                "july": "07", "jul": "07", "august": "08", "aug": "08", "september": "09", "sep": "09", "sept": "09",
+                "october": "10", "oct": "10", "november": "11", "nov": "11", "december": "12", "dec": "12",
+                "quarter 1": "06", "q1": "06", "apr-jun": "06",
+                "quarter 2": "09", "q2": "09", "jul-sep": "09",
+                "quarter 3": "12", "q3": "12", "oct-dec": "12",
+                "quarter 4": "03", "q4": "03", "jan-mar": "03"
             };
-            reader.readAsText(file);
+
+            var fyMatch = text.match(/20(\d{2})\s*[-–/]\s*(?:20)?(\d{2})/);
+            var startYr = fyMatch ? parseInt("20" + fyMatch[1], 10) : null;
+
+            var pMatch = text.match(/(?:Period|Month)\s*[:\-]?\s*([A-Za-z]+)(?:\s*[-–,]?\s*(20\d{2}))?/i);
+            if (pMatch) {
+                var mName = pMatch[1].toLowerCase();
+                var mStr = monthMap[mName];
+                if (mStr) {
+                    if (pMatch[2]) return pMatch[2] + "-" + mStr;
+                    if (startYr) {
+                        var mInt = parseInt(mStr, 10);
+                        var calcYr = (mInt <= 3) ? (startYr + 1) : startYr;
+                        return calcYr + "-" + mStr;
+                    }
+                }
+            }
+            return null;
+        }
+
+        function extractRowNumbersAfterAnchor(text, anchorRegex, expectedMinCols) {
+            var m = text.match(anchorRegex);
+            if (!m) return null;
+            var snippet = text.substring(m.index + m[0].length, m.index + m[0].length + 420);
+            var numMatches = snippet.match(/-?\d[\d,]*\.\d{2}/g);
+            if (!numMatches || numMatches.length < expectedMinCols) return null;
+            return numMatches.map(function(s) {
+                return Math.max(0, parseFloat(s.replace(/,/g, '')) || 0);
+            });
+        }
+
+        async function extractTextFromPdfBuffer(arrayBuffer) {
+            if (!window.pdfjsLib) throw new Error("PDF.js library not loaded. Check internet connection.");
+            var pdf = await window.pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+            var fullText = "";
+            for (var p = 1; p <= pdf.numPages; p++) {
+                var page = await pdf.getPage(p);
+                var content = await page.getTextContent();
+                var pageStr = content.items.map(function(it) { return it.str; }).join(" ");
+                fullText += " " + pageStr;
+            }
+            return fullText.replace(/\s+/g, " ");
+        }
+
+        function parseGstPortalPdfText(text) {
+            var gstinMatch = text.match(/\b([0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1})\b/);
+            var arnMatch = text.match(/ARN\s*[:\-]?\s*([A-Z]{2}[0-9A-Z]{13})/i);
+            var dateMatch = text.match(/Date(?:\s+of\s+Filing)?\s*[:\-]?\s*(\d{2}[\/\-]\d{2}[\/\-]\d{4})/i);
+            var nameMatch = text.match(/(?:Trade\s+name|Legal\s+name\s+of\s+the\s+registered\s+person)\s*[:\-]?\s*([A-Za-z0-9\s\.\,&\-\(\)]+?)(?=\s+(?:GSTIN|Trade|Form|ARN|Date|3\.1|Year|Period))/i);
+
+            var gstin = gstinMatch ? gstinMatch[1].toUpperCase() : "";
+            var arn = arnMatch ? arnMatch[1].toUpperCase() : "";
+            var filingDate = dateMatch ? parsePortalDateToISO(dateMatch[1]) : "";
+            var clientName = nameMatch ? nameMatch[1].trim() : "";
+            var periodKey = detectPeriodFromPdfText(text);
+
+            var is3B = /GSTR[\s\-]*3B/i.test(text) || /3\.1\s+Details\s+of\s+Outward/i.test(text);
+            var isR1 = /GSTR[\s\-]*1/i.test(text) || /IFF/i.test(text);
+
+            if (is3B) {
+                var row31a = extractRowNumbersAfterAnchor(text, /\(a\)\s*Outward\s+taxable\s+supplies\s*\(other\s+than\s+zero\s+rated,\s*nil\s+rated\s+and\s+exempted\)/i, 4);
+                var row31d = extractRowNumbersAfterAnchor(text, /\(d\)\s*Inward\s+supplies\s*\(liable\s+to\s+reverse\s+charge\)/i, 4);
+                var row4c = extractRowNumbersAfterAnchor(text, /\(C\)\s*Net\s+ITC\s+Available\s*\(\s*A\s*[\-–]\s*B\s*\)/i, 3);
+                if (!row4c) {
+                    row4c = extractRowNumbersAfterAnchor(text, /\(5\)\s*All\s+other\s+ITC/i, 3);
+                }
+
+                return {
+                    docType: '3B',
+                    gstin: gstin, name: clientName, periodKey: periodKey,
+                    arn: arn, filingDate: filingDate,
+                    outIgst: row31a ? row31a[1] : 0,
+                    outCgst: row31a ? row31a[2] : 0,
+                    outSgst: row31a ? row31a[3] : 0,
+                    rcmIgst: row31d ? row31d[1] : 0,
+                    rcmCgst: row31d ? row31d[2] : 0,
+                    rcmSgst: row31d ? row31d[3] : 0,
+                    itcIgst: row4c ? row4c[0] : 0,
+                    itcCgst: row4c ? row4c[1] : 0,
+                    itcSgst: row4c ? row4c[2] : 0
+                };
+            }
+
+            if (isR1) {
+                var rowTot = extractRowNumbersAfterAnchor(text, /Total\s+Liability\s*\(\s*Outward\s+supplies\s+other\s+than\s+Reverse\s+charge\s*\)/i, 4);
+                return {
+                    docType: 'R1',
+                    gstin: gstin, name: clientName, periodKey: periodKey,
+                    arn: arn, filingDate: filingDate,
+                    outIgst: rowTot ? rowTot[1] : 0,
+                    outCgst: rowTot ? rowTot[2] : 0,
+                    outSgst: rowTot ? rowTot[3] : 0
+                };
+            }
+
+            return { docType: 'UNKNOWN', gstin: gstin };
+        }
+
+        function parseGstPortalJsonObj(j) {
+            var root = j.data || j;
+            var gstin = (root.gstin || "").toUpperCase();
+            var rtnprd = root.rtnprd || root.ret_period || "";
+            var periodKey = null;
+            if (rtnprd && String(rtnprd).length === 6) {
+                var s = String(rtnprd);
+                periodKey = s.substring(2, 6) + "-" + s.substring(0, 2);
+            }
+
+            if (root.itcsumm && root.itcsumm.itcavl) {
+                var avl = root.itcsumm.itcavl;
+                var igst2b = 0, cgst2b = 0, sgst2b = 0, rcmI = 0, rcmC = 0, rcmS = 0;
+                if (avl.nonrevsup) {
+                    igst2b += (avl.nonrevsup.igst || 0);
+                    cgst2b += (avl.nonrevsup.cgst || 0);
+                    sgst2b += (avl.nonrevsup.sgst || 0);
+                }
+                if (avl.revsup) {
+                    rcmI = (avl.revsup.igst || 0);
+                    rcmC = (avl.revsup.cgst || 0);
+                    rcmS = (avl.revsup.sgst || 0);
+                    igst2b += rcmI; cgst2b += rcmC; sgst2b += rcmS;
+                }
+                if (avl.othersup) {
+                    igst2b = Math.max(0, igst2b - (avl.othersup.igst || 0));
+                    cgst2b = Math.max(0, cgst2b - (avl.othersup.cgst || 0));
+                    sgst2b = Math.max(0, sgst2b - (avl.othersup.sgst || 0));
+                }
+                return {
+                    docType: '2B_JSON', gstin: gstin, periodKey: periodKey,
+                    itc2bIgst: Number(igst2b.toFixed(2)),
+                    itc2bCgst: Number(cgst2b.toFixed(2)),
+                    itc2bSgst: Number(sgst2b.toFixed(2)),
+                    rcmIgst: Number(rcmI.toFixed(2)),
+                    rcmCgst: Number(rcmC.toFixed(2)),
+                    rcmSgst: Number(rcmS.toFixed(2))
+                };
+            }
+
+            if (root.sup_details || root.itc_elg) {
+                var o = (root.sup_details && root.sup_details.osup_det) || {};
+                var rv = (root.sup_details && root.sup_details.isup_rev) || {};
+                var ii = 0, cc = 0, ss = 0;
+                if (root.itc_elg && Array.isArray(root.itc_elg.itc_avl)) {
+                    root.itc_elg.itc_avl.forEach(function(row) {
+                        ii += (row.iamt || 0); cc += (row.camt || 0); ss += (row.samt || 0);
+                    });
+                }
+                return {
+                    docType: '3B_JSON', gstin: gstin, periodKey: periodKey,
+                    outIgst: Number((o.iamt || 0).toFixed(2)),
+                    outCgst: Number((o.camt || 0).toFixed(2)),
+                    outSgst: Number((o.samt || 0).toFixed(2)),
+                    rcmIgst: Number((rv.iamt || 0).toFixed(2)),
+                    rcmCgst: Number((rv.camt || 0).toFixed(2)),
+                    rcmSgst: Number((rv.samt || 0).toFixed(2)),
+                    itcIgst: Number(ii.toFixed(2)),
+                    itcCgst: Number(cc.toFixed(2)),
+                    itcSgst: Number(ss.toFixed(2))
+                };
+            }
+
+            if (root.b2b || root.b2cs) {
+                var i1 = 0, c1 = 0, s1 = 0;
+                (root.b2b || []).forEach(function(party) {
+                    (party.inv || []).forEach(function(inv) {
+                        (inv.itms || []).forEach(function(it) {
+                            var d = it.itm_det || {};
+                            i1 += (d.iamt || 0); c1 += (d.camt || 0); s1 += (d.samt || 0);
+                        });
+                    });
+                });
+                (root.b2cs || []).forEach(function(row) {
+                    i1 += (row.iamt || 0); c1 += (row.camt || 0); s1 += (row.samt || 0);
+                });
+                return {
+                    docType: 'R1_JSON', gstin: gstin, periodKey: periodKey,
+                    outIgst: Number(i1.toFixed(2)),
+                    outCgst: Number(c1.toFixed(2)),
+                    outSgst: Number(s1.toFixed(2))
+                };
+            }
+            return { docType: 'UNKNOWN', gstin: gstin };
+        }
+
+        function applyParsedPortalRecordToDb(rec, populateFormIfSingle) {
+            var targetPeriod = rec.periodKey || activeTargetPeriod;
+            var client = rec.gstin ? db.find(function(c) { return c.gstin === rec.gstin; }) : null;
+
+            if (!client && populateFormIfSingle) {
+                var editingId = document.getElementById('editing-client-id').value;
+                if (editingId) client = db.find(function(c) { return c.id === editingId; });
+            }
+
+            if (populateFormIfSingle && rec.periodKey && rec.periodKey !== activeTargetPeriod) {
+                activeTargetPeriod = rec.periodKey;
+                var pParts = rec.periodKey.split('-');
+                var pYr = parseInt(pParts[0], 10), pMo = parseInt(pParts[1], 10);
+                var fyStart = (pMo <= 3) ? (pYr - 1) : pYr;
+                document.getElementById('global-fy-select').value = fyStart;
+            }
+
+            if (client) {
+                ensureMonthStructureInitialized(client, targetPeriod);
+                var h = client.history[targetPeriod];
+
+                if (rec.docType === '2B_JSON') {
+                    h.itc2bIgst = rec.itc2bIgst; h.itc2bCgst = rec.itc2bCgst; h.itc2bSgst = rec.itc2bSgst;
+                    if (rec.rcmIgst + rec.rcmCgst + rec.rcmSgst > 0) {
+                        h.rcmIgst = rec.rcmIgst; h.rcmCgst = rec.rcmCgst; h.rcmSgst = rec.rcmSgst;
+                    }
+                } else if (rec.docType === '3B' || rec.docType === '3B_JSON') {
+                    h.outIgst = rec.outIgst; h.outCgst = rec.outCgst; h.outSgst = rec.outSgst;
+                    h.rcmIgst = rec.rcmIgst; h.rcmCgst = rec.rcmCgst; h.rcmSgst = rec.rcmSgst;
+                    h.itcIgst = rec.itcIgst; h.itcCgst = rec.itcCgst; h.itcSgst = rec.itcSgst;
+                    if (rec.docType === '3B') {
+                        h.r3b = 'Filed';
+                        if (rec.filingDate) h.r3bDate = rec.filingDate;
+                        if (rec.arn) h.r3bArn = rec.arn;
+                    }
+                } else if (rec.docType === 'R1' || rec.docType === 'R1_JSON') {
+                    if (rec.outIgst + rec.outCgst + rec.outSgst > 0) {
+                        h.outIgst = rec.outIgst; h.outCgst = rec.outCgst; h.outSgst = rec.outSgst;
+                    }
+                    if (rec.docType === 'R1') {
+                        h.r1 = 'Filed';
+                        if (rec.filingDate) h.r1Date = rec.filingDate;
+                        if (rec.arn) h.r1Arn = rec.arn;
+                    }
+                }
+
+                if (populateFormIfSingle) {
+                    triggerInlineEdit(client.id);
+                }
+                return true;
+            } else if (populateFormIfSingle) {
+                if (rec.gstin) {
+                    document.getElementById('client-gstin').value = rec.gstin;
+                    validateGSTIN();
+                }
+                if (rec.name && !document.getElementById('client-name').value) {
+                    document.getElementById('client-name').value = rec.name;
+                }
+                if (rec.docType === '2B_JSON') {
+                    document.getElementById('itc-2b-igst').value = rec.itc2bIgst;
+                    document.getElementById('itc-2b-cgst').value = rec.itc2bCgst;
+                    document.getElementById('itc-2b-sgst').value = rec.itc2bSgst;
+                    if (rec.rcmIgst + rec.rcmCgst + rec.rcmSgst > 0) {
+                        document.getElementById('rcm-igst').value = rec.rcmIgst;
+                        document.getElementById('rcm-cgst').value = rec.rcmCgst;
+                        document.getElementById('rcm-sgst').value = rec.rcmSgst;
+                    }
+                } else if (rec.docType === '3B' || rec.docType === '3B_JSON') {
+                    document.getElementById('out-igst').value = rec.outIgst;
+                    document.getElementById('out-cgst').value = rec.outCgst;
+                    document.getElementById('out-sgst').value = rec.outSgst;
+                    document.getElementById('rcm-igst').value = rec.rcmIgst;
+                    document.getElementById('rcm-cgst').value = rec.rcmCgst;
+                    document.getElementById('rcm-sgst').value = rec.rcmSgst;
+                    document.getElementById('itc-igst').value = rec.itcIgst;
+                    document.getElementById('itc-cgst').value = rec.itcCgst;
+                    document.getElementById('itc-sgst').value = rec.itcSgst;
+                } else if (rec.docType === 'R1' || rec.docType === 'R1_JSON') {
+                    document.getElementById('out-igst').value = rec.outIgst;
+                    document.getElementById('out-cgst').value = rec.outCgst;
+                    document.getElementById('out-sgst').value = rec.outSgst;
+                }
+                return true;
+            }
+            return false;
+        }
+
+        window.handlePortalFileImport = async function(event) {
+            var files = event.target.files;
+            if (!files || files.length === 0) return;
+            var isSingle = (files.length === 1);
+            var importedCount = 0;
+            var lastTypeLabel = "";
+
+            showToast("Reading " + files.length + " portal file(s)...");
+
+            for (var i = 0; i < files.length; i++) {
+                var file = files[i];
+                var fName = file.name.toLowerCase();
+                try {
+                    if (fName.endsWith('.pdf') || file.type === 'application/pdf') {
+                        var arrayBuf = await file.arrayBuffer();
+                        var pdfText = await extractTextFromPdfBuffer(arrayBuf);
+                        var pdfRec = parseGstPortalPdfText(pdfText);
+                        if (pdfRec.docType !== 'UNKNOWN') {
+                            if (applyParsedPortalRecordToDb(pdfRec, isSingle)) {
+                                importedCount++;
+                                lastTypeLabel = "GSTR-" + pdfRec.docType + " PDF" + (pdfRec.arn ? " (ARN: " + pdfRec.arn + ")" : "");
+                            }
+                        }
+                    } else {
+                        var jsonTxt = await file.text();
+                        var jsonObj = JSON.parse(jsonTxt);
+                        var jsonRec = parseGstPortalJsonObj(jsonObj);
+                        if (jsonRec.docType !== 'UNKNOWN') {
+                            if (applyParsedPortalRecordToDb(jsonRec, isSingle)) {
+                                importedCount++;
+                                lastTypeLabel = jsonRec.docType.replace('_', ' ');
+                            }
+                        }
+                    }
+                } catch (err) {
+                    console.error("File import error:", file.name, err);
+                }
+            }
+
+            saveDatabase();
+            renderFinancialYearCalendar();
+            renderMasterDashboard();
+            event.target.value = '';
+
+            if (importedCount === 0) {
+                alert("Could not match or parse the selected file(s). Ensure it is an official GST Portal GSTR-2B JSON or system-generated GSTR-3B / GSTR-1 PDF.");
+            } else if (isSingle) {
+                showToast("Imported " + lastTypeLabel + "!");
+            } else {
+                showToast("Bulk Import Complete: " + importedCount + " / " + files.length + " files synced!");
+            }
         };
 
         window.clearForm = function() {
@@ -1507,7 +1904,6 @@
 
             var res = runRule88ASetOff(poolIgst, poolCgst, poolSgst, origOutI, origOutC, origOutS);
 
-            // Track ITC utilized from each credit pool (Table 6) and Output Tax discharged via ITC (Table 9)
             var itcUsedFromPool = {
                 igst: poolIgst - res.poolIgst,
                 cgst: poolCgst - res.poolCgst,
@@ -1799,7 +2195,8 @@
 
                 var r1SubHtml = "";
                 if (data.r1 === 'Filed') {
-                    r1SubHtml = "<br><input type='date' class='date-edit' value='" + (data.r1Date || '') + "' onchange=\"updateFilingMeta('" + client.id + "', 'r1Date', this.value)\">";
+                    r1SubHtml = "<br><input type='date' class='date-edit' value='" + (data.r1Date || '') + "' onchange=\"updateFilingMeta('" + client.id + "', 'r1Date', this.value)\">" +
+                                "<input type='text' class='arn-edit' placeholder='R1 ARN #' value='" + (data.r1Arn || '') + "' onchange=\"updateFilingMeta('" + client.id + "', 'r1Arn', this.value)\">";
                 } else if (now > dueInfo.r1DueDate) {
                     r1SubHtml = "<div style='font-size:0.68rem; color:var(--danger); font-weight:700; margin-top:2px;'>OVERDUE (" + dueInfo.r1DueDay + " " + dueMonthName + ")</div>";
                 } else {
@@ -1809,7 +2206,7 @@
                 var r3bSubHtml = "";
                 if (data.r3b === 'Filed') {
                     r3bSubHtml = "<br><input type='date' class='date-edit' value='" + (data.r3bDate || '') + "' onchange=\"updateFilingMeta('" + client.id + "', 'r3bDate', this.value)\">" +
-                                "<input type='text' class='arn-edit' placeholder='ARN / CPIN #' value='" + (data.r3bArn || '') + "' onchange=\"updateFilingMeta('" + client.id + "', 'r3bArn', this.value)\">";
+                                "<input type='text' class='arn-edit' placeholder='3B ARN / CPIN #' value='" + (data.r3bArn || '') + "' onchange=\"updateFilingMeta('" + client.id + "', 'r3bArn', this.value)\">";
                 } else if (now > dueInfo.r3bDueDate) {
                     r3bSubHtml = "<div style='font-size:0.68rem; color:var(--danger); font-weight:700; margin-top:2px;'>OVERDUE (" + dueInfo.r3bDueDay + " " + dueMonthName + ")</div>";
                 } else {
@@ -1975,7 +2372,7 @@
 
                 monthlyRows.push({
                     label: m.name + " " + yr,
-                    r1: d.r1, r1Date: d.r1Date || '',
+                    r1: d.r1, r1Date: d.r1Date || '', r1Arn: d.r1Arn || '',
                     r3b: d.r3b, r3bDate: d.r3bDate || '', r3bArn: d.r3bArn || '',
                     outSum: oI + oC + oS,
                     rcmSum: rI + rC + rS,
@@ -2030,7 +2427,6 @@
             var net2bMinus3b = tot2bAvail - tot3bAvail;
             var totCashPaid = g9.t9.paidCashI + g9.t9.paidCashC + g9.t9.paidCashS;
 
-            // Render Top KPI Cards
             document.getElementById('gstr9-kpi-container').innerHTML =
                 "<div class='gstr9-kpi-box'>" +
                     "<div class='summary-label'>Table 4 Total Liability (Out + RCM)</div>" +
@@ -2053,13 +2449,11 @@
                     "<div style='font-size:0.7rem; color:var(--text-muted);'>Fee Paid: &#8377;" + fmtINR(g9.feeSummary.paid) + " | Due: &#8377;" + fmtINR(g9.feeSummary.due) + "</div>" +
                 "</div>";
 
-            // Render Table 4
             document.getElementById('gstr9-t4-body').innerHTML =
                 "<tr><td>4A-4F. Outward Taxable Supplies (Normal)</td><td>" + fmtINR(g9.t4.outI) + "</td><td>" + fmtINR(g9.t4.outC) + "</td><td>" + fmtINR(g9.t4.outS) + "</td><td><strong>" + fmtINR(totOutTax) + "</strong></td></tr>" +
                 "<tr><td>4G. Inward Supplies on RCM (Cash Mandatory)</td><td>" + fmtINR(g9.t4.rcmI) + "</td><td>" + fmtINR(g9.t4.rcmC) + "</td><td>" + fmtINR(g9.t4.rcmS) + "</td><td><strong>" + fmtINR(totRcmTax) + "</strong></td></tr>" +
                 "<tr style='background:rgba(59,130,246,0.12); font-weight:700;'><td>4N. Total Tax Liability (4A to 4G)</td><td>" + fmtINR(g9.t4.outI + g9.t4.rcmI) + "</td><td>" + fmtINR(g9.t4.outC + g9.t4.rcmC) + "</td><td>" + fmtINR(g9.t4.outS + g9.t4.rcmS) + "</td><td>&#8377;" + fmtINR(totOutTax + totRcmTax) + "</td></tr>";
 
-            // Render Table 6
             var openSum = g9.t6.openI + g9.t6.openC + g9.t6.openS;
             var poolSum = openSum + tot3bAvail;
             var usedPoolSum = g9.t6.usedPoolI + g9.t6.usedPoolC + g9.t6.usedPoolS;
@@ -2071,7 +2465,6 @@
                 "<tr><td>Less: ITC Utilized (Rule 88A Set-Off)</td><td>" + fmtINR(g9.t6.usedPoolI) + "</td><td>" + fmtINR(g9.t6.usedPoolC) + "</td><td>" + fmtINR(g9.t6.usedPoolS) + "</td><td>" + fmtINR(usedPoolSum) + "</td></tr>" +
                 "<tr style='background:rgba(16,185,129,0.12); font-weight:700;'><td>Closing Credit Ledger (31st March)</td><td>" + fmtINR(g9.t6.closeI) + "</td><td>" + fmtINR(g9.t6.closeC) + "</td><td>" + fmtINR(g9.t6.closeS) + "</td><td>&#8377;" + fmtINR(closeSum) + "</td></tr>";
 
-            // Render Table 8
             var d8I = g9.t8.itc2bI - g9.t8.itc3bI;
             var d8C = g9.t8.itc2bC - g9.t8.itc3bC;
             var d8S = g9.t8.itc2bS - g9.t8.itc3bS;
@@ -2082,7 +2475,6 @@
                 "<tr style='font-weight:700; color:" + (net2bMinus3b < -1 ? '#fca5a5' : '#6ee7b7') + ";'><td>8D. Net Balance (8A minus 8B)</td><td>" + fmtINR(d8I) + "</td><td>" + fmtINR(d8C) + "</td><td>" + fmtINR(d8S) + "</td><td>&#8377;" + fmtINR(net2bMinus3b) + "</td></tr>" +
                 "<tr><td colspan='4'>Audit Status (3B Claimed vs 2B Available)</td><td><strong>" + (excess3b > 1 ? ("Excess: &#8377;" + fmtINR(excess3b)) : "Safe / Reconciled") + "</strong></td></tr>";
 
-            // Render Table 9
             var totPaidItc = g9.t9.paidItcI + g9.t9.paidItcC + g9.t9.paidItcS;
             document.getElementById('gstr9-t9-body').innerHTML =
                 "<tr><td>Total Tax Payable (Outward + RCM)</td><td>" + fmtINR(g9.t9.payI) + "</td><td>" + fmtINR(g9.t9.payC) + "</td><td>" + fmtINR(g9.t9.payS) + "</td><td><strong>" + fmtINR(totOutTax + totRcmTax) + "</strong></td></tr>" +
@@ -2090,14 +2482,13 @@
                 "<tr style='background:rgba(245,158,11,0.12); font-weight:700;'><td>Paid Through Cash Ledger (Tax + RCM)</td><td>" + fmtINR(g9.t9.paidCashI) + "</td><td>" + fmtINR(g9.t9.paidCashC) + "</td><td>" + fmtINR(g9.t9.paidCashS) + "</td><td>&#8377;" + fmtINR(totCashPaid) + "</td></tr>" +
                 "<tr><td>Sec 47 Late Fee &amp; Sec 50 Interest</td><td colspan='3'>Late Fee: &#8377;" + fmtINR(g9.t9.lateFee) + " | Interest: &#8377;" + fmtINR(g9.t9.interest) + "</td><td><strong>&#8377;" + fmtINR(g9.t9.lateFee + g9.t9.interest) + "</strong></td></tr>";
 
-            // Render 12-Month Breakdown Table
             var tbody = document.getElementById('gstr9-tbody');
             tbody.innerHTML = '';
             g9.monthlyRows.forEach(function(r) {
                 var tr = document.createElement('tr');
                 tr.innerHTML =
                     "<td><strong>" + r.label + "</strong></td>" +
-                    "<td style='color:" + (r.r1 === 'Filed' ? 'var(--success)' : 'var(--warning)') + "'>" + r.r1 + (r.r1Date ? "<br><span style='font-size:0.68rem; color:var(--text-muted);'>" + r.r1Date + "</span>" : "") + "</td>" +
+                    "<td style='color:" + (r.r1 === 'Filed' ? 'var(--success)' : 'var(--warning)') + "'>" + r.r1 + (r.r1Date ? "<br><span style='font-size:0.68rem; color:var(--text-muted);'>" + r.r1Date + "</span>" : "") + (r.r1Arn ? "<br><span style='font-size:0.66rem; color:#93c5fd;'>" + r.r1Arn + "</span>" : "") + "</td>" +
                     "<td style='color:" + (r.r3b === 'Filed' ? 'var(--success)' : 'var(--danger)') + "'>" + r.r3b + (r.r3bDate ? "<br><span style='font-size:0.68rem; color:var(--text-muted);'>" + r.r3bDate + "</span>" : "") + (r.r3bArn ? "<br><span style='font-size:0.66rem; color:#93c5fd;'>" + r.r3bArn + "</span>" : "") + "</td>" +
                     "<td>&#8377;" + fmtINR(r.outSum) + "</td>" +
                     "<td>&#8377;" + fmtINR(r.rcmSum) + "</td>" +
@@ -2153,7 +2544,7 @@
                 mRowsHtml +=
                     "<tr>" +
                         "<td style='text-align:left;'><strong>" + r.label + "</strong></td>" +
-                        "<td style='text-align:center;'>" + r.r1 + (r.r1Date ? " (" + r.r1Date + ")" : "") + "</td>" +
+                        "<td style='text-align:center;'>" + r.r1 + (r.r1Arn ? " [" + r.r1Arn + "]" : (r.r1Date ? " (" + r.r1Date + ")" : "")) + "</td>" +
                         "<td style='text-align:center;'>" + r.r3b + (r.r3bArn ? " [" + r.r3bArn + "]" : (r.r3bDate ? " (" + r.r3bDate + ")" : "")) + "</td>" +
                         "<td>" + fmtINR(r.outSum) + "</td>" +
                         "<td>" + fmtINR(r.rcmSum) + "</td>" +
@@ -2360,13 +2751,12 @@
             document.getElementById('print-gstin').textContent = client.gstin;
             document.getElementById('print-scheme').textContent = client.scheme || 'Monthly';
             document.getElementById('print-status-line').textContent = due.r1Label + ": " + data.r1 + " | " + due.r3bLabel + ": " + data.r3b;
-            document.getElementById('print-arn').textContent = data.r3bArn || 'Pending / N/A';
+            document.getElementById('print-arn').textContent = data.r3bArn || data.r1Arn || 'Pending / N/A';
 
             var parts = activeTargetPeriod.split('-');
             document.getElementById('print-period').textContent = getMonthNameByStr(parts[1]) + " " + parts[0];
             document.getElementById('print-date').textContent = new Date().toLocaleDateString('en-IN');
 
-            // FIX 1: Deduct Professional Fee from Total Payable when marked 'Paid'
             var feeBilled = data.feeAmount || 0;
             var isFeePaid = (data.feeStatus === 'Paid');
             var unpaidFee = isFeePaid ? 0 : feeBilled;
@@ -2390,7 +2780,6 @@
                 "<tr><td style='text-align:left;'>" + feeRowLabel + "</td><td colspan='3' style='text-align:right;'>" + (isFeePaid ? "Already Paid (&#8377;" + fmtINR(feeBilled) + ") - Minus from Total" : "Unpaid Retainer") + "</td><td>&#8377;" + fmtINR(unpaidFee) + "</td></tr>" +
                 "<tr class='print-total' style='font-size:1.18em; background:#bae6fd !important;'><td style='text-align:left;'>10. NET BALANCE PAYABLE (GOVT CHALLAN + UNPAID FEE)</td><td colspan='3' style='text-align:right;'>Govt: &#8377;" + fmtINR(govtChallanTotal) + " + Fee Due: &#8377;" + fmtINR(unpaidFee) + "</td><td>&#8377;" + fmtINR(grandTotal) + "</td></tr>";
 
-            // FIX 2: QR Code Amount Mode + One-Time UPI Prompt + Image Preloader before window.print()
             var qrBox = document.getElementById('print-upi-qr-box');
             var payAmt = (practiceConfig.qrMode === 'FEE_ONLY') ? unpaidFee : grandTotal;
 
@@ -2427,6 +2816,9 @@
                 imgEl.onload = triggerPrintOnce;
                 imgEl.onerror = triggerPrintOnce;
                 setTimeout(triggerPrintOnce, 1400);
+            } else if (practiceConfig.upiId && payAmt <= 0 && isFeePaid) {
+                qrBox.innerHTML = "<div style='border:1px solid #059669; color:#059669; padding:6px 10px; border-radius:6px; font-weight:bold; font-size:10px;'>&#10004; PROFESSIONAL FEE PAID<br>No Fee QR Required</div>";
+                setTimeout(function() { window.print(); }, 180);
             } else {
                 qrBox.innerHTML = "<div style='font-size:10px; color:#64748b;'>Set UPI ID in &#9881; Desk for QR</div>";
                 setTimeout(function() { window.print(); }, 180);
@@ -2441,7 +2833,8 @@
                 "Total Out","Total RCM","Opening ITC","Claimed ITC",
                 "2B IGST","2B CGST","2B SGST","Recon Diff","Total Cash Due",
                 "Closing ITC Carry","Late Fees","Interest","Step 1 Status",
-                "Step 1 Date","Step 2 Status","Step 2 Date","ARN","Prof Fee Billed","Fee Status","Unpaid Fee Due","Active Notice"
+                "Step 1 Date","Step 1 ARN","Step 2 Status","Step 2 Date","Step 2 ARN",
+                "Prof Fee Billed","Fee Status","Unpaid Fee Due","Active Notice"
             ];
             var rows = [headers.join(",")];
 
@@ -2464,9 +2857,9 @@
                     '"' + stName + '"', '"' + (c.scheme || 'Monthly') + '"', '"' + activeTargetPeriod + '"',
                     outSum, rcmSum, opSum, itcSum, d.itc2bIgst || 0, d.itc2bCgst || 0, d.itc2bSgst || 0,
                     net.reconDiff, net.totalCash, net.carryCredit, net.lateFee, net.interest,
-                    '"' + (d.r1 || '') + '"', '"' + (d.r1Date || '') + '"', '"' + (d.r3b || '') + '"',
-                    '"' + (d.r3bDate || '') + '"', '"' + (d.r3bArn || '') + '"', d.feeAmount || 0,
-                    '"' + (d.feeStatus || 'Due') + '"', unpaidFee, '"' + (c.notice || '') + '"'
+                    '"' + (d.r1 || '') + '"', '"' + (d.r1Date || '') + '"', '"' + (d.r1Arn || '') + '"',
+                    '"' + (d.r3b || '') + '"', '"' + (d.r3bDate || '') + '"', '"' + (d.r3bArn || '') + '"',
+                    d.feeAmount || 0, '"' + (d.feeStatus || 'Due') + '"', unpaidFee, '"' + (c.notice || '') + '"'
                 ];
                 rows.push(cols.join(","));
             });
@@ -2515,7 +2908,8 @@
             generateFYDropdown();
             renderFinancialYearCalendar();
             renderMasterDashboard();
-            setInterval(checkDriveTokenHealth, 30000);
+            updateCloudSessionTimer();
+            setInterval(updateCloudSessionTimer, 1000);
         });
     </script>
 </body>

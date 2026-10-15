@@ -1,25 +1,33 @@
 var APP_PREFIX = 'gst_beast_pro_';
-var VERSION = 'v3.1';
+var VERSION = 'v4.0';
 var CACHE_NAME = APP_PREFIX + VERSION;
 
 var CORE_ASSETS = [
     './',
     './index.html',
     './manifest.json',
-    './Logo.png'
+    './Logo.png',
+    'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js',
+    'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js'
 ];
 
-// 1. INSTALL: Pre-cache the core PWA shell and Logo.png
+// 1. INSTALL: Pre-cache core app shell, Logo.png, and PDF.js reader
 self.addEventListener('install', function(event) {
     self.skipWaiting();
     event.waitUntil(
         caches.open(CACHE_NAME).then(function(cache) {
-            return cache.addAll(CORE_ASSETS);
+            return Promise.all(
+                CORE_ASSETS.map(function(url) {
+                    return cache.add(url).catch(function(err) {
+                        console.warn('Skipped pre-caching asset:', url, err);
+                    });
+                })
+            );
         })
     );
 });
 
-// 2. ACTIVATE: Clean up old caches belonging only to GST Beast Pro
+// 2. ACTIVATE: Remove outdated caches belonging only to GST Beast Pro
 self.addEventListener('activate', function(event) {
     event.waitUntil(
         caches.keys().then(function(keyList) {
@@ -36,40 +44,44 @@ self.addEventListener('activate', function(event) {
     );
 });
 
-// 3. FETCH: Smart routing for App Shell, Logo, QR Codes, and Google Drive API
+// 3. FETCH: Smart routing for App Shell, PDF.js, QR Codes, and Google Drive API
 self.addEventListener('fetch', function(event) {
     var req = event.request;
     var url = new URL(req.url);
 
-    // Always bypass non-GET requests (e.g. Google Drive PATCH/POST uploads)
+    // Always bypass non-GET requests (Google Drive PATCH/POST uploads)
     if (req.method !== 'GET') {
         return;
     }
 
-    // Never cache Google Drive REST API or Google Identity OAuth endpoints
+    // Never intercept Google Drive REST API or Google OAuth endpoints
     if (url.hostname.indexOf('googleapis.com') !== -1 ||
         url.hostname.indexOf('accounts.google.com') !== -1 ||
         url.hostname.indexOf('gstatic.com') !== -1) {
         return;
     }
 
-    // Cache-First with Network Fallback for UPI QR Code images
-    if (url.hostname.indexOf('api.qrserver.com') !== -1) {
+    // Cache-First with Network Fallback for CDN libraries (PDF.js) and UPI QR Codes
+    if (url.hostname.indexOf('cdnjs.cloudflare.com') !== -1 ||
+        url.hostname.indexOf('api.qrserver.com') !== -1) {
         event.respondWith(
-            caches.match(req).then(function(cachedQr) {
-                if (cachedQr) return cachedQr;
+            caches.match(req).then(function(cachedRes) {
+                if (cachedRes) return cachedRes;
                 return fetch(req).then(function(netRes) {
-                    return caches.open(CACHE_NAME).then(function(cache) {
-                        cache.put(req, netRes.clone());
-                        return netRes;
-                    });
+                    if (netRes && netRes.status === 200) {
+                        var clone = netRes.clone();
+                        caches.open(CACHE_NAME).then(function(cache) {
+                            cache.put(req, clone);
+                        });
+                    }
+                    return netRes;
                 });
             })
         );
         return;
     }
 
-    // Network-First with Offline Cache Fallback for App Shell & Logo.png
+    // Network-First with Offline Cache Fallback for App Shell (index.html, manifest.json, Logo.png)
     event.respondWith(
         fetch(req).then(function(networkResponse) {
             if (networkResponse && networkResponse.status === 200) {

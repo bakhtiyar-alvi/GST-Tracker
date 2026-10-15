@@ -1,0 +1,33 @@
+{
+  "id": "./index.html",
+  "name": "GST Beast Pro — Compliance, Recon & GSTR-9 Suite",
+  "short_name": "GST Beast Pro",
+  "description": "Offline-first Indian GST Compliance Dashboard with Rule 88A Optimizer, GSTR-2B JSON Auto-Recon, GSTR-9 Dossier PDF, and Google Drive Sync.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#070b14",
+  "theme_color": "#070b14",
+  "categories": ["finance", "business", "productivity"],
+  "icons": [
+    {
+      "src": "./Logo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./Logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./Logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

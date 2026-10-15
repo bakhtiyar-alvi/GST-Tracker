@@ -1,0 +1,2522 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GST Beast Pro - Compliance, Recon &amp; GSTR-9 Suite</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/png" href="./Logo.png">
+<link rel="apple-touch-icon" href="./Logo.png">
+    <meta name="theme-color" content="#070b14">
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('./sw.js').then(function(reg) {
+                    console.log('Service Worker Registered!', reg.scope);
+                }).catch(function(err) {
+                    console.log('Service Worker Failed: ', err);
+                });
+            });
+        }
+    </script>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+
+    <style>
+        :root {
+            --surface-dark: #070b14;
+            --surface-card: #111827;
+            --surface-elevated: #1a2438;
+            --surface-input: #0b111e;
+            --primary: #3b82f6;
+            --primary-glow: rgba(59, 130, 246, 0.25);
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --purple: #8b5cf6;
+            --cyan: #06b6d4;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border: #1e293b;
+            --border-light: #334155;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
+        body { background-color: var(--surface-dark); color: var(--text-main); padding: 18px; min-height: 100vh; overflow-x: hidden; }
+
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: var(--surface-dark); }
+        ::-webkit-scrollbar-thumb { background: var(--border-light); border-radius: 3px; }
+
+        #toast-banner {
+            position: fixed; bottom: 24px; right: 24px; z-index: 9999;
+            background: var(--surface-elevated); color: var(--text-main);
+            border: 1px solid var(--primary); border-left: 4px solid var(--primary);
+            padding: 12px 18px; border-radius: 8px; font-size: 0.85rem; font-weight: 600;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5); transform: translateY(120px);
+            opacity: 0; transition: all 0.25s ease; pointer-events: none;
+        }
+        #toast-banner.show { transform: translateY(0); opacity: 1; }
+
+        #pin-lock-overlay {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(7, 11, 20, 0.96); backdrop-filter: blur(10px);
+            z-index: 10000; display: none; align-items: center; justify-content: center; padding: 20px;
+        }
+        .pin-box {
+            background: var(--surface-card); border: 1px solid var(--border-light); border-radius: 16px;
+            padding: 28px; width: 100%; max-width: 340px; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+        }
+        .pin-input {
+            letter-spacing: 12px; font-size: 1.5rem; text-align: center; font-weight: bold;
+            margin: 16px 0; padding: 12px; border: 2px solid var(--primary); border-radius: 8px;
+        }
+
+        .workspace-grid { display: grid; grid-template-columns: 375px 1fr; gap: 20px; max-width: 1860px; margin: 0 auto; align-items: start; }
+        .sidebar { display: flex; flex-direction: column; gap: 16px; }
+        .panel-card { background-color: var(--surface-card); border: 1px solid var(--border); border-radius: 12px; padding: 18px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2); }
+
+        .brand-header {
+            display: flex; align-items: center; justify-content: space-between;
+            background: linear-gradient(135deg, rgba(30,41,59,0.7), rgba(15,23,42,0.9));
+            border: 1px solid var(--border-light); border-radius: 12px; padding: 14px 16px;
+        }
+        .brand-left { display: flex; align-items: center; gap: 12px; }
+
+        h2 { font-size: 1rem; font-weight: 700; margin-bottom: 14px; display: flex; align-items: center; justify-content: space-between; color: var(--text-main); }
+        .form-group { margin-bottom: 11px; }
+        label { display: flex; justify-content: space-between; align-items: center; font-size: 0.76rem; color: var(--text-muted); margin-bottom: 4px; font-weight: 600; }
+        input, select, textarea {
+            width: 100%; background-color: var(--surface-input); border: 1px solid var(--border);
+            border-radius: 6px; padding: 9px 10px; color: white; font-size: 0.85rem; transition: all 0.2s;
+        }
+        input:focus, select:focus, textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 2px var(--primary-glow); outline: none; }
+
+        .split-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+        .split-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; }
+
+        button { width: 100%; padding: 9px 12px; font-size: 0.85rem; font-weight: 600; border: none; border-radius: 6px; cursor: pointer; transition: all 0.18s; }
+        .btn-primary { background: linear-gradient(135deg, #3b82f6, #2563eb); color: white; }
+        .btn-primary:hover { filter: brightness(1.1); }
+        .btn-success { background: linear-gradient(135deg, #10b981, #059669); color: #041f14; font-weight: 700; }
+        .btn-chip {
+            width: auto; padding: 3px 8px; font-size: 0.68rem; border-radius: 4px;
+            background: rgba(59, 130, 246, 0.15); color: #93c5fd; border: 1px solid rgba(59, 130, 246, 0.35);
+        }
+        .btn-chip:hover { background: var(--primary); color: #fff; }
+
+        .fy-matrix-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-top: 10px; }
+        .fy-month-block {
+            background-color: var(--surface-input); border: 1px solid var(--border);
+            border-radius: 6px; padding: 7px 4px; text-align: center; font-size: 0.76rem;
+            cursor: pointer; transition: all 0.18s;
+        }
+        .fy-month-block:hover { border-color: var(--text-muted); transform: translateY(-1px); }
+        .fy-month-block.active-month { border-color: var(--primary); background-color: rgba(59, 130, 246, 0.15); font-weight: 700; }
+        .micro-indicator-row { display: flex; justify-content: center; gap: 4px; margin-top: 3px; font-size: 0.62rem; font-weight: 600; }
+        .dot-pending { color: var(--warning); }
+        .dot-clean { color: var(--success); }
+
+        .main-window { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+        .summary-banner { display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; }
+        .summary-card {
+            background-color: var(--surface-card); border-left: 4px solid var(--primary);
+            padding: 13px 14px; border-radius: 10px; border-top: 1px solid var(--border);
+            border-right: 1px solid var(--border); border-bottom: 1px solid var(--border);
+        }
+        .summary-label { font-size: 0.68rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; }
+        .summary-val { font-size: 1.35rem; font-weight: 800; margin-top: 4px; }
+
+        .toolbar-card {
+            background-color: var(--surface-card); border: 1px solid var(--border);
+            border-radius: 10px; padding: 12px 16px; display: flex; flex-direction: column; gap: 10px;
+        }
+        .header-bar { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+        .search-filter { display: flex; gap: 8px; flex: 1; min-width: 280px; }
+        .filter-pills { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+        .pill {
+            padding: 5px 11px; border-radius: 20px; font-size: 0.73rem; font-weight: 600;
+            background: var(--surface-input); color: var(--text-muted); border: 1px solid var(--border);
+            cursor: pointer; width: auto;
+        }
+        .pill.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+
+        .table-container { background-color: var(--surface-card); border: 1px solid var(--border); border-radius: 12px; overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.84rem; min-width: 1180px; }
+        th { background-color: rgba(0,0,0,0.3); padding: 12px 14px; color: var(--text-muted); font-weight: 700; font-size: 0.74rem; text-transform: uppercase; border-bottom: 1px solid var(--border); }
+        td { padding: 13px 14px; border-bottom: 1px solid var(--border); vertical-align: top; }
+        tr:hover td { background-color: rgba(255,255,255,0.015); }
+
+        .gstin-mono { font-family: monospace; font-size: 0.8rem; color: #cbd5e1; font-weight: 600; }
+        .state-pill { font-size: 0.65rem; background: rgba(6, 182, 212, 0.15); color: #67e8f9; border: 1px solid rgba(6, 182, 212, 0.3); padding: 1px 6px; border-radius: 4px; margin-left: 4px; }
+        .credential-bar {
+            display: inline-flex; align-items: center; gap: 6px; flex-wrap: wrap;
+            font-family: monospace; background: var(--surface-input); padding: 4px 8px;
+            border-radius: 6px; font-size: 0.75rem; margin-top: 6px; border: 1px solid var(--border);
+        }
+        .copy-chip {
+            cursor: pointer; color: #93c5fd; font-size: 0.7rem; padding: 1px 5px;
+            border-radius: 3px; background: rgba(59,130,246,0.12); user-select: none;
+        }
+        .copy-chip:hover { background: var(--primary); color: white; }
+
+        .segment-tag {
+            display: inline-block; background: rgba(139, 92, 246, 0.15); color: #c4b5fd;
+            padding: 2px 7px; border-radius: 10px; font-size: 0.63rem; font-weight: 700;
+            margin-right: 4px; margin-top: 5px; border: 1px solid rgba(139, 92, 246, 0.3); text-transform: uppercase;
+        }
+        .notice-tag {
+            display: inline-block; background: rgba(239, 68, 68, 0.18); color: #fca5a5;
+            padding: 3px 8px; border-radius: 6px; font-size: 0.68rem; font-weight: 700;
+            margin-top: 5px; border: 1px solid var(--danger);
+        }
+
+        .badge {
+            display: inline-block; padding: 4px 9px; font-size: 0.73rem; font-weight: 700;
+            border-radius: 5px; cursor: pointer; text-align: center; min-width: 105px; user-select: none;
+        }
+        .badge-pending { background-color: rgba(239, 68, 68, 0.15); color: #fca5a5; border: 1px solid var(--danger); }
+        .badge-filed { background-color: rgba(16, 185, 129, 0.15); color: #6ee7b7; border: 1px solid var(--success); }
+
+        .ledger-box { font-size: 0.74rem; line-height: 1.45; background-color: var(--surface-input); padding: 7px 9px; border-radius: 6px; border: 1px solid var(--border); }
+        .action-row { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; }
+        .btn-inline { background: var(--surface-input); color: var(--text-muted); font-size: 0.72rem; padding: 5px 8px; border: 1px solid var(--border); width: auto; border-radius: 5px; }
+        .btn-inline:hover { color: white; border-color: var(--text-muted); }
+        .btn-print { border-color: var(--primary); color: #93c5fd; }
+        .btn-whatsapp { border-color: var(--success); color: #6ee7b7; }
+        .btn-gstr9 { border-color: var(--purple); color: #c4b5fd; }
+        .btn-waiver { border-color: var(--warning); color: var(--warning); font-size: 0.68rem; padding: 2px 6px; margin-top: 4px; }
+
+        .date-edit, .arn-edit {
+            background-color: var(--surface-input); border: 1px solid var(--border);
+            color: var(--text-main); border-radius: 4px; padding: 2px 5px; font-size: 0.69rem;
+            width: 112px; margin-top: 4px; outline: none;
+        }
+        .arn-edit { width: 118px; font-family: monospace; }
+        .date-edit::-webkit-calendar-picker-indicator { filter: invert(1); cursor: pointer; }
+        .recon-alert { font-size: 0.69rem; font-weight: 700; padding: 3px 7px; border-radius: 4px; margin-top: 4px; display: inline-block; }
+
+        /* Modals & Detailed GSTR-9 Dossier Styling */
+        .modal-backdrop {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(7, 11, 20, 0.88); backdrop-filter: blur(6px);
+            z-index: 9000; display: none; align-items: center; justify-content: center; padding: 14px;
+        }
+        .modal-card {
+            background: var(--surface-card); border: 1px solid var(--border-light); border-radius: 14px;
+            width: 100%; max-width: 1220px; max-height: 92vh; overflow-y: auto; padding: 22px;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.65);
+        }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 12px; margin-bottom: 16px; flex-wrap: wrap; gap: 10px; }
+        .modal-close { width: auto; background: transparent; border: 1px solid var(--border); color: var(--text-muted); padding: 6px 12px; }
+
+        .gstr9-kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 16px; }
+        .gstr9-kpi-box { background: var(--surface-input); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; }
+        .gstr9-section-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin-bottom: 16px; }
+        .gstr9-panel { background: var(--surface-input); border: 1px solid var(--border); border-radius: 10px; padding: 12px; overflow-x: auto; }
+        .gstr9-panel h3 { font-size: 0.84rem; color: #93c5fd; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.4px; }
+        .gstr9-mini-table { width: 100%; min-width: 440px; border-collapse: collapse; font-size: 0.78rem; }
+        .gstr9-mini-table th, .gstr9-mini-table td { padding: 7px 8px; border-bottom: 1px solid var(--border); text-align: right; }
+        .gstr9-mini-table th:first-child, .gstr9-mini-table td:first-child { text-align: left; }
+
+        details.form-accordion {
+            border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px;
+            margin-bottom: 10px; background: rgba(255,255,255,0.01);
+        }
+        details.form-accordion summary {
+            font-size: 0.78rem; font-weight: 700; cursor: pointer; color: var(--primary);
+            list-style: none; display: flex; justify-content: space-between; align-items: center;
+        }
+        details.form-accordion[open] summary { margin-bottom: 8px; }
+
+        @media (max-width: 1240px) {
+            .workspace-grid { grid-template-columns: 1fr; }
+            .sidebar { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); }
+            .brand-header { grid-column: 1 / -1; }
+            .summary-banner { grid-template-columns: repeat(3, 1fr); }
+            .gstr9-section-grid { grid-template-columns: 1fr; }
+            .gstr9-kpi-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 768px) {
+            body { padding: 10px; }
+            .summary-banner { grid-template-columns: repeat(2, 1fr); }
+            .search-filter { flex-direction: column; width: 100%; }
+            #master-table, #master-table thead, #master-table tbody, #master-table th, #master-table td, #master-table tr { display: block; min-width: 100%; }
+            #master-table thead tr { display: none; }
+            #master-table tbody tr {
+                border: 1px solid var(--border-light); border-radius: 10px;
+                margin-bottom: 12px; padding: 10px; background: var(--surface-card);
+            }
+            #master-table td { border-bottom: 1px dashed var(--border); padding: 8px 4px; }
+            #master-table td:last-child { border-bottom: none; }
+        }
+        @media (max-width: 480px) {
+            .split-3, .split-2, .gstr9-kpi-grid { grid-template-columns: 1fr; }
+        }
+
+        /* DUAL PRINT ENGINE (Challan PDF vs GSTR-9 Annual Dossier PDF) */
+        #print-area, #print-gstr9-area { display: none; }
+        @media print {
+            body { background: white !important; color: black !important; padding: 0 !important; margin: 0 !important; }
+            .workspace-grid, .modal-backdrop, #toast-banner, #pin-lock-overlay { display: none !important; }
+
+            body:not(.print-mode-gstr9) #print-area { display: block !important; padding: 24px; font-family: Arial, sans-serif; color: #111; }
+            body.print-mode-gstr9 #print-gstr9-area { display: block !important; padding: 20px; font-family: Arial, sans-serif; color: #111; }
+
+            .print-header { border-bottom: 2px solid #0f172a; padding-bottom: 12px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; }
+            .print-header h1 { margin: 0; font-size: 19px; text-transform: uppercase; color: #0f172a; }
+            .print-details { display: flex; justify-content: space-between; margin-bottom: 14px; font-size: 12px; line-height: 1.5; background: #f8fafc; padding: 10px 12px; border: 1px solid #cbd5e1; }
+            .print-table { width: 100%; border-collapse: collapse; margin-bottom: 14px; font-size: 11.5px; min-width: 100%; }
+            .print-table th, .print-table td { border: 1px solid #94a3b8; padding: 6px 8px; text-align: right; display: table-cell; }
+            .print-table th:first-child, .print-table td:first-child { text-align: left; }
+            .print-table tr { display: table-row; }
+            .print-table thead { display: table-header-group; }
+            .print-table tbody { display: table-row-group; }
+            .print-table th { background: #e2e8f0 !important; text-align: center; font-weight: bold; color: #0f172a; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .print-total { font-weight: bold; font-size: 1.04em; background: #e0f2fe !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .print-section-title { font-size: 12.5px; font-weight: bold; text-transform: uppercase; background: #0f172a !important; color: #fff !important; padding: 5px 10px; margin: 12px 0 6px 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .print-footer-grid { display: flex; justify-content: space-between; align-items: center; margin-top: 16px; padding-top: 12px; border-top: 1px dashed #94a3b8; page-break-inside: avoid; }
+            .print-warning { color: #334155; font-size: 10.5px; line-height: 1.45; max-width: 65%; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="toast-banner">Action Completed</div>
+
+    <div id="pin-lock-overlay">
+        <div class="pin-box">
+            <h2 style="justify-content:center; margin-bottom:6px;">GST Beast Pro Locked</h2>
+            <p style="font-size:0.8rem; color:var(--text-muted);">Enter your 4-digit practice PIN to unlock client credentials and ledgers.</p>
+            <input type="password" id="pin-unlock-input" class="pin-input" maxlength="4" placeholder="****" oninput="checkPinUnlock(false)">
+            <button type="button" class="btn-primary" onclick="checkPinUnlock(true)">Unlock Workspace</button>
+        </div>
+    </div>
+
+    <div class="workspace-grid">
+        <!-- LEFT SIDEBAR -->
+        <div class="sidebar">
+            <div class="brand-header">
+                <div class="brand-left">
+                    <img src="./Logo.png" alt="GST Beast Pro" style="width:44px; height:44px; border-radius:10px; object-fit:cover;">
+                    <div>
+                        <div style="font-size: 1.15rem; font-weight: 800;">GST Beast Pro</div>
+                        <div style="font-size: 0.7rem; color: var(--success); font-weight: 700;">Rule 88A &bull; GSTR-9 PDF Engine</div>
+                    </div>
+                </div>
+                <button type="button" class="btn-inline" onclick="openSettingsModal()">&#9881; Desk</button>
+            </div>
+
+            <div class="panel-card">
+                <h2>
+                    <span>Financial Year Matrix</span>
+                    <span id="active-fy-pill" style="font-size:0.72rem; color:var(--primary);"></span>
+                </h2>
+                <div class="form-group" style="margin-bottom:8px;">
+                    <select id="global-fy-select" onchange="handleFYChange()"></select>
+                </div>
+                <div class="fy-matrix-grid" id="fy-calendar-matrix"></div>
+            </div>
+
+            <div class="panel-card">
+                <h2>
+                    <span id="form-title">Client &amp; Return Entry</span>
+                    <button type="button" class="btn-chip" onclick="document.getElementById('portal-json-input').click()">Import Portal JSON</button>
+                </h2>
+                <input type="file" id="portal-json-input" accept=".json" style="display:none;" onchange="handlePortalJsonImport(event)">
+                <input type="hidden" id="editing-client-id" value="">
+
+                <div class="split-2">
+                    <div class="form-group">
+                        <label>Trade Name *</label>
+                        <input type="text" id="client-name" placeholder="Apex Logistics Pvt Ltd">
+                    </div>
+                    <div class="form-group">
+                        <label>WhatsApp Mobile</label>
+                        <input type="tel" id="client-phone" placeholder="10-digit Mobile" maxlength="10">
+                    </div>
+                </div>
+
+                <div class="split-2">
+                    <div class="form-group">
+                        <label>
+                            <span>GSTIN *</span>
+                            <span id="gstin-state-badge" style="font-size:0.66rem; color:var(--cyan);"></span>
+                        </label>
+                        <input type="text" id="client-gstin" placeholder="09AAAAA0000A1Z5" maxlength="15" oninput="validateGSTIN()">
+                        <div id="gstin-error" style="color:var(--danger); font-size:0.7rem; display:none; margin-top:3px;">Invalid GSTIN format</div>
+                    </div>
+                    <div class="form-group">
+                        <label>Filing Scheme</label>
+                        <select id="client-scheme" onchange="handleSchemeUI()">
+                            <option value="Monthly" selected>Monthly (Regular)</option>
+                            <option value="QRMP">QRMP (Quarterly)</option>
+                            <option value="Composition">Composition (CMP-08)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group" style="border: 1px dashed var(--border-light); padding: 9px; border-radius: 8px;">
+                    <label style="color:var(--primary);">
+                        <span>Output Tax Liability (GSTR-1 / 3B)</span>
+                        <button type="button" class="btn-chip" onclick="clonePrevMonthFigures()">Clone Prev Fee</button>
+                    </label>
+                    <div class="split-3">
+                        <input type="number" id="out-igst" placeholder="IGST" min="0" step="0.01">
+                        <input type="number" id="out-cgst" placeholder="CGST" min="0" step="0.01">
+                        <input type="number" id="out-sgst" placeholder="SGST" min="0" step="0.01">
+                    </div>
+                    <label style="color:var(--danger); margin-top:8px;">RCM Liability (Mandatory Cash Ledger)</label>
+                    <div class="split-3">
+                        <input type="number" id="rcm-igst" placeholder="RCM IGST" min="0" step="0.01">
+                        <input type="number" id="rcm-cgst" placeholder="RCM CGST" min="0" step="0.01">
+                        <input type="number" id="rcm-sgst" placeholder="RCM SGST" min="0" step="0.01">
+                    </div>
+                </div>
+
+                <div class="form-group" id="itc-section-box" style="border: 1px dashed var(--success); padding: 9px; border-radius: 8px;">
+                    <label style="color:var(--cyan);">
+                        <span>Auto-Populated GSTR-2B Available</span>
+                        <button type="button" class="btn-chip" onclick="copy2BTo3BClaimed()">Copy 2B &rarr; 3B</button>
+                    </label>
+                    <div class="split-3" style="margin-bottom:8px;">
+                        <input type="number" id="itc-2b-igst" placeholder="2B IGST" min="0" step="0.01">
+                        <input type="number" id="itc-2b-cgst" placeholder="2B CGST" min="0" step="0.01">
+                        <input type="number" id="itc-2b-sgst" placeholder="2B SGST" min="0" step="0.01">
+                    </div>
+                    <label style="color:var(--success);">Eligible ITC Claimed This Month (GSTR-3B)</label>
+                    <div class="split-3">
+                        <input type="number" id="itc-igst" placeholder="3B IGST" min="0" step="0.01">
+                        <input type="number" id="itc-cgst" placeholder="3B CGST" min="0" step="0.01">
+                        <input type="number" id="itc-sgst" placeholder="3B SGST" min="0" step="0.01">
+                    </div>
+                </div>
+
+                <div class="split-2">
+                    <div class="form-group">
+                        <label>Portal Username</label>
+                        <input type="text" id="portal-user" placeholder="GST Portal ID">
+                    </div>
+                    <div class="form-group">
+                        <label>Portal Password</label>
+                        <input type="text" id="portal-pass" placeholder="Password">
+                    </div>
+                </div>
+
+                <div class="split-2">
+                    <div class="form-group">
+                        <label>Professional Fee (&#8377;)</label>
+                        <input type="number" id="client-fee" placeholder="Monthly Retainer" min="0">
+                    </div>
+                    <div class="form-group">
+                        <label>Fee Status</label>
+                        <select id="fee-status">
+                            <option value="Due" selected>Payment Due</option>
+                            <option value="Paid">Payment Cleared</option>
+                        </select>
+                    </div>
+                </div>
+
+                <details class="form-accordion">
+                    <summary>Onboarding ITC, Notices, Logo &amp; Tags &#9662;</summary>
+                    <div class="form-group">
+                        <label style="color:var(--cyan);">Initial Credit Ledger Opening Balance (One-Time Seed)</label>
+                        <div class="split-3">
+                            <input type="number" id="init-itc-igst" placeholder="Op. IGST" min="0">
+                            <input type="number" id="init-itc-cgst" placeholder="Op. CGST" min="0">
+                            <input type="number" id="init-itc-sgst" placeholder="Op. SGST" min="0">
+                        </div>
+                    </div>
+                    <div class="split-2">
+                        <div class="form-group">
+                            <label>Active Notice / Refund</label>
+                            <input type="text" id="client-notice" placeholder="RFD-01 / DRC-01 / ASMT-10">
+                        </div>
+                        <div class="form-group">
+                            <label>Segments (Comma sep)</label>
+                            <input type="text" id="client-tags" placeholder="VIP, Pharma, Audit">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Custom Logo (Auto-Compressed)</label>
+                        <input type="file" id="client-logo" accept="image/*" onchange="encodeImageFileAsURL(this)" style="padding:4px; font-size:0.72rem;">
+                        <input type="hidden" id="client-logo-base64" value="">
+                        <div id="logo-preview" style="margin-top:6px; display:none;"></div>
+                        <button id="remove-logo-btn" class="btn-inline" style="color:var(--danger); border-color:var(--danger); font-size:0.65rem; padding:2px 6px; margin-top:4px; display:none;" onclick="removeClientLogo()" type="button">Remove Logo</button>
+                    </div>
+                </details>
+
+                <div class="form-group">
+                    <label>Monthly Compliance Notes / Pending Docs</label>
+                    <textarea id="month-notes" rows="2" placeholder="Purchase invoices awaited, 2B mismatch..." style="resize:none;"></textarea>
+                </div>
+
+                <button type="button" class="btn-primary" id="save-btn" onclick="processClientSubmission()">Save Client &amp; Period Ledger</button>
+                <button type="button" class="btn-inline" id="cancel-edit-btn" style="margin-top:6px; display:none; width:100%; text-align:center;" onclick="clearForm()">Cancel Edit</button>
+            </div>
+
+            <div class="panel-card">
+                <h2><span>Backup &amp; Google Drive Sync</span></h2>
+                <div class="split-2" style="margin-bottom:8px;">
+                    <button type="button" class="btn-success" onclick="exportMasterWorkbook()">Export CSV</button>
+                    <button type="button" class="btn-inline" onclick="backupSystemDatabase()" style="color:var(--cyan); border-color:var(--cyan);">Backup JSON</button>
+                </div>
+                <button type="button" class="btn-inline" onclick="document.getElementById('import-file-input').click()" style="width:100%; margin-bottom:10px; color:var(--primary); border-color:var(--primary);">Restore JSON Database File</button>
+                <input type="file" id="import-file-input" accept=".json" onchange="restoreSystemDatabase(event)" style="display:none;">
+
+                <div style="border-top: 1px solid var(--border); padding-top: 12px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                        <span style="font-size:0.78rem; font-weight:700; color:var(--primary);">Google Drive Cloud</span>
+                        <span id="cloud-status" style="font-size:0.72rem; color:var(--text-muted);">Offline</span>
+                    </div>
+                    <div class="split-3">
+                        <button type="button" class="btn-inline" style="color:var(--primary); border-color:var(--primary);" onclick="initializeGoogleAuth()">Connect</button>
+                        <button type="button" class="btn-inline" style="color:var(--warning); border-color:var(--warning);" onclick="forceBackupToDrive()">Push</button>
+                        <button type="button" class="btn-inline" style="color:var(--success); border-color:var(--success);" onclick="restoreFromDrive()">Pull</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT MAIN WORKSPACE -->
+        <div class="main-window">
+            <div class="summary-banner">
+                <div class="summary-card" style="border-left-color: var(--primary);">
+                    <div class="summary-label">Active Clients</div>
+                    <div id="stat-total" class="summary-val">0</div>
+                </div>
+                <div class="summary-card" style="border-left-color: var(--warning);">
+                    <div class="summary-label">Step 1 Pending (R1/IFF)</div>
+                    <div id="stat-r1" class="summary-val" style="color: var(--warning);">0</div>
+                </div>
+                <div class="summary-card" style="border-left-color: var(--danger);">
+                    <div class="summary-label">Step 2 Pending (3B/PMT)</div>
+                    <div id="stat-3b" class="summary-val" style="color: var(--danger);">0</div>
+                </div>
+                <div class="summary-card" style="border-left-color: var(--cyan);">
+                    <div class="summary-label">2B Recon Mismatches</div>
+                    <div id="stat-recon" class="summary-val" style="color: var(--cyan);">0</div>
+                </div>
+                <div class="summary-card" style="border-left-color: var(--success);">
+                    <div class="summary-label">Net Cash Tax Payable</div>
+                    <div id="stat-cash" class="summary-val" style="color: var(--success);">&#8377;0</div>
+                </div>
+                <div class="summary-card" style="border-left-color: var(--purple);">
+                    <div class="summary-label">Uncollected Fees</div>
+                    <div id="stat-fees" class="summary-val" style="color: var(--purple);">&#8377;0</div>
+                </div>
+            </div>
+
+            <div class="toolbar-card">
+                <div class="header-bar">
+                    <div class="search-filter">
+                        <input type="text" id="search-bar" placeholder="Search trade name, GSTIN, PAN, state, notice, or tag..." oninput="renderMasterDashboard()">
+                        <select id="sort-select" onchange="renderMasterDashboard()" style="max-width: 220px;">
+                            <option value="NAME_ASC">Sort: Trade Name (A-Z)</option>
+                            <option value="CASH_DESC">Sort: Cash Tax (High-Low)</option>
+                            <option value="FEE_DESC">Sort: Unpaid Fee First</option>
+                            <option value="PENDING_FIRST">Sort: Pending Filings First</option>
+                        </select>
+                    </div>
+                    <div style="font-size: 0.85rem; font-weight: 700; background: var(--surface-input); padding: 8px 14px; border-radius: 6px; border: 1px solid var(--border); white-space: nowrap;">
+                        Period: <span id="current-view-badge" style="color: var(--primary);">--</span>
+                    </div>
+                </div>
+                <div class="filter-pills">
+                    <button type="button" class="pill active" data-filter="ALL" onclick="setFilterPill('ALL')">All Accounts</button>
+                    <button type="button" class="pill" data-filter="R1_PENDING" onclick="setFilterPill('R1_PENDING')">R1 / IFF Pending</button>
+                    <button type="button" class="pill" data-filter="3B_PENDING" onclick="setFilterPill('3B_PENDING')">3B / PMT Pending</button>
+                    <button type="button" class="pill" data-filter="OVERDUE" onclick="setFilterPill('OVERDUE')">Overdue Today</button>
+                    <button type="button" class="pill" data-filter="RECON_MISMATCH" onclick="setFilterPill('RECON_MISMATCH')">2B Mismatch</button>
+                    <button type="button" class="pill" data-filter="CASH_LIABLE" onclick="setFilterPill('CASH_LIABLE')">Cash Payable</button>
+                    <button type="button" class="pill" data-filter="FEE_DUE" onclick="setFilterPill('FEE_DUE')">Fee Unpaid</button>
+                    <button type="button" class="pill" data-filter="HAS_NOTICE" onclick="setFilterPill('HAS_NOTICE')">Active Notice/Refund</button>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <table id="master-table">
+                    <thead>
+                        <tr>
+                            <th width="22%">Client Profile &amp; Credentials</th>
+                            <th width="18%">Output &amp; RCM Liability</th>
+                            <th width="20%">Rule 88A ITC &amp; 2B Recon</th>
+                            <th width="20%">Filing Workflow &amp; Sec 47</th>
+                            <th width="20%">Net Cash, Billing &amp; Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="table-body"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 1: DETAILED GSTR-9 WORKING DOSSIER (TABLES 4, 6, 8, 9 & 12-MONTH SCHEDULE) -->
+    <div class="modal-backdrop" id="gstr9-modal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <div>
+                    <h2 id="gstr9-title" style="margin-bottom:2px;">GSTR-9 Annual Working Dossier</h2>
+                    <div id="gstr9-subtitle" style="font-size:0.78rem; color:var(--text-muted);">Comprehensive Table 4, 6, 8, 9 &amp; 12-Month Recon</div>
+                </div>
+                <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+                    <select id="gstr9-fy-select" onchange="refreshActiveGstr9Modal()" style="width:auto; padding:6px 10px; font-size:0.8rem;"></select>
+                    <button type="button" class="btn-primary" style="width:auto; padding:7px 14px;" onclick="printGstr9Dossier()">&#128424; Download / Print GSTR-9 PDF</button>
+                    <button type="button" class="modal-close" onclick="closeModal('gstr9-modal')">Close</button>
+                </div>
+            </div>
+
+            <div id="gstr9-kpi-container" class="gstr9-kpi-grid"></div>
+
+            <div class="gstr9-section-grid">
+                <div class="gstr9-panel">
+                    <h3>Table 4: Outward &amp; Reverse Charge Supplies (&#8377;)</h3>
+                    <table class="gstr9-mini-table">
+                        <thead>
+                            <tr><th>Description</th><th>IGST</th><th>CGST</th><th>SGST</th><th>Total</th></tr>
+                        </thead>
+                        <tbody id="gstr9-t4-body"></tbody>
+                    </table>
+                </div>
+
+                <div class="gstr9-panel">
+                    <h3>Table 6: ITC Availed &amp; Rule 88A Set-Off (&#8377;)</h3>
+                    <table class="gstr9-mini-table">
+                        <thead>
+                            <tr><th>Description</th><th>IGST</th><th>CGST</th><th>SGST</th><th>Total</th></tr>
+                        </thead>
+                        <tbody id="gstr9-t6-body"></tbody>
+                    </table>
+                </div>
+
+                <div class="gstr9-panel">
+                    <h3>Table 8: GSTR-2B vs GSTR-3B Annual Recon (&#8377;)</h3>
+                    <table class="gstr9-mini-table">
+                        <thead>
+                            <tr><th>Description</th><th>IGST</th><th>CGST</th><th>SGST</th><th>Total</th></tr>
+                        </thead>
+                        <tbody id="gstr9-t8-body"></tbody>
+                    </table>
+                </div>
+
+                <div class="gstr9-panel">
+                    <h3>Table 9: Tax Paid Split (ITC vs Cash) &amp; Late Fees (&#8377;)</h3>
+                    <table class="gstr9-mini-table">
+                        <thead>
+                            <tr><th>Description</th><th>IGST</th><th>CGST</th><th>SGST</th><th>Total</th></tr>
+                        </thead>
+                        <tbody id="gstr9-t9-body"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="gstr9-panel">
+                <h3>12-Month Compliance, Filing ARN &amp; Fee Ledger (April – March)</h3>
+                <div style="overflow-x:auto;">
+                    <table style="min-width:980px; font-size:0.78rem;">
+                        <thead>
+                            <tr>
+                                <th>Period</th>
+                                <th>Step 1 (R1/IFF)</th>
+                                <th>Step 2 (3B/PMT) &amp; ARN</th>
+                                <th>Output Tax (&#8377;)</th>
+                                <th>RCM Cash (&#8377;)</th>
+                                <th>3B ITC (&#8377;)</th>
+                                <th>2B ITC (&#8377;)</th>
+                                <th>2B vs 3B Diff</th>
+                                <th>Cash Tax Paid</th>
+                                <th>Late Fee/Int</th>
+                                <th>Retainer Fee</th>
+                            </tr>
+                        </thead>
+                        <tbody id="gstr9-tbody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 2: WHATSAPP DISPATCHER -->
+    <div class="modal-backdrop" id="wa-modal">
+        <div class="modal-card" style="max-width: 520px;">
+            <div class="modal-header">
+                <h2 style="margin-bottom:0;">WhatsApp Client Broadcast</h2>
+                <button type="button" class="modal-close" onclick="closeModal('wa-modal')">Close</button>
+            </div>
+            <input type="hidden" id="wa-client-id">
+            <div class="form-group">
+                <label>Select Message Template</label>
+                <div class="split-3" style="margin-bottom:10px;">
+                    <button type="button" class="btn-inline" onclick="buildWhatsAppTemplate('DATA')">1. Data Reminder</button>
+                    <button type="button" class="btn-inline" onclick="buildWhatsAppTemplate('CHALLAN')">2. Tax Challan</button>
+                    <button type="button" class="btn-inline" onclick="buildWhatsAppTemplate('FILED')">3. Filed + Fee</button>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Message Preview (Editable before sending)</label>
+                <textarea id="wa-message-preview" rows="8"></textarea>
+            </div>
+            <button type="button" class="btn-success" onclick="launchWhatsAppWindow()">Send via WhatsApp</button>
+        </div>
+    </div>
+
+    <!-- MODAL 3: PRACTICE DESK & UPI QR SETTINGS -->
+    <div class="modal-backdrop" id="settings-modal">
+        <div class="modal-card" style="max-width: 480px;">
+            <div class="modal-header">
+                <h2 style="margin-bottom:0;">Practice Desk &amp; UPI QR Settings</h2>
+                <button type="button" class="modal-close" onclick="closeModal('settings-modal')">Close</button>
+            </div>
+            <div class="form-group">
+                <label>Firm / Practice Name (Printed on PDF Challans &amp; GSTR-9)</label>
+                <input type="text" id="setting-firm-name" placeholder="Tax Compliance Desk">
+            </div>
+            <div class="form-group">
+                <label>Firm UPI ID (Generates Scan-to-Pay QR on PDF Challan)</label>
+                <input type="text" id="setting-upi-id" placeholder="yourname@okaxis">
+            </div>
+            <div class="form-group">
+                <label>UPI QR Code Amount Mode on PDF</label>
+                <select id="setting-qr-mode">
+                    <option value="TOTAL">Collect Total Balance Payable (Tax + Unpaid Fee)</option>
+                    <option value="FEE_ONLY">Collect Unpaid Professional Fee Only</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>4-Digit App Startup PIN (Leave blank to disable PIN lock)</label>
+                <input type="password" id="setting-app-pin" maxlength="4" placeholder="1234">
+            </div>
+            <button type="button" class="btn-primary" onclick="savePracticeSettings()">Save Practice Settings</button>
+        </div>
+    </div>
+
+    <!-- PRINT AREA 1: MONTHLY TAX COMPUTATION & BILLING CHALLAN -->
+    <div id="print-area">
+        <div class="print-header">
+            <div id="print-logo-container"></div>
+            <div style="text-align:right;">
+                <h1>GST Tax Computation &amp; Billing Challan</h1>
+                <p id="print-firm-title" style="font-size:12.5px; color:#475569;">Generated by GST Compliance Pro Engine</p>
+            </div>
+        </div>
+        <div class="print-details">
+            <div>
+                <strong>Client Trade Name:</strong> <span id="print-name">--</span><br>
+                <strong>GSTIN:</strong> <span id="print-gstin">--</span> | <strong>Scheme:</strong> <span id="print-scheme">--</span><br>
+                <strong>Filing Status:</strong> <span id="print-status-line">--</span>
+            </div>
+            <div style="text-align: right;">
+                <strong>Tax Period:</strong> <span id="print-period">--</span><br>
+                <strong>Statement Date:</strong> <span id="print-date">--</span><br>
+                <strong>ARN / Reference:</strong> <span id="print-arn">--</span>
+            </div>
+        </div>
+        <table class="print-table">
+            <thead>
+                <tr>
+                    <th style="text-align:left;">Particulars (Head-Wise Rule 88A Computation)</th>
+                    <th>IGST (&#8377;)</th>
+                    <th>CGST (&#8377;)</th>
+                    <th>SGST (&#8377;)</th>
+                    <th>Total (&#8377;)</th>
+                </tr>
+            </thead>
+            <tbody id="print-table-body"></tbody>
+        </table>
+        <div class="print-footer-grid">
+            <div class="print-warning">
+                * <strong>Rule 88A Set-Off Applied:</strong> IGST credit is completely exhausted first before utilizing CGST or SGST credits.<br>
+                * <strong>RCM Liability:</strong> Reverse Charge liabilities must be discharged strictly via Electronic Cash Ledger.<br>
+                * <strong>Professional Fee Deduction:</strong> If the monthly retainer is marked <em>Paid</em>, &#8377;0 is added to the Net Balance Payable.
+            </div>
+            <div id="print-upi-qr-box" style="text-align:center; min-width:140px;"></div>
+        </div>
+    </div>
+
+    <!-- PRINT AREA 2: GSTR-9 ANNUAL WORKING DOSSIER PDF -->
+    <div id="print-gstr9-area"></div>
+    <script>
+        var GOOGLE_CLIENT_ID = "1090891293641-vr4iba4fi7sooc58g5rgn69ek6sd9odl.apps.googleusercontent.com";
+
+        var db = [];
+        try {
+            db = JSON.parse(localStorage.getItem('gst_beast_db')) || [];
+        } catch (e) { db = []; }
+
+        var practiceConfig = { firmName: "Tax Compliance Desk", upiId: "", qrMode: "TOTAL", appPin: "" };
+        try {
+            var savedCfg = JSON.parse(localStorage.getItem('gst_beast_config'));
+            if (savedCfg) {
+                practiceConfig.firmName = savedCfg.firmName || "Tax Compliance Desk";
+                practiceConfig.upiId = savedCfg.upiId || "";
+                practiceConfig.qrMode = savedCfg.qrMode || "TOTAL";
+                practiceConfig.appPin = savedCfg.appPin || "";
+            }
+        } catch (e) {}
+
+        var gDriveAccessToken = null;
+        var gDriveTokenExpiry = 0;
+        var gDriveFileId = localStorage.getItem('gst_drive_file_id');
+        var syncTimeout = null;
+        var activeFilterPill = 'ALL';
+        var revealedPasswords = {};
+        var activeGstr9ClientId = null;
+
+        var GST_STATE_MAP = {
+            "01": "Jammu & Kashmir", "02": "Himachal Pradesh", "03": "Punjab", "04": "Chandigarh",
+            "05": "Uttarakhand", "06": "Haryana", "07": "Delhi", "08": "Rajasthan",
+            "09": "Uttar Pradesh", "10": "Bihar", "11": "Sikkim", "12": "Arunachal Pradesh",
+            "13": "Nagaland", "14": "Manipur", "15": "Mizoram", "16": "Tripura",
+            "17": "Meghalaya", "18": "Assam", "19": "West Bengal", "20": "Jharkhand",
+            "21": "Odisha", "22": "Chhattisgarh", "23": "Madhya Pradesh", "24": "Gujarat",
+            "26": "Dadra & Nagar Haveli", "27": "Maharashtra", "29": "Karnataka",
+            "30": "Goa", "31": "Lakshadweep", "32": "Kerala", "33": "Tamil Nadu",
+            "34": "Puducherry", "35": "Andaman & Nicobar", "36": "Telangana", "37": "Andhra Pradesh", "38": "Ladakh"
+        };
+        var QRMP_GROUP_A_STATES = ['22','23','24','25','26','27','29','30','31','32','33','34','35','36','37'];
+
+        var currentSystemDate = new Date();
+        var currentYearInt = currentSystemDate.getFullYear();
+        var currentMonthInt = currentSystemDate.getMonth() + 1;
+
+        var defaultYear = currentYearInt;
+        var defaultMonth = currentMonthInt - 1;
+        if (defaultMonth === 0) { defaultMonth = 12; defaultYear -= 1; }
+        var currentFyStartYear = defaultMonth <= 3 ? defaultYear - 1 : defaultYear;
+        var activeTargetPeriod = defaultYear + '-' + String(defaultMonth).padStart(2, '0');
+
+        var FY_MONTHS = [
+            { name: "Apr", offset: 0, monthStr: "04" }, { name: "May", offset: 0, monthStr: "05" },
+            { name: "Jun", offset: 0, monthStr: "06" }, { name: "Jul", offset: 0, monthStr: "07" },
+            { name: "Aug", offset: 0, monthStr: "08" }, { name: "Sep", offset: 0, monthStr: "09" },
+            { name: "Oct", offset: 0, monthStr: "10" }, { name: "Nov", offset: 0, monthStr: "11" },
+            { name: "Dec", offset: 0, monthStr: "12" }, { name: "Jan", offset: 1, monthStr: "01" },
+            { name: "Feb", offset: 1, monthStr: "02" }, { name: "Mar", offset: 1, monthStr: "03" }
+        ];
+
+        function getMonthNameByStr(mStr) {
+            var padded = String(mStr).padStart(2, '0');
+            for (var i = 0; i < FY_MONTHS.length; i++) {
+                if (FY_MONTHS[i].monthStr === padded) return FY_MONTHS[i].name;
+            }
+            return "";
+        }
+
+        function fmtINR(val) {
+            var n = Number(val) || 0;
+            return n.toLocaleString('en-IN', { maximumFractionDigits: 2 });
+        }
+
+        function showToast(msg) {
+            var t = document.getElementById('toast-banner');
+            if (!t) return;
+            t.textContent = msg;
+            t.classList.add('show');
+            setTimeout(function() { t.classList.remove('show'); }, 2400);
+        }
+
+        // --- SETTINGS & PIN LOCK ---
+        window.openSettingsModal = function() {
+            document.getElementById('setting-firm-name').value = practiceConfig.firmName || '';
+            document.getElementById('setting-upi-id').value = practiceConfig.upiId || '';
+            document.getElementById('setting-qr-mode').value = practiceConfig.qrMode || 'TOTAL';
+            document.getElementById('setting-app-pin').value = practiceConfig.appPin || '';
+            document.getElementById('settings-modal').style.display = 'flex';
+        };
+
+        window.savePracticeSettings = function() {
+            practiceConfig.firmName = document.getElementById('setting-firm-name').value.trim() || "Tax Compliance Desk";
+            practiceConfig.upiId = document.getElementById('setting-upi-id').value.trim();
+            practiceConfig.qrMode = document.getElementById('setting-qr-mode').value || "TOTAL";
+            practiceConfig.appPin = document.getElementById('setting-app-pin').value.trim();
+            localStorage.setItem('gst_beast_config', JSON.stringify(practiceConfig));
+            closeModal('settings-modal');
+            showToast("Practice Desk & UPI Settings Saved");
+        };
+
+        window.closeModal = function(modalId) {
+            var el = document.getElementById(modalId);
+            if (el) el.style.display = 'none';
+        };
+
+        window.checkPinUnlock = function(manualClick) {
+            var val = document.getElementById('pin-unlock-input').value;
+            if (val === practiceConfig.appPin) {
+                document.getElementById('pin-lock-overlay').style.display = 'none';
+                showToast("Workspace Unlocked");
+            } else if (manualClick || val.length === 4) {
+                document.getElementById('pin-unlock-input').value = '';
+                showToast("Incorrect PIN");
+            }
+        };
+
+        function saveDatabase() {
+            try {
+                localStorage.setItem('gst_beast_db', JSON.stringify(db));
+            } catch (e) {
+                alert("Storage Quota Alert: Please remove oversized logos or export a JSON backup.");
+            }
+            if (gDriveAccessToken && Date.now() < gDriveTokenExpiry) {
+                document.getElementById('cloud-status').innerHTML = "Saving...";
+                clearTimeout(syncTimeout);
+                syncTimeout = setTimeout(performCloudSync, 2200);
+            }
+        }
+
+        // --- HTML5 CANVAS LOGO COMPRESSOR ---
+        window.encodeImageFileAsURL = function(element) {
+            var file = element.files[0];
+            if (!file) { removeClientLogo(); return; }
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                var img = new Image();
+                img.onload = function() {
+                    var canvas = document.createElement('canvas');
+                    var MAX_H = 90;
+                    var scale = Math.min(1, MAX_H / img.height);
+                    canvas.width = Math.round(img.width * scale);
+                    canvas.height = Math.round(img.height * scale);
+                    var ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                    var compressed = canvas.toDataURL('image/jpeg', 0.82);
+                    document.getElementById('client-logo-base64').value = compressed;
+                    document.getElementById('logo-preview').style.display = 'block';
+                    document.getElementById('logo-preview').innerHTML = '<img src="' + compressed + '" style="max-height:36px; border-radius:4px; border:1px solid var(--border);">';
+                    document.getElementById('remove-logo-btn').style.display = 'inline-block';
+                    showToast("Logo compressed & ready");
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        };
+
+        window.removeClientLogo = function() {
+            document.getElementById('client-logo').value = '';
+            document.getElementById('client-logo-base64').value = '';
+            document.getElementById('logo-preview').style.display = 'none';
+            document.getElementById('logo-preview').innerHTML = '';
+            document.getElementById('remove-logo-btn').style.display = 'none';
+        };
+
+        // --- GOOGLE DRIVE CLOUD SYNC ---
+        window.initializeGoogleAuth = function() {
+            try {
+                var tokenClient = google.accounts.oauth2.initTokenClient({
+                    client_id: GOOGLE_CLIENT_ID,
+                    scope: 'https://www.googleapis.com/auth/drive.file',
+                    callback: function(response) {
+                        if (response.error !== undefined) throw (response);
+                        gDriveAccessToken = response.access_token;
+                        gDriveTokenExpiry = Date.now() + ((response.expires_in || 3599) * 1000);
+                        document.getElementById('cloud-status').innerHTML = "Connected";
+                        showToast("Google Drive Connected");
+                        findDriveFileIdSilent();
+                    }
+                });
+                tokenClient.requestAccessToken();
+            } catch (err) {
+                alert("Google Auth failed to initialize. Check your internet connection.");
+            }
+        };
+
+        function checkDriveTokenHealth() {
+            if (gDriveAccessToken && Date.now() >= gDriveTokenExpiry) {
+                gDriveAccessToken = null;
+                document.getElementById('cloud-status').innerHTML = "Session Expired";
+            }
+        }
+
+        async function findDriveFileIdSilent() {
+            try {
+                var res = await fetch("https://www.googleapis.com/drive/v3/files?q=name='GST_Master_Backup.json' and trashed=false&orderBy=modifiedTime desc&fields=files(id)", {
+                    headers: { 'Authorization': 'Bearer ' + gDriveAccessToken }
+                });
+                var data = await res.json();
+                if (data.files && data.files.length > 0) {
+                    gDriveFileId = data.files[0].id;
+                    localStorage.setItem('gst_drive_file_id', gDriveFileId);
+                }
+            } catch (err) { console.error(err); }
+        }
+
+        window.forceBackupToDrive = function() {
+            if (!gDriveAccessToken) return alert("Please click 'Connect' first to authenticate with Google Drive.");
+            performCloudSync();
+        };
+
+        window.restoreFromDrive = async function() {
+            if (!gDriveAccessToken) return alert("Please click 'Connect' first to authenticate.");
+            if (!confirm("Overwrite local screen data with your Google Drive backup?")) return;
+
+            document.getElementById('cloud-status').innerHTML = "Restoring...";
+            try {
+                var searchRes = await fetch("https://www.googleapis.com/drive/v3/files?q=name='GST_Master_Backup.json' and trashed=false&orderBy=modifiedTime desc&fields=files(id)", {
+                    headers: { 'Authorization': 'Bearer ' + gDriveAccessToken }
+                });
+                var searchData = await searchRes.json();
+                if (searchData.files && searchData.files.length > 0) {
+                    gDriveFileId = searchData.files[0].id;
+                    localStorage.setItem('gst_drive_file_id', gDriveFileId);
+                    var dlRes = await fetch("https://www.googleapis.com/drive/v3/files/" + gDriveFileId + "?alt=media", {
+                        headers: { 'Authorization': 'Bearer ' + gDriveAccessToken }
+                    });
+                    var cloudData = await dlRes.json();
+                    if (Array.isArray(cloudData)) {
+                        db = cloudData;
+                        localStorage.setItem('gst_beast_db', JSON.stringify(db));
+                        renderFinancialYearCalendar();
+                        renderMasterDashboard();
+                        var d = new Date();
+                        document.getElementById('cloud-status').innerHTML = "Restored " + d.getHours() + ":" + String(d.getMinutes()).padStart(2, '0');
+                        showToast("Restored from Google Drive");
+                    }
+                } else {
+                    document.getElementById('cloud-status').innerHTML = "No Backup Found";
+                }
+            } catch (err) {
+                document.getElementById('cloud-status').innerHTML = "Restore Error";
+            }
+        };
+
+        async function performCloudSync() {
+            if (!gDriveAccessToken) return;
+            document.getElementById('cloud-status').innerHTML = "Syncing...";
+            var fileContent = JSON.stringify(db, null, 2);
+            try {
+                if (gDriveFileId) {
+                    var res = await fetch("https://www.googleapis.com/upload/drive/v3/files/" + gDriveFileId + "?uploadType=media", {
+                        method: 'PATCH',
+                        headers: { 'Authorization': 'Bearer ' + gDriveAccessToken, 'Content-Type': 'application/json' },
+                        body: fileContent
+                    });
+                    if (res.status === 404) {
+                        gDriveFileId = null;
+                        localStorage.removeItem('gst_drive_file_id');
+                        return performCloudSync();
+                    }
+                    if (!res.ok) throw new Error("Sync failed");
+                } else {
+                    var metadata = { name: 'GST_Master_Backup.json', mimeType: 'application/json' };
+                    var form = new FormData();
+                    form.append('metadata', new Blob([JSON.stringify(metadata)], { type: 'application/json' }));
+                    form.append('file', new Blob([fileContent], { type: 'application/json' }));
+                    var res2 = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', {
+                        method: 'POST',
+                        headers: { 'Authorization': 'Bearer ' + gDriveAccessToken },
+                        body: form
+                    });
+                    var data = await res2.json();
+                    if (data.id) {
+                        gDriveFileId = data.id;
+                        localStorage.setItem('gst_drive_file_id', data.id);
+                    }
+                }
+                var d = new Date();
+                document.getElementById('cloud-status').innerHTML = "Saved " + d.getHours() + ":" + String(d.getMinutes()).padStart(2, '0');
+            } catch (err) {
+                document.getElementById('cloud-status').innerHTML = "Sync Failed";
+                gDriveAccessToken = null;
+            }
+        }
+
+        // --- FINANCIAL YEAR MATRIX ---
+        function generateFYDropdown() {
+            var select = document.getElementById('global-fy-select');
+            var g9Select = document.getElementById('gstr9-fy-select');
+            select.innerHTML = '';
+            if (g9Select) g9Select.innerHTML = '';
+
+            for (var y = 2017; y <= currentYearInt + 15; y++) {
+                var labelTxt = "FY " + y + "-" + String(y + 1).substring(2) + " (Apr " + y + " - Mar " + (y + 1) + ")";
+                var opt = document.createElement('option');
+                opt.value = y;
+                opt.textContent = labelTxt;
+                if (y === currentFyStartYear) opt.selected = true;
+                select.appendChild(opt);
+
+                if (g9Select) {
+                    var opt2 = document.createElement('option');
+                    opt2.value = y;
+                    opt2.textContent = labelTxt;
+                    if (y === currentFyStartYear) opt2.selected = true;
+                    g9Select.appendChild(opt2);
+                }
+            }
+        }
+
+        function renderFinancialYearCalendar() {
+            var startYear = parseInt(document.getElementById('global-fy-select').value, 10);
+            document.getElementById('active-fy-pill').textContent = "FY " + startYear + "-" + String(startYear + 1).substring(2);
+            var matrixContainer = document.getElementById('fy-calendar-matrix');
+            matrixContainer.innerHTML = '';
+
+            FY_MONTHS.forEach(function(m) {
+                var calculatedYear = startYear + m.offset;
+                var dynamicPeriodKey = calculatedYear + "-" + m.monthStr;
+
+                var pendingCount = 0;
+                db.forEach(function(client) {
+                    var h = client.history && client.history[dynamicPeriodKey];
+                    if (h && (h.r1 === 'Pending' || h.r3b === 'Pending')) pendingCount++;
+                });
+
+                var block = document.createElement('div');
+                block.className = "fy-month-block " + (dynamicPeriodKey === activeTargetPeriod ? "active-month" : "");
+                block.onclick = function() {
+                    activeTargetPeriod = dynamicPeriodKey;
+                    renderFinancialYearCalendar();
+                    renderMasterDashboard();
+                    clearForm();
+                };
+
+                var dotClass = pendingCount > 0 ? "dot-pending" : "dot-clean";
+                var dotLabel = pendingCount > 0 ? ("&#9679; " + pendingCount + " Pend") : "&#9679; Clean";
+                block.innerHTML = "<div>" + m.name + " '" + String(calculatedYear).substring(2) + "</div>" +
+                                  "<div class='micro-indicator-row'><span class='" + dotClass + "'>" + dotLabel + "</span></div>";
+                matrixContainer.appendChild(block);
+            });
+        }
+
+        window.handleFYChange = function() {
+            var selectedYr = document.getElementById('global-fy-select').value;
+            activeTargetPeriod = selectedYr + "-04";
+            var g9Select = document.getElementById('gstr9-fy-select');
+            if (g9Select) g9Select.value = selectedYr;
+            renderFinancialYearCalendar();
+            renderMasterDashboard();
+            clearForm();
+        };
+
+        // --- GSTIN CHECKSUM & STATE ---
+        function verifyGSTINChecksum(gstin) {
+            var chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+            var factor = 2, sum = 0;
+            for (var i = gstin.length - 2; i >= 0; i--) {
+                var codePoint = chars.indexOf(gstin[i]);
+                var digit = factor * codePoint;
+                factor = (factor === 2) ? 1 : 2;
+                digit = Math.floor(digit / 36) + (digit % 36);
+                sum += digit;
+            }
+            var checkCodePoint = (36 - (sum % 36)) % 36;
+            return gstin[14] === chars[checkCodePoint];
+        }
+
+        window.validateGSTIN = function() {
+            var input = document.getElementById('client-gstin');
+            input.value = input.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+            var val = input.value;
+            var gstinRegex = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/;
+            var errorDiv = document.getElementById('gstin-error');
+            var badge = document.getElementById('gstin-state-badge');
+
+            if (val.length >= 2) {
+                var stName = GST_STATE_MAP[val.substring(0, 2)] || "Unknown State";
+                badge.textContent = val.length >= 12 ? (stName + " | PAN: " + val.substring(2, 12)) : stName;
+            } else {
+                badge.textContent = "";
+            }
+
+            if (val.length === 0) {
+                errorDiv.style.display = 'none';
+                input.style.borderColor = 'var(--border)';
+                return false;
+            } else if (!gstinRegex.test(val)) {
+                errorDiv.textContent = "Invalid 15-character GSTIN format";
+                errorDiv.style.display = 'block';
+                input.style.borderColor = 'var(--danger)';
+                return false;
+            } else if (!verifyGSTINChecksum(val)) {
+                errorDiv.textContent = "Checksum warning (check 15th digit)";
+                errorDiv.style.display = 'block';
+                input.style.borderColor = 'var(--warning)';
+                return true;
+            } else {
+                errorDiv.style.display = 'none';
+                input.style.borderColor = 'var(--success)';
+                return true;
+            }
+        };
+
+        window.handleSchemeUI = function() {
+            var scheme = document.getElementById('client-scheme').value;
+            document.getElementById('itc-section-box').style.opacity = scheme === 'Composition' ? '0.4' : '1';
+        };
+
+        window.copy2BTo3BClaimed = function() {
+            document.getElementById('itc-igst').value = document.getElementById('itc-2b-igst').value || 0;
+            document.getElementById('itc-cgst').value = document.getElementById('itc-2b-cgst').value || 0;
+            document.getElementById('itc-sgst').value = document.getElementById('itc-2b-sgst').value || 0;
+            showToast("Copied GSTR-2B figures to 3B Claimed");
+        };
+
+        window.clonePrevMonthFigures = function() {
+            var id = document.getElementById('editing-client-id').value;
+            if (!id) return showToast("Select a client in Edit mode first");
+            var client = db.find(function(c) { return c.id === id; });
+            if (!client) return;
+            var periods = Object.keys(client.history || {}).sort();
+            var idx = periods.indexOf(activeTargetPeriod);
+            if (idx > 0) {
+                var prev = client.history[periods[idx - 1]];
+                document.getElementById('client-fee').value = prev.feeAmount || client.defaultFee || 0;
+                if (!document.getElementById('month-notes').value) {
+                    document.getElementById('month-notes').value = prev.notes || '';
+                }
+                showToast("Cloned fee & notes from " + periods[idx - 1]);
+            } else if (client.defaultFee) {
+                document.getElementById('client-fee').value = client.defaultFee;
+                showToast("Loaded client default retainer fee");
+            }
+        };
+
+        // --- PORTAL JSON IMPORTER ---
+        window.handlePortalJsonImport = function(event) {
+            var file = event.target.files[0];
+            if (!file) return;
+            var reader = new FileReader();
+            reader.onload = function(evt) {
+                try {
+                    var j = JSON.parse(evt.target.result);
+                    var root = j.data || j;
+                    if (root.gstin && !document.getElementById('client-gstin').value) {
+                        document.getElementById('client-gstin').value = root.gstin;
+                        validateGSTIN();
+                    }
+                    if (root.itcsumm && root.itcsumm.itcavl && root.itcsumm.itcavl.nonrevsup) {
+                        var n = root.itcsumm.itcavl.nonrevsup;
+                        document.getElementById('itc-2b-igst').value = (n.igst || 0).toFixed(2);
+                        document.getElementById('itc-2b-cgst').value = (n.cgst || 0).toFixed(2);
+                        document.getElementById('itc-2b-sgst').value = (n.sgst || 0).toFixed(2);
+                        if (root.itcsumm.itcavl.revsup) {
+                            var r = root.itcsumm.itcavl.revsup;
+                            document.getElementById('rcm-igst').value = (r.igst || 0).toFixed(2);
+                            document.getElementById('rcm-cgst').value = (r.cgst || 0).toFixed(2);
+                            document.getElementById('rcm-sgst').value = (r.sgst || 0).toFixed(2);
+                        }
+                        showToast("Imported GSTR-2B JSON summary!");
+                    } else if (root.sup_details || root.itc_elg) {
+                        if (root.sup_details && root.sup_details.osup_det) {
+                            var o = root.sup_details.osup_det;
+                            document.getElementById('out-igst').value = (o.iamt || 0).toFixed(2);
+                            document.getElementById('out-cgst').value = (o.camt || 0).toFixed(2);
+                            document.getElementById('out-sgst').value = (o.samt || 0).toFixed(2);
+                        }
+                        if (root.sup_details && root.sup_details.isup_rev) {
+                            var rv = root.sup_details.isup_rev;
+                            document.getElementById('rcm-igst').value = (rv.iamt || 0).toFixed(2);
+                            document.getElementById('rcm-cgst').value = (rv.camt || 0).toFixed(2);
+                            document.getElementById('rcm-sgst').value = (rv.samt || 0).toFixed(2);
+                        }
+                        if (root.itc_elg && Array.isArray(root.itc_elg.itc_avl)) {
+                            var ii = 0, cc = 0, ss = 0;
+                            root.itc_elg.itc_avl.forEach(function(row) {
+                                ii += (row.iamt || 0); cc += (row.camt || 0); ss += (row.samt || 0);
+                            });
+                            document.getElementById('itc-igst').value = ii.toFixed(2);
+                            document.getElementById('itc-cgst').value = cc.toFixed(2);
+                            document.getElementById('itc-sgst').value = ss.toFixed(2);
+                        }
+                        showToast("Imported GSTR-3B JSON figures!");
+                    } else if (root.b2b || root.b2cs) {
+                        var i1 = 0, c1 = 0, s1 = 0;
+                        (root.b2b || []).forEach(function(party) {
+                            (party.inv || []).forEach(function(inv) {
+                                (inv.itms || []).forEach(function(it) {
+                                    var d = it.itm_det || {};
+                                    i1 += (d.iamt || 0); c1 += (d.camt || 0); s1 += (d.samt || 0);
+                                });
+                            });
+                        });
+                        (root.b2cs || []).forEach(function(row) {
+                            i1 += (row.iamt || 0); c1 += (row.camt || 0); s1 += (row.samt || 0);
+                        });
+                        document.getElementById('out-igst').value = i1.toFixed(2);
+                        document.getElementById('out-cgst').value = c1.toFixed(2);
+                        document.getElementById('out-sgst').value = s1.toFixed(2);
+                        showToast("Imported GSTR-1 Output Tax totals!");
+                    } else {
+                        alert("Unrecognized JSON structure. Select a valid GSTR-2B, 3B, or R1 JSON.");
+                    }
+                } catch (e) {
+                    alert("Failed to parse JSON file.");
+                }
+                event.target.value = '';
+            };
+            reader.readAsText(file);
+        };
+
+        window.clearForm = function() {
+            var ids = [
+                'editing-client-id','client-name','client-phone','client-gstin','portal-user','portal-pass',
+                'out-igst','out-cgst','out-sgst','rcm-igst','rcm-cgst','rcm-sgst','itc-igst','itc-cgst','itc-sgst',
+                'itc-2b-igst','itc-2b-cgst','itc-2b-sgst','month-notes','client-fee','client-logo',
+                'client-logo-base64','client-tags','client-notice','init-itc-igst','init-itc-cgst','init-itc-sgst'
+            ];
+            ids.forEach(function(id) {
+                var el = document.getElementById(id);
+                if (el) el.value = '';
+            });
+            document.getElementById('logo-preview').style.display = 'none';
+            document.getElementById('logo-preview').innerHTML = '';
+            document.getElementById('remove-logo-btn').style.display = 'none';
+            document.getElementById('client-scheme').value = 'Monthly';
+            document.getElementById('fee-status').value = 'Due';
+            document.getElementById('client-gstin').style.borderColor = 'var(--border)';
+            document.getElementById('gstin-error').style.display = 'none';
+            document.getElementById('gstin-state-badge').textContent = '';
+            document.getElementById('form-title').textContent = "Client & Return Entry";
+            document.getElementById('save-btn').textContent = "Save Client & Period Ledger";
+            document.getElementById('cancel-edit-btn').style.display = 'none';
+            handleSchemeUI();
+        };
+
+        function ensureMonthStructureInitialized(target, periodKey) {
+            if (!target.history) target.history = {};
+            if (!target.history[periodKey]) {
+                target.history[periodKey] = {
+                    outIgst: 0, outCgst: 0, outSgst: 0,
+                    rcmIgst: 0, rcmCgst: 0, rcmSgst: 0,
+                    itcIgst: 0, itcCgst: 0, itcSgst: 0,
+                    itc2bIgst: 0, itc2bCgst: 0, itc2bSgst: 0, notes: "",
+                    r1: "Pending", r1Date: "", r1Arn: "",
+                    r3b: "Pending", r3bDate: "", r3bArn: "",
+                    waived: false,
+                    feeAmount: target.defaultFee || 0,
+                    feeStatus: "Due"
+                };
+            } else {
+                var h = target.history[periodKey];
+                if (h.itc2bIgst === undefined) {
+                    h.itc2bIgst = 0;
+                    h.itc2bCgst = h.itc2b || 0;
+                    h.itc2bSgst = h.itc2b || 0;
+                }
+                if (h.feeAmount === undefined) h.feeAmount = target.defaultFee || 0;
+                if (h.feeStatus === undefined) h.feeStatus = "Due";
+                if (h.r1Arn === undefined) h.r1Arn = "";
+                if (h.r3bArn === undefined) h.r3bArn = "";
+            }
+        }
+
+        window.processClientSubmission = function() {
+            var id = document.getElementById('editing-client-id').value;
+            var name = document.getElementById('client-name').value.trim();
+            var gstin = document.getElementById('client-gstin').value.trim();
+            var phone = document.getElementById('client-phone').value.replace(/\D/g, '');
+
+            if (!name) return alert("Trade Name is required.");
+            if (!validateGSTIN()) return alert("Please enter a valid 15-character GSTIN.");
+
+            var logoData = document.getElementById('client-logo-base64').value;
+            var tagsData = document.getElementById('client-tags').value.split(',').map(function(t) { return t.trim(); }).filter(function(t) { return Boolean(t); });
+            var feeEntered = parseFloat(document.getElementById('client-fee').value) || 0;
+
+            var payload = {
+                outIgst: parseFloat(document.getElementById('out-igst').value) || 0,
+                outCgst: parseFloat(document.getElementById('out-cgst').value) || 0,
+                outSgst: parseFloat(document.getElementById('out-sgst').value) || 0,
+                rcmIgst: parseFloat(document.getElementById('rcm-igst').value) || 0,
+                rcmCgst: parseFloat(document.getElementById('rcm-cgst').value) || 0,
+                rcmSgst: parseFloat(document.getElementById('rcm-sgst').value) || 0,
+                itcIgst: parseFloat(document.getElementById('itc-igst').value) || 0,
+                itcCgst: parseFloat(document.getElementById('itc-cgst').value) || 0,
+                itcSgst: parseFloat(document.getElementById('itc-sgst').value) || 0,
+                itc2bIgst: parseFloat(document.getElementById('itc-2b-igst').value) || 0,
+                itc2bCgst: parseFloat(document.getElementById('itc-2b-cgst').value) || 0,
+                itc2bSgst: parseFloat(document.getElementById('itc-2b-sgst').value) || 0,
+                notes: document.getElementById('month-notes').value.trim(),
+                feeAmount: feeEntered,
+                feeStatus: document.getElementById('fee-status').value || "Due",
+                r1: "Pending", r1Date: "", r1Arn: "",
+                r3b: "Pending", r3bDate: "", r3bArn: "",
+                waived: false
+            };
+
+            var initItc = {
+                igst: parseFloat(document.getElementById('init-itc-igst').value) || 0,
+                cgst: parseFloat(document.getElementById('init-itc-cgst').value) || 0,
+                sgst: parseFloat(document.getElementById('init-itc-sgst').value) || 0
+            };
+
+            if (id) {
+                var target = db.find(function(c) { return c.id === id; });
+                if (target) {
+                    target.name = name;
+                    target.phone = phone;
+                    target.gstin = gstin;
+                    target.scheme = document.getElementById('client-scheme').value;
+                    target.user = document.getElementById('portal-user').value.trim();
+                    target.pass = document.getElementById('portal-pass').value.trim();
+                    target.logo = logoData;
+                    target.tags = tagsData;
+                    target.notice = document.getElementById('client-notice').value.trim();
+                    target.initItc = initItc;
+                    if (feeEntered > 0) target.defaultFee = feeEntered;
+
+                    ensureMonthStructureInitialized(target, activeTargetPeriod);
+                    var existing = target.history[activeTargetPeriod];
+                    payload.r1 = existing.r1; payload.r1Date = existing.r1Date; payload.r1Arn = existing.r1Arn || "";
+                    payload.r3b = existing.r3b; payload.r3bDate = existing.r3bDate; payload.r3bArn = existing.r3bArn || "";
+                    payload.waived = existing.waived || false;
+
+                    target.history[activeTargetPeriod] = payload;
+                    showToast("Updated " + name);
+                }
+            } else {
+                var newEntry = {
+                    id: Date.now().toString(),
+                    name: name, phone: phone, gstin: gstin,
+                    scheme: document.getElementById('client-scheme').value,
+                    user: document.getElementById('portal-user').value.trim(),
+                    pass: document.getElementById('portal-pass').value.trim(),
+                    logo: logoData,
+                    tags: tagsData,
+                    notice: document.getElementById('client-notice').value.trim(),
+                    initItc: initItc,
+                    defaultFee: feeEntered,
+                    history: {}
+                };
+                newEntry.history[activeTargetPeriod] = payload;
+                db.push(newEntry);
+                showToast("Registered " + name);
+            }
+
+            saveDatabase();
+            clearForm();
+            renderFinancialYearCalendar();
+            renderMasterDashboard();
+        };
+
+        window.triggerInlineEdit = function(id) {
+            var target = db.find(function(c) { return c.id === id; });
+            if (!target) return;
+            ensureMonthStructureInitialized(target, activeTargetPeriod);
+            var data = target.history[activeTargetPeriod];
+
+            document.getElementById('editing-client-id').value = target.id;
+            document.getElementById('client-name').value = target.name;
+            document.getElementById('client-phone').value = target.phone || '';
+            document.getElementById('client-gstin').value = target.gstin;
+            document.getElementById('client-scheme').value = target.scheme || 'Monthly';
+            document.getElementById('portal-user').value = target.user || '';
+            document.getElementById('portal-pass').value = target.pass || '';
+            document.getElementById('client-notice').value = target.notice || '';
+
+            var init = target.initItc || { igst: 0, cgst: 0, sgst: 0 };
+            document.getElementById('init-itc-igst').value = init.igst || '';
+            document.getElementById('init-itc-cgst').value = init.cgst || '';
+            document.getElementById('init-itc-sgst').value = init.sgst || '';
+
+            document.getElementById('client-logo-base64').value = target.logo || '';
+            if (target.logo) {
+                document.getElementById('logo-preview').style.display = 'block';
+                document.getElementById('logo-preview').innerHTML = '<img src="' + target.logo + '" style="max-height:36px; border-radius:4px; border:1px solid var(--border);">';
+                document.getElementById('remove-logo-btn').style.display = 'inline-block';
+            } else {
+                document.getElementById('logo-preview').style.display = 'none';
+                document.getElementById('remove-logo-btn').style.display = 'none';
+            }
+            document.getElementById('client-tags').value = target.tags ? target.tags.join(', ') : '';
+
+            ['out','rcm','itc'].forEach(function(prefix) {
+                ['igst','cgst','sgst'].forEach(function(tax) {
+                    var key = prefix + tax.charAt(0).toUpperCase() + tax.slice(1);
+                    document.getElementById(prefix + '-' + tax).value = data[key] || '';
+                });
+            });
+            document.getElementById('itc-2b-igst').value = data.itc2bIgst || '';
+            document.getElementById('itc-2b-cgst').value = data.itc2bCgst || '';
+            document.getElementById('itc-2b-sgst').value = data.itc2bSgst || '';
+
+            document.getElementById('month-notes').value = data.notes || '';
+            document.getElementById('client-fee').value = data.feeAmount || target.defaultFee || '';
+            document.getElementById('fee-status').value = data.feeStatus || 'Due';
+
+            validateGSTIN();
+            handleSchemeUI();
+            document.getElementById('form-title').textContent = "Editing: " + target.name;
+            document.getElementById('save-btn').textContent = "Update Client & Period";
+            document.getElementById('cancel-edit-btn').style.display = 'block';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
+
+        // --- RULE 88A SET-OFF ENGINE ---
+        function runRule88ASetOff(poolIgst, poolCgst, poolSgst, outIgst, outCgst, outSgst) {
+            if (poolIgst > 0 && outIgst > 0) {
+                var off1 = Math.min(poolIgst, outIgst);
+                poolIgst -= off1; outIgst -= off1;
+            }
+            if (poolIgst > 0) {
+                var cgstDeficit = Math.max(0, outCgst - poolCgst);
+                var sgstDeficit = Math.max(0, outSgst - poolSgst);
+
+                var offC = Math.min(poolIgst, cgstDeficit);
+                outCgst -= offC; poolIgst -= offC;
+
+                var offS = Math.min(poolIgst, sgstDeficit);
+                outSgst -= offS; poolIgst -= offS;
+
+                if (poolIgst > 0 && outCgst > 0) {
+                    var offC2 = Math.min(poolIgst, outCgst);
+                    outCgst -= offC2; poolIgst -= offC2;
+                }
+                if (poolIgst > 0 && outSgst > 0) {
+                    var offS2 = Math.min(poolIgst, outSgst);
+                    outSgst -= offS2; poolIgst -= offS2;
+                }
+            }
+            if (poolCgst > 0 && outCgst > 0) { var c1 = Math.min(poolCgst, outCgst); poolCgst -= c1; outCgst -= c1; }
+            if (poolCgst > 0 && outIgst > 0) { var c2 = Math.min(poolCgst, outIgst); poolCgst -= c2; outIgst -= c2; }
+
+            if (poolSgst > 0 && outSgst > 0) { var s1 = Math.min(poolSgst, outSgst); poolSgst -= s1; outSgst -= s1; }
+            if (poolSgst > 0 && outIgst > 0) { var s2 = Math.min(poolSgst, outIgst); poolSgst -= s2; outIgst -= s2; }
+
+            return { poolIgst: poolIgst, poolCgst: poolCgst, poolSgst: poolSgst, outIgst: outIgst, outCgst: outCgst, outSgst: outSgst };
+        }
+
+        function calculateCumulativeITC(client, targetPeriod) {
+            var init = client.initItc || { igst: 0, cgst: 0, sgst: 0 };
+            if (client.scheme === 'Composition') return { igst: 0, cgst: 0, sgst: 0 };
+
+            var currentIgst = init.igst || 0, currentCgst = init.cgst || 0, currentSgst = init.sgst || 0;
+            var periods = Object.keys(client.history || {}).sort();
+
+            for (var i = 0; i < periods.length; i++) {
+                var p = periods[i];
+                if (p >= targetPeriod) break;
+                var d = client.history[p];
+                var res = runRule88ASetOff(
+                    currentIgst + (d.itcIgst || 0),
+                    currentCgst + (d.itcCgst || 0),
+                    currentSgst + (d.itcSgst || 0),
+                    d.outIgst || 0, d.outCgst || 0, d.outSgst || 0
+                );
+                currentIgst = res.poolIgst;
+                currentCgst = res.poolCgst;
+                currentSgst = res.poolSgst;
+            }
+            return { igst: currentIgst, cgst: currentCgst, sgst: currentSgst };
+        }
+
+        function computeTaxEngine(data, r3bDueDate, openingItc, scheme) {
+            var isComp = (scheme === 'Composition');
+            var origOutI = data.outIgst || 0, origOutC = data.outCgst || 0, origOutS = data.outSgst || 0;
+            var poolIgst = isComp ? 0 : openingItc.igst + (data.itcIgst || 0);
+            var poolCgst = isComp ? 0 : openingItc.cgst + (data.itcCgst || 0);
+            var poolSgst = isComp ? 0 : openingItc.sgst + (data.itcSgst || 0);
+
+            var res = runRule88ASetOff(poolIgst, poolCgst, poolSgst, origOutI, origOutC, origOutS);
+
+            // Track ITC utilized from each credit pool (Table 6) and Output Tax discharged via ITC (Table 9)
+            var itcUsedFromPool = {
+                igst: poolIgst - res.poolIgst,
+                cgst: poolCgst - res.poolCgst,
+                sgst: poolSgst - res.poolSgst
+            };
+            var taxPaidByItc = {
+                igst: origOutI - res.outIgst,
+                cgst: origOutC - res.outCgst,
+                sgst: origOutS - res.outSgst
+            };
+
+            var rcmIgst = data.rcmIgst || 0, rcmCgst = data.rcmCgst || 0, rcmSgst = data.rcmSgst || 0;
+            var cashIgst = res.outIgst + rcmIgst;
+            var cashCgst = res.outCgst + rcmCgst;
+            var cashSgst = res.outSgst + rcmSgst;
+            var totalCash = cashIgst + cashCgst + cashSgst;
+            var carryCredit = res.poolIgst + res.poolCgst + res.poolSgst;
+
+            var diffIgst = (data.itcIgst || 0) - (data.itc2bIgst || 0);
+            var diffCgst = (data.itcCgst || 0) - (data.itc2bCgst || 0);
+            var diffSgst = (data.itcSgst || 0) - (data.itc2bSgst || 0);
+            var reconDiff = diffIgst + diffCgst + diffSgst;
+            var headMismatch = (diffIgst > 1 || diffCgst > 1 || diffSgst > 1);
+
+            var lateFee = 0, interest = 0, delayDays = 0;
+            var nowObj = new Date();
+            nowObj.setHours(23, 59, 59, 999);
+
+            if (data.r3b === 'Filed' && data.r3bDate) {
+                var fileDateObj = new Date(data.r3bDate);
+                fileDateObj.setHours(23, 59, 59, 999);
+                if (fileDateObj > r3bDueDate) delayDays = Math.floor((fileDateObj - r3bDueDate) / 86400000);
+            } else if (data.r3b === 'Pending' && nowObj > r3bDueDate) {
+                delayDays = Math.floor((nowObj - r3bDueDate) / 86400000);
+            }
+
+            if (delayDays > 0) {
+                var isNil = (origOutI + origOutC + origOutS + rcmIgst + rcmCgst + rcmSgst) === 0;
+                var rawFee = delayDays * (isNil ? 20 : 50);
+                var maxCap = isNil ? 500 : 2000;
+                lateFee = Math.min(rawFee, maxCap);
+                if (totalCash > 0) interest = Math.round(totalCash * 0.18 * (delayDays / 365));
+            }
+
+            if (data.waived) { lateFee = 0; interest = 0; }
+            return {
+                totalCash: totalCash, carryCredit: carryCredit, reconDiff: reconDiff, headMismatch: headMismatch,
+                lateFee: lateFee, interest: interest, delayDays: delayDays,
+                cashHeads: { igst: cashIgst, cgst: cashCgst, sgst: cashSgst },
+                closingItc: { igst: res.poolIgst, cgst: res.poolCgst, sgst: res.poolSgst },
+                itcUsedFromPool: itcUsedFromPool,
+                taxPaidByItc: taxPaidByItc
+            };
+        }
+
+        function getClientDueDates(client, periodKey) {
+            var parts = periodKey.split('-');
+            var yr = parseInt(parts[0], 10);
+            var mo = parseInt(parts[1], 10);
+            var moStr = parts[1];
+            var isM3 = ['06','09','12','03'].indexOf(moStr) !== -1;
+
+            var dueMo = mo + 1;
+            var dueYr = yr;
+            if (dueMo > 12) { dueMo = 1; dueYr++; }
+
+            var r1Label = "GSTR-1", r3bLabel = "GSTR-3B", r1DueDay = 11, r3bDueDay = 20;
+            var stCode = (client.gstin || '').substring(0, 2);
+
+            if (client.scheme === 'QRMP') {
+                if (!isM3) {
+                    r1Label = "IFF (Opt)"; r1DueDay = 13;
+                    r3bLabel = "PMT-06"; r3bDueDay = 25;
+                } else {
+                    r1Label = "Q-GSTR-1"; r1DueDay = 13;
+                    r3bLabel = "Q-GSTR-3B";
+                    r3bDueDay = QRMP_GROUP_A_STATES.indexOf(stCode) !== -1 ? 22 : 24;
+                }
+            } else if (client.scheme === 'Composition') {
+                r1Label = "Sales Log"; r1DueDay = 10;
+                r3bLabel = isM3 ? "CMP-08" : "CMP (Qtr)";
+                r3bDueDay = 18;
+            }
+
+            return {
+                r1Label: r1Label, r3bLabel: r3bLabel, r1DueDay: r1DueDay, r3bDueDay: r3bDueDay,
+                dueMo: dueMo, dueYr: dueYr,
+                r1DueDate: new Date(dueYr, dueMo - 1, r1DueDay, 23, 59, 59),
+                r3bDueDate: new Date(dueYr, dueMo - 1, r3bDueDay, 23, 59, 59)
+            };
+        }
+
+        // --- WORKFLOW TOGGLES ---
+        window.toggleReturnStatus = function(id, type) {
+            var target = db.find(function(c) { return c.id === id; });
+            if (!target) return;
+
+            ensureMonthStructureInitialized(target, activeTargetPeriod);
+            var isFiled = target.history[activeTargetPeriod][type] === 'Filed';
+            target.history[activeTargetPeriod][type] = isFiled ? 'Pending' : 'Filed';
+
+            var today = new Date();
+            var todayStr = today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0') + '-' + String(today.getDate()).padStart(2, '0');
+
+            if (!isFiled && !target.history[activeTargetPeriod][type + 'Date']) {
+                target.history[activeTargetPeriod][type + 'Date'] = todayStr;
+            } else if (isFiled) {
+                target.history[activeTargetPeriod][type + 'Date'] = '';
+            }
+
+            if ((target.scheme === 'QRMP' || target.scheme === 'Composition') && !isFiled) {
+                var parts = activeTargetPeriod.split('-');
+                var yr = parts[0], mo = parts[1];
+                if (['06','09','12','03'].indexOf(mo) !== -1) {
+                    var m1 = mo === '06' ? '04' : mo === '09' ? '07' : mo === '12' ? '10' : '01';
+                    var m2 = mo === '06' ? '05' : mo === '09' ? '08' : mo === '12' ? '11' : '02';
+                    [yr + '-' + m1, yr + '-' + m2].forEach(function(p) {
+                        ensureMonthStructureInitialized(target, p);
+                        if (target.history[p][type] !== 'Filed') {
+                            target.history[p][type] = 'Filed';
+                            target.history[p][type + 'Date'] = todayStr;
+                            target.history[p].waived = true;
+                        }
+                    });
+                }
+            }
+            saveDatabase();
+            renderFinancialYearCalendar();
+            renderMasterDashboard();
+        };
+
+        window.updateFilingMeta = function(id, field, val) {
+            var target = db.find(function(c) { return c.id === id; });
+            if (target) {
+                ensureMonthStructureInitialized(target, activeTargetPeriod);
+                target.history[activeTargetPeriod][field] = val;
+                saveDatabase();
+                renderMasterDashboard();
+            }
+        };
+
+        window.toggleWaiver = function(id) {
+            var target = db.find(function(c) { return c.id === id; });
+            if (target) {
+                ensureMonthStructureInitialized(target, activeTargetPeriod);
+                target.history[activeTargetPeriod].waived = !target.history[activeTargetPeriod].waived;
+                saveDatabase();
+                renderMasterDashboard();
+            }
+        };
+
+        window.toggleFeeStatus = function(id) {
+            var target = db.find(function(c) { return c.id === id; });
+            if (target) {
+                ensureMonthStructureInitialized(target, activeTargetPeriod);
+                target.history[activeTargetPeriod].feeStatus = target.history[activeTargetPeriod].feeStatus === 'Paid' ? 'Due' : 'Paid';
+                saveDatabase();
+                renderMasterDashboard();
+            }
+        };
+
+        window.purgeClientProfile = function(id) {
+            var target = db.find(function(c) { return c.id === id; });
+            if (target && confirm("Delete " + target.name + " permanently?")) {
+                db = db.filter(function(c) { return c.id !== id; });
+                saveDatabase();
+                renderFinancialYearCalendar();
+                renderMasterDashboard();
+                showToast("Client Deleted");
+            }
+        };
+
+        window.copyClientCredential = function(id, field) {
+            var target = db.find(function(c) { return c.id === id; });
+            if (!target || !target[field]) return showToast("Nothing to copy");
+            navigator.clipboard.writeText(target[field]).then(function() {
+                showToast("Copied " + (field === 'user' ? 'Username' : 'Password'));
+            });
+        };
+
+        window.togglePassMask = function(id) {
+            revealedPasswords[id] = !revealedPasswords[id];
+            renderMasterDashboard();
+        };
+
+        window.setFilterPill = function(filterVal) {
+            activeFilterPill = filterVal;
+            var pills = document.querySelectorAll('.pill');
+            for (var i = 0; i < pills.length; i++) {
+                pills[i].classList.toggle('active', pills[i].getAttribute('data-filter') === filterVal);
+            }
+            renderMasterDashboard();
+        };
+        // --- MASTER DASHBOARD RENDERER ---
+        window.renderMasterDashboard = function() {
+            var search = document.getElementById('search-bar').value.toLowerCase().trim();
+            var sortMode = document.getElementById('sort-select').value;
+            var tbody = document.getElementById('table-body');
+
+            var parts = activeTargetPeriod.split('-');
+            var targetYear = parseInt(parts[0], 10);
+            var targetMonthStr = parts[1];
+            document.getElementById('current-view-badge').textContent = getMonthNameByStr(targetMonthStr) + " " + targetYear;
+
+            var now = new Date();
+            var totalAccounts = 0, r1PendingCount = 0, r3bPendingCount = 0, reconMismatchCount = 0, aggregateCashNeeded = 0, aggregateUncollectedFees = 0;
+
+            var rowsData = [];
+            db.forEach(function(client) {
+                ensureMonthStructureInitialized(client, activeTargetPeriod);
+                var data = client.history[activeTargetPeriod];
+                var openingBal = calculateCumulativeITC(client, activeTargetPeriod);
+                var dueInfo = getClientDueDates(client, activeTargetPeriod);
+                var net = computeTaxEngine(data, dueInfo.r3bDueDate, openingBal, client.scheme);
+
+                var isOverdue = (data.r1 === 'Pending' && now > dueInfo.r1DueDate) || (data.r3b === 'Pending' && now > dueInfo.r3bDueDate);
+                var has2B = ((data.itc2bIgst || 0) + (data.itc2bCgst || 0) + (data.itc2bSgst || 0)) > 0;
+                var isMismatch = has2B && (net.reconDiff > 1 || net.headMismatch);
+
+                var stName = (GST_STATE_MAP[(client.gstin || '').substring(0, 2)] || "").toLowerCase();
+                var tagMatch = client.tags ? client.tags.some(function(t) { return t.toLowerCase().indexOf(search) !== -1; }) : false;
+                var noticeMatch = (client.notice || '').toLowerCase().indexOf(search) !== -1;
+
+                if (search && client.name.toLowerCase().indexOf(search) === -1 && client.gstin.toLowerCase().indexOf(search) === -1 && stName.indexOf(search) === -1 && !tagMatch && !noticeMatch) {
+                    return;
+                }
+
+                totalAccounts++;
+                if (data.r1 === 'Pending') r1PendingCount++;
+                if (data.r3b === 'Pending') r3bPendingCount++;
+                if (isMismatch) reconMismatchCount++;
+                aggregateCashNeeded += net.totalCash + net.lateFee + net.interest;
+                if (data.feeAmount > 0 && data.feeStatus === 'Due') aggregateUncollectedFees += data.feeAmount;
+
+                if (activeFilterPill === 'R1_PENDING' && data.r1 !== 'Pending') return;
+                if (activeFilterPill === '3B_PENDING' && data.r3b !== 'Pending') return;
+                if (activeFilterPill === 'OVERDUE' && !isOverdue) return;
+                if (activeFilterPill === 'RECON_MISMATCH' && !isMismatch) return;
+                if (activeFilterPill === 'CASH_LIABLE' && net.totalCash <= 0) return;
+                if (activeFilterPill === 'FEE_DUE' && (data.feeAmount === 0 || data.feeStatus === 'Paid')) return;
+                if (activeFilterPill === 'HAS_NOTICE' && !client.notice) return;
+
+                rowsData.push({ client: client, data: data, openingBal: openingBal, dueInfo: dueInfo, net: net, has2B: has2B });
+            });
+
+            rowsData.sort(function(a, b) {
+                if (sortMode === 'CASH_DESC') return (b.net.totalCash + b.net.lateFee) - (a.net.totalCash + a.net.lateFee);
+                if (sortMode === 'FEE_DESC') {
+                    var feeA = a.data.feeStatus === 'Due' ? a.data.feeAmount : 0;
+                    var feeB = b.data.feeStatus === 'Due' ? b.data.feeAmount : 0;
+                    return feeB - feeA;
+                }
+                if (sortMode === 'PENDING_FIRST') {
+                    var pA = (a.data.r1 === 'Pending' ? 1 : 0) + (a.data.r3b === 'Pending' ? 2 : 0);
+                    var pB = (b.data.r1 === 'Pending' ? 1 : 0) + (b.data.r3b === 'Pending' ? 2 : 0);
+                    return pB - pA;
+                }
+                return a.client.name.localeCompare(b.client.name);
+            });
+
+            tbody.innerHTML = '';
+            rowsData.forEach(function(item) {
+                var client = item.client, data = item.data, openingBal = item.openingBal, dueInfo = item.dueInfo, net = item.net, has2B = item.has2B;
+                var dueMonthName = getMonthNameByStr(dueInfo.dueMo);
+                var stCode = (client.gstin || '').substring(0, 2);
+                var stLabel = GST_STATE_MAP[stCode] || stCode;
+
+                var reconHtml = "";
+                if (client.scheme === 'Composition') {
+                    reconHtml = "<div class='recon-alert' style='background:rgba(148,163,184,0.15); color:var(--text-muted);'>Composition (No ITC)</div>";
+                } else if (has2B) {
+                    if (net.reconDiff > 1) {
+                        reconHtml = "<div class='recon-alert' style='background:rgba(239,68,68,0.2); color:#fca5a5;'>Excess Claimed: &#8377;" + fmtINR(net.reconDiff) + "</div>";
+                    } else if (net.headMismatch) {
+                        reconHtml = "<div class='recon-alert' style='background:rgba(245,158,11,0.2); color:#fcd34d;'>Head Swap vs 2B</div>";
+                    } else {
+                        reconHtml = "<div class='recon-alert' style='background:rgba(16,185,129,0.2); color:#6ee7b7;'>2B Reconciled</div>";
+                    }
+                }
+
+                var penaltyHtml = "";
+                if (net.delayDays > 0) {
+                    if (data.waived) {
+                        penaltyHtml = "<div style='font-size:0.69rem; color:var(--success); border:1px solid var(--success); border-radius:5px; padding:4px 6px; margin-top:6px;'><strong>Penalty Waived</strong> <button type='button' class='btn-inline btn-waiver' onclick=\"toggleWaiver('" + client.id + "')\">Undo</button></div>";
+                    } else if (net.lateFee > 0 || net.interest > 0) {
+                        penaltyHtml = "<div style='font-size:0.69rem; color:#fca5a5; border:1px solid var(--danger); border-radius:5px; padding:4px 6px; margin-top:6px;'><strong>Sec 47 (" + net.delayDays + "d late)</strong><br>Fee: &#8377;" + fmtINR(net.lateFee) + " | Int: &#8377;" + fmtINR(net.interest) + "<br><button type='button' class='btn-inline btn-waiver' onclick=\"toggleWaiver('" + client.id + "')\">Waive Penalty</button></div>";
+                    }
+                }
+
+                var r1SubHtml = "";
+                if (data.r1 === 'Filed') {
+                    r1SubHtml = "<br><input type='date' class='date-edit' value='" + (data.r1Date || '') + "' onchange=\"updateFilingMeta('" + client.id + "', 'r1Date', this.value)\">";
+                } else if (now > dueInfo.r1DueDate) {
+                    r1SubHtml = "<div style='font-size:0.68rem; color:var(--danger); font-weight:700; margin-top:2px;'>OVERDUE (" + dueInfo.r1DueDay + " " + dueMonthName + ")</div>";
+                } else {
+                    r1SubHtml = "<div style='font-size:0.68rem; color:var(--warning); margin-top:2px;'>Due " + dueInfo.r1DueDay + " " + dueMonthName + "</div>";
+                }
+
+                var r3bSubHtml = "";
+                if (data.r3b === 'Filed') {
+                    r3bSubHtml = "<br><input type='date' class='date-edit' value='" + (data.r3bDate || '') + "' onchange=\"updateFilingMeta('" + client.id + "', 'r3bDate', this.value)\">" +
+                                "<input type='text' class='arn-edit' placeholder='ARN / CPIN #' value='" + (data.r3bArn || '') + "' onchange=\"updateFilingMeta('" + client.id + "', 'r3bArn', this.value)\">";
+                } else if (now > dueInfo.r3bDueDate) {
+                    r3bSubHtml = "<div style='font-size:0.68rem; color:var(--danger); font-weight:700; margin-top:2px;'>OVERDUE (" + dueInfo.r3bDueDay + " " + dueMonthName + ")</div>";
+                } else {
+                    r3bSubHtml = "<div style='font-size:0.68rem; color:var(--warning); margin-top:2px;'>Due " + dueInfo.r3bDueDay + " " + dueMonthName + "</div>";
+                }
+
+                var rcmActive = ((data.rcmIgst || 0) + (data.rcmCgst || 0) + (data.rcmSgst || 0)) > 0;
+                var passDisplay = revealedPasswords[client.id] ? (client.pass || 'N/A') : (client.pass ? '******' : 'N/A');
+                var tagsHtml = (client.tags && client.tags.length > 0)
+                    ? client.tags.map(function(t) { return "<span class='segment-tag'>" + t + "</span>"; }).join('') + "<br>"
+                    : "";
+
+                var netBoxSummary = net.totalCash > 0
+                    ? "<span style='color:#fca5a5; font-weight:800;'>Cash Payable: &#8377;" + fmtINR(net.totalCash) + "</span><br><span style='font-size:0.67rem; color:var(--text-muted);'>I:&#8377;" + fmtINR(net.cashHeads.igst) + " | C:&#8377;" + fmtINR(net.cashHeads.cgst) + " | S:&#8377;" + fmtINR(net.cashHeads.sgst) + "</span>"
+                    : "<span style='color:#6ee7b7; font-weight:800;'>ITC Carry: &#8377;" + fmtINR(net.carryCredit) + "</span><br><span style='font-size:0.67rem; color:var(--text-muted);'>I:&#8377;" + fmtINR(net.closingItc.igst) + " | C:&#8377;" + fmtINR(net.closingItc.cgst) + " | S:&#8377;" + fmtINR(net.closingItc.sgst) + "</span>";
+
+                var row = document.createElement('tr');
+                row.innerHTML =
+                    "<td>" +
+                        "<div style='display:flex; align-items:center; justify-content:space-between; gap:6px;'>" +
+                            "<strong style='color:#fff; font-size:0.94rem;'>" + client.name + "</strong>" +
+                            "<span style='font-size:0.68rem; background:rgba(59,130,246,0.15); padding:2px 7px; border-radius:4px; color:#93c5fd; font-weight:700;'>" + (client.scheme || 'Monthly') + "</span>" +
+                        "</div>" +
+                        "<div style='margin-top:3px;'><span class='gstin-mono'>" + client.gstin + "</span><span class='state-pill'>" + stLabel + "</span></div>" +
+                        (client.phone ? "<div style='font-size:0.71rem; color:var(--text-muted); margin-top:2px;'>+91 " + client.phone + "</div>" : "") +
+                        (client.notice ? "<div class='notice-tag'>" + client.notice + "</div><br>" : "") +
+                        tagsHtml +
+                        "<div class='credential-bar'>" +
+                            "<span>ID: " + (client.user || 'N/A') + "</span>" +
+                            "<span class='copy-chip' onclick=\"copyClientCredential('" + client.id + "', 'user')\">Copy</span>" +
+                            "<span>| PW: " + passDisplay + "</span>" +
+                            "<span class='copy-chip' onclick=\"togglePassMask('" + client.id + "')\">Show</span>" +
+                            "<span class='copy-chip' onclick=\"copyClientCredential('" + client.id + "', 'pass')\">Copy</span>" +
+                        "</div>" +
+                        (data.notes ? "<div style='font-size:0.72rem; color:#fcd34d; background:rgba(245,158,11,0.08); border:1px dashed rgba(245,158,11,0.3); padding:5px 7px; border-radius:5px; margin-top:6px;'>" + data.notes + "</div>" : "") +
+                    "</td>" +
+                    "<td>" +
+                        "<div class='ledger-box'><strong>Output:</strong><br>I: &#8377;" + fmtINR(data.outIgst) + " | C: &#8377;" + fmtINR(data.outCgst) + " | S: &#8377;" + fmtINR(data.outSgst) + "</div>" +
+                        (rcmActive ? "<div class='ledger-box' style='margin-top:5px; border-color:var(--danger);'><strong>RCM (Cash):</strong><br>I: &#8377;" + fmtINR(data.rcmIgst) + " | C: &#8377;" + fmtINR(data.rcmCgst) + " | S: &#8377;" + fmtINR(data.rcmSgst) + "</div>" : "") +
+                    "</td>" +
+                    "<td>" +
+                        "<div class='ledger-box' style='margin-bottom:4px;'><strong>Op. Bal:</strong> I:&#8377;" + fmtINR(openingBal.igst) + " | C:&#8377;" + fmtINR(openingBal.cgst) + " | S:&#8377;" + fmtINR(openingBal.sgst) + "</div>" +
+                        "<div class='ledger-box' style='border-color:var(--success);'><strong>3B ITC:</strong> I:&#8377;" + fmtINR(data.itcIgst) + " | C:&#8377;" + fmtINR(data.itcCgst) + " | S:&#8377;" + fmtINR(data.itcSgst) + "</div>" +
+                        (has2B ? "<div style='font-size:0.68rem; color:var(--text-muted); margin-top:3px;'>2B: I:&#8377;" + fmtINR(data.itc2bIgst) + " | C:&#8377;" + fmtINR(data.itc2bCgst) + " | S:&#8377;" + fmtINR(data.itc2bSgst) + "</div>" : "") +
+                        reconHtml +
+                    "</td>" +
+                    "<td>" +
+                        "<div style='margin-bottom:8px;'>" +
+                            "<span class='badge " + (data.r1 === 'Filed' ? 'badge-filed' : 'badge-pending') + "' onclick=\"toggleReturnStatus('" + client.id + "', 'r1')\">" + dueInfo.r1Label + ": " + data.r1 + "</span>" +
+                            r1SubHtml +
+                        "</div>" +
+                        "<div>" +
+                            "<span class='badge " + (data.r3b === 'Filed' ? 'badge-filed' : 'badge-pending') + "' onclick=\"toggleReturnStatus('" + client.id + "', 'r3b')\">" + dueInfo.r3bLabel + ": " + data.r3b + "</span>" +
+                            r3bSubHtml +
+                        "</div>" +
+                        penaltyHtml +
+                    "</td>" +
+                    "<td>" +
+                        "<div class='ledger-box' style='margin-bottom:5px; border-color:" + (net.totalCash > 0 ? 'var(--danger)' : 'var(--success)') + "'>" +
+                            netBoxSummary +
+                            (net.lateFee + net.interest > 0 && !data.waived ? "<br><span style='color:var(--danger); font-weight:700;'>+ Penalty: &#8377;" + fmtINR(net.lateFee + net.interest) + "</span>" : "") +
+                        "</div>" +
+                        "<div class='ledger-box' style='margin-bottom:6px; display:flex; justify-content:space-between; align-items:center; border-color:" + (data.feeStatus === 'Due' ? 'var(--warning)' : 'var(--success)') + "'>" +
+                            "<div><strong>Fee: &#8377;" + fmtINR(data.feeAmount) + "</strong>" + (data.feeStatus === 'Paid' ? " <span style='font-size:0.65rem; color:var(--success);'>(Cleared)</span>" : "") + "</div>" +
+                            "<span class='badge " + (data.feeStatus === 'Paid' ? 'badge-filed' : 'badge-pending') + "' style='min-width:75px; padding:2px 6px;' onclick=\"toggleFeeStatus('" + client.id + "')\">" + data.feeStatus + "</span>" +
+                        "</div>" +
+                        "<div class='action-row'>" +
+                            "<button type='button' class='btn-inline' onclick=\"triggerInlineEdit('" + client.id + "')\">Edit</button>" +
+                            "<button type='button' class='btn-inline btn-gstr9' onclick=\"openGstr9Modal('" + client.id + "')\">GSTR-9</button>" +
+                            "<button type='button' class='btn-inline btn-print' onclick=\"printChallan('" + client.id + "')\">PDF</button>" +
+                            "<button type='button' class='btn-inline btn-whatsapp' onclick=\"openWhatsAppModal('" + client.id + "')\">WA</button>" +
+                            "<button type='button' class='btn-inline' style='color:var(--danger);' onclick=\"purgeClientProfile('" + client.id + "')\">Del</button>" +
+                        "</div>" +
+                    "</td>";
+                tbody.appendChild(row);
+            });
+
+            document.getElementById('stat-total').textContent = totalAccounts;
+            document.getElementById('stat-r1').textContent = r1PendingCount;
+            document.getElementById('stat-3b').textContent = r3bPendingCount;
+            document.getElementById('stat-recon').textContent = reconMismatchCount;
+            document.getElementById('stat-cash').innerHTML = '&#8377;' + fmtINR(aggregateCashNeeded);
+            document.getElementById('stat-fees').innerHTML = '&#8377;' + fmtINR(aggregateUncollectedFees);
+        };
+
+        // --- DETAILED GSTR-9 ENGINE (TABLES 4, 6, 8, 9 & 12-MONTH BREAKDOWN) ---
+        function computeGstr9DossierData(client, startYear) {
+            var aprilPeriod = startYear + "-04";
+            var fyOpenItc = calculateCumulativeITC(client, aprilPeriod);
+            var fyCloseItc = { igst: 0, cgst: 0, sgst: 0 };
+
+            var t4 = {
+                outI: 0, outC: 0, outS: 0,
+                rcmI: 0, rcmC: 0, rcmS: 0
+            };
+            var t6 = {
+                openI: fyOpenItc.igst, openC: fyOpenItc.cgst, openS: fyOpenItc.sgst,
+                availI: 0, availC: 0, availS: 0,
+                usedPoolI: 0, usedPoolC: 0, usedPoolS: 0,
+                closeI: 0, closeC: 0, closeS: 0
+            };
+            var t8 = {
+                itc2bI: 0, itc2bC: 0, itc2bS: 0,
+                itc3bI: 0, itc3bC: 0, itc3bS: 0
+            };
+            var t9 = {
+                payI: 0, payC: 0, payS: 0,
+                paidItcI: 0, paidItcC: 0, paidItcS: 0,
+                paidCashI: 0, paidCashC: 0, paidCashS: 0,
+                lateFee: 0, interest: 0
+            };
+
+            var feeSummary = { billed: 0, paid: 0, due: 0 };
+            var filingCounts = { r1Filed: 0, r3bFiled: 0 };
+            var monthlyRows = [];
+
+            FY_MONTHS.forEach(function(m, idx) {
+                var yr = startYear + m.offset;
+                var pKey = yr + "-" + m.monthStr;
+                ensureMonthStructureInitialized(client, pKey);
+                var d = client.history[pKey];
+                var op = calculateCumulativeITC(client, pKey);
+                var due = getClientDueDates(client, pKey);
+                var net = computeTaxEngine(d, due.r3bDueDate, op, client.scheme);
+
+                if (idx === 11) {
+                    fyCloseItc = net.closingItc;
+                }
+
+                var oI = d.outIgst || 0, oC = d.outCgst || 0, oS = d.outSgst || 0;
+                var rI = d.rcmIgst || 0, rC = d.rcmCgst || 0, rS = d.rcmSgst || 0;
+                var c3I = d.itcIgst || 0, c3C = d.itcCgst || 0, c3S = d.itcSgst || 0;
+                var c2I = d.itc2bIgst || 0, c2C = d.itc2bCgst || 0, c2S = d.itc2bSgst || 0;
+
+                t4.outI += oI; t4.outC += oC; t4.outS += oS;
+                t4.rcmI += rI; t4.rcmC += rC; t4.rcmS += rS;
+
+                t6.availI += c3I; t6.availC += c3C; t6.availS += c3S;
+                t6.usedPoolI += net.itcUsedFromPool.igst;
+                t6.usedPoolC += net.itcUsedFromPool.cgst;
+                t6.usedPoolS += net.itcUsedFromPool.sgst;
+
+                t8.itc2bI += c2I; t8.itc2bC += c2C; t8.itc2bS += c2S;
+                t8.itc3bI += c3I; t8.itc3bC += c3C; t8.itc3bS += c3S;
+
+                t9.payI += (oI + rI); t9.payC += (oC + rC); t9.payS += (oS + rS);
+                t9.paidItcI += net.taxPaidByItc.igst;
+                t9.paidItcC += net.taxPaidByItc.cgst;
+                t9.paidItcS += net.taxPaidByItc.sgst;
+                t9.paidCashI += net.cashHeads.igst;
+                t9.paidCashC += net.cashHeads.cgst;
+                t9.paidCashS += net.cashHeads.sgst;
+                t9.lateFee += net.lateFee;
+                t9.interest += net.interest;
+
+                var fAmt = d.feeAmount || 0;
+                feeSummary.billed += fAmt;
+                if (d.feeStatus === 'Paid') feeSummary.paid += fAmt;
+                else feeSummary.due += fAmt;
+
+                if (d.r1 === 'Filed') filingCounts.r1Filed++;
+                if (d.r3b === 'Filed') filingCounts.r3bFiled++;
+
+                monthlyRows.push({
+                    label: m.name + " " + yr,
+                    r1: d.r1, r1Date: d.r1Date || '',
+                    r3b: d.r3b, r3bDate: d.r3bDate || '', r3bArn: d.r3bArn || '',
+                    outSum: oI + oC + oS,
+                    rcmSum: rI + rC + rS,
+                    itc3bSum: c3I + c3C + c3S,
+                    itc2bSum: c2I + c2C + c2S,
+                    reconDiff: net.reconDiff,
+                    cashPaid: net.totalCash,
+                    penalty: net.lateFee + net.interest,
+                    feeAmount: fAmt,
+                    feeStatus: d.feeStatus || 'Due'
+                });
+            });
+
+            t6.closeI = fyCloseItc.igst; t6.closeC = fyCloseItc.cgst; t6.closeS = fyCloseItc.sgst;
+
+            return {
+                startYear: startYear,
+                fyLabel: "FY " + startYear + "-" + String(startYear + 1).substring(2),
+                t4: t4, t6: t6, t8: t8, t9: t9,
+                feeSummary: feeSummary,
+                filingCounts: filingCounts,
+                monthlyRows: monthlyRows
+            };
+        }
+
+        window.openGstr9Modal = function(clientId) {
+            activeGstr9ClientId = clientId;
+            var mainFy = document.getElementById('global-fy-select').value;
+            var g9Select = document.getElementById('gstr9-fy-select');
+            if (g9Select) g9Select.value = mainFy;
+            refreshActiveGstr9Modal();
+            document.getElementById('gstr9-modal').style.display = 'flex';
+        };
+
+        window.refreshActiveGstr9Modal = function() {
+            if (!activeGstr9ClientId) return;
+            var client = db.find(function(c) { return c.id === activeGstr9ClientId; });
+            if (!client) return;
+
+            var startYear = parseInt(document.getElementById('gstr9-fy-select').value || document.getElementById('global-fy-select').value, 10);
+            var g9 = computeGstr9DossierData(client, startYear);
+            var stCode = (client.gstin || '').substring(0, 2);
+            var stLabel = GST_STATE_MAP[stCode] || stCode;
+
+            document.getElementById('gstr9-title').textContent = "GSTR-9 Annual Working Dossier - " + client.name;
+            document.getElementById('gstr9-subtitle').textContent = "GSTIN: " + client.gstin + " (" + stLabel + ") | Scheme: " + (client.scheme || 'Monthly') + " | " + g9.fyLabel;
+
+            var totOutTax = g9.t4.outI + g9.t4.outC + g9.t4.outS;
+            var totRcmTax = g9.t4.rcmI + g9.t4.rcmC + g9.t4.rcmS;
+            var tot3bAvail = g9.t6.availI + g9.t6.availC + g9.t6.availS;
+            var tot2bAvail = g9.t8.itc2bI + g9.t8.itc2bC + g9.t8.itc2bS;
+            var net2bMinus3b = tot2bAvail - tot3bAvail;
+            var totCashPaid = g9.t9.paidCashI + g9.t9.paidCashC + g9.t9.paidCashS;
+
+            // Render Top KPI Cards
+            document.getElementById('gstr9-kpi-container').innerHTML =
+                "<div class='gstr9-kpi-box'>" +
+                    "<div class='summary-label'>Table 4 Total Liability (Out + RCM)</div>" +
+                    "<div style='font-size:1.15rem; font-weight:800; color:var(--primary); margin-top:3px;'>&#8377;" + fmtINR(totOutTax + totRcmTax) + "</div>" +
+                    "<div style='font-size:0.7rem; color:var(--text-muted);'>Outward: &#8377;" + fmtINR(totOutTax) + " | RCM: &#8377;" + fmtINR(totRcmTax) + "</div>" +
+                "</div>" +
+                "<div class='gstr9-kpi-box'>" +
+                    "<div class='summary-label'>Table 6 ITC Claimed vs Utilized</div>" +
+                    "<div style='font-size:1.15rem; font-weight:800; color:var(--success); margin-top:3px;'>&#8377;" + fmtINR(tot3bAvail) + "</div>" +
+                    "<div style='font-size:0.7rem; color:var(--text-muted);'>Closing Mar ITC: &#8377;" + fmtINR(g9.t6.closeI + g9.t6.closeC + g9.t6.closeS) + "</div>" +
+                "</div>" +
+                "<div class='gstr9-kpi-box'>" +
+                    "<div class='summary-label'>Table 8D Variance (2B minus 3B)</div>" +
+                    "<div style='font-size:1.15rem; font-weight:800; color:" + (net2bMinus3b < -1 ? 'var(--danger)' : 'var(--cyan)') + "; margin-top:3px;'>&#8377;" + fmtINR(net2bMinus3b) + "</div>" +
+                    "<div style='font-size:0.7rem; color:" + (net2bMinus3b < -1 ? '#fca5a5' : '#6ee7b7') + ";'>" + (net2bMinus3b < -1 ? 'Excess 3B Claimed (DRC-03 Risk)' : 'Matched / Safe Buffer') + "</div>" +
+                "</div>" +
+                "<div class='gstr9-kpi-box'>" +
+                    "<div class='summary-label'>Table 9 Cash Paid &amp; Practice Fees</div>" +
+                    "<div style='font-size:1.15rem; font-weight:800; color:var(--warning); margin-top:3px;'>&#8377;" + fmtINR(totCashPaid) + "</div>" +
+                    "<div style='font-size:0.7rem; color:var(--text-muted);'>Fee Paid: &#8377;" + fmtINR(g9.feeSummary.paid) + " | Due: &#8377;" + fmtINR(g9.feeSummary.due) + "</div>" +
+                "</div>";
+
+            // Render Table 4
+            document.getElementById('gstr9-t4-body').innerHTML =
+                "<tr><td>4A-4F. Outward Taxable Supplies (Normal)</td><td>" + fmtINR(g9.t4.outI) + "</td><td>" + fmtINR(g9.t4.outC) + "</td><td>" + fmtINR(g9.t4.outS) + "</td><td><strong>" + fmtINR(totOutTax) + "</strong></td></tr>" +
+                "<tr><td>4G. Inward Supplies on RCM (Cash Mandatory)</td><td>" + fmtINR(g9.t4.rcmI) + "</td><td>" + fmtINR(g9.t4.rcmC) + "</td><td>" + fmtINR(g9.t4.rcmS) + "</td><td><strong>" + fmtINR(totRcmTax) + "</strong></td></tr>" +
+                "<tr style='background:rgba(59,130,246,0.12); font-weight:700;'><td>4N. Total Tax Liability (4A to 4G)</td><td>" + fmtINR(g9.t4.outI + g9.t4.rcmI) + "</td><td>" + fmtINR(g9.t4.outC + g9.t4.rcmC) + "</td><td>" + fmtINR(g9.t4.outS + g9.t4.rcmS) + "</td><td>&#8377;" + fmtINR(totOutTax + totRcmTax) + "</td></tr>";
+
+            // Render Table 6
+            var openSum = g9.t6.openI + g9.t6.openC + g9.t6.openS;
+            var poolSum = openSum + tot3bAvail;
+            var usedPoolSum = g9.t6.usedPoolI + g9.t6.usedPoolC + g9.t6.usedPoolS;
+            var closeSum = g9.t6.closeI + g9.t6.closeC + g9.t6.closeS;
+            document.getElementById('gstr9-t6-body').innerHTML =
+                "<tr><td>Opening Credit Ledger (1st April)</td><td>" + fmtINR(g9.t6.openI) + "</td><td>" + fmtINR(g9.t6.openC) + "</td><td>" + fmtINR(g9.t6.openS) + "</td><td>" + fmtINR(openSum) + "</td></tr>" +
+                "<tr><td>6B. Eligible ITC Availed in GSTR-3B</td><td>" + fmtINR(g9.t6.availI) + "</td><td>" + fmtINR(g9.t6.availC) + "</td><td>" + fmtINR(g9.t6.availS) + "</td><td><strong>" + fmtINR(tot3bAvail) + "</strong></td></tr>" +
+                "<tr><td>Total Credit Pool Available</td><td>" + fmtINR(g9.t6.openI + g9.t6.availI) + "</td><td>" + fmtINR(g9.t6.openC + g9.t6.availC) + "</td><td>" + fmtINR(g9.t6.openS + g9.t6.availS) + "</td><td>" + fmtINR(poolSum) + "</td></tr>" +
+                "<tr><td>Less: ITC Utilized (Rule 88A Set-Off)</td><td>" + fmtINR(g9.t6.usedPoolI) + "</td><td>" + fmtINR(g9.t6.usedPoolC) + "</td><td>" + fmtINR(g9.t6.usedPoolS) + "</td><td>" + fmtINR(usedPoolSum) + "</td></tr>" +
+                "<tr style='background:rgba(16,185,129,0.12); font-weight:700;'><td>Closing Credit Ledger (31st March)</td><td>" + fmtINR(g9.t6.closeI) + "</td><td>" + fmtINR(g9.t6.closeC) + "</td><td>" + fmtINR(g9.t6.closeS) + "</td><td>&#8377;" + fmtINR(closeSum) + "</td></tr>";
+
+            // Render Table 8
+            var d8I = g9.t8.itc2bI - g9.t8.itc3bI;
+            var d8C = g9.t8.itc2bC - g9.t8.itc3bC;
+            var d8S = g9.t8.itc2bS - g9.t8.itc3bS;
+            var excess3b = tot3bAvail - tot2bAvail;
+            document.getElementById('gstr9-t8-body').innerHTML =
+                "<tr><td>8A. ITC Auto-Populated as per GSTR-2B</td><td>" + fmtINR(g9.t8.itc2bI) + "</td><td>" + fmtINR(g9.t8.itc2bC) + "</td><td>" + fmtINR(g9.t8.itc2bS) + "</td><td><strong>" + fmtINR(tot2bAvail) + "</strong></td></tr>" +
+                "<tr><td>8B. ITC Claimed in GSTR-3B (Table 6B)</td><td>" + fmtINR(g9.t8.itc3bI) + "</td><td>" + fmtINR(g9.t8.itc3bC) + "</td><td>" + fmtINR(g9.t8.itc3bS) + "</td><td><strong>" + fmtINR(tot3bAvail) + "</strong></td></tr>" +
+                "<tr style='font-weight:700; color:" + (net2bMinus3b < -1 ? '#fca5a5' : '#6ee7b7') + ";'><td>8D. Net Balance (8A minus 8B)</td><td>" + fmtINR(d8I) + "</td><td>" + fmtINR(d8C) + "</td><td>" + fmtINR(d8S) + "</td><td>&#8377;" + fmtINR(net2bMinus3b) + "</td></tr>" +
+                "<tr><td colspan='4'>Audit Status (3B Claimed vs 2B Available)</td><td><strong>" + (excess3b > 1 ? ("Excess: &#8377;" + fmtINR(excess3b)) : "Safe / Reconciled") + "</strong></td></tr>";
+
+            // Render Table 9
+            var totPaidItc = g9.t9.paidItcI + g9.t9.paidItcC + g9.t9.paidItcS;
+            document.getElementById('gstr9-t9-body').innerHTML =
+                "<tr><td>Total Tax Payable (Outward + RCM)</td><td>" + fmtINR(g9.t9.payI) + "</td><td>" + fmtINR(g9.t9.payC) + "</td><td>" + fmtINR(g9.t9.payS) + "</td><td><strong>" + fmtINR(totOutTax + totRcmTax) + "</strong></td></tr>" +
+                "<tr><td>Paid Through ITC (Credit Ledger)</td><td>" + fmtINR(g9.t9.paidItcI) + "</td><td>" + fmtINR(g9.t9.paidItcC) + "</td><td>" + fmtINR(g9.t9.paidItcS) + "</td><td>" + fmtINR(totPaidItc) + "</td></tr>" +
+                "<tr style='background:rgba(245,158,11,0.12); font-weight:700;'><td>Paid Through Cash Ledger (Tax + RCM)</td><td>" + fmtINR(g9.t9.paidCashI) + "</td><td>" + fmtINR(g9.t9.paidCashC) + "</td><td>" + fmtINR(g9.t9.paidCashS) + "</td><td>&#8377;" + fmtINR(totCashPaid) + "</td></tr>" +
+                "<tr><td>Sec 47 Late Fee &amp; Sec 50 Interest</td><td colspan='3'>Late Fee: &#8377;" + fmtINR(g9.t9.lateFee) + " | Interest: &#8377;" + fmtINR(g9.t9.interest) + "</td><td><strong>&#8377;" + fmtINR(g9.t9.lateFee + g9.t9.interest) + "</strong></td></tr>";
+
+            // Render 12-Month Breakdown Table
+            var tbody = document.getElementById('gstr9-tbody');
+            tbody.innerHTML = '';
+            g9.monthlyRows.forEach(function(r) {
+                var tr = document.createElement('tr');
+                tr.innerHTML =
+                    "<td><strong>" + r.label + "</strong></td>" +
+                    "<td style='color:" + (r.r1 === 'Filed' ? 'var(--success)' : 'var(--warning)') + "'>" + r.r1 + (r.r1Date ? "<br><span style='font-size:0.68rem; color:var(--text-muted);'>" + r.r1Date + "</span>" : "") + "</td>" +
+                    "<td style='color:" + (r.r3b === 'Filed' ? 'var(--success)' : 'var(--danger)') + "'>" + r.r3b + (r.r3bDate ? "<br><span style='font-size:0.68rem; color:var(--text-muted);'>" + r.r3bDate + "</span>" : "") + (r.r3bArn ? "<br><span style='font-size:0.66rem; color:#93c5fd;'>" + r.r3bArn + "</span>" : "") + "</td>" +
+                    "<td>&#8377;" + fmtINR(r.outSum) + "</td>" +
+                    "<td>&#8377;" + fmtINR(r.rcmSum) + "</td>" +
+                    "<td>&#8377;" + fmtINR(r.itc3bSum) + "</td>" +
+                    "<td>&#8377;" + fmtINR(r.itc2bSum) + "</td>" +
+                    "<td style='color:" + (r.reconDiff > 1 ? 'var(--danger)' : 'var(--success)') + "; font-weight:700;'>&#8377;" + fmtINR(r.reconDiff) + "</td>" +
+                    "<td>&#8377;" + fmtINR(r.cashPaid) + "</td>" +
+                    "<td>&#8377;" + fmtINR(r.penalty) + "</td>" +
+                    "<td>&#8377;" + fmtINR(r.feeAmount) + " <span style='color:" + (r.feeStatus === 'Paid' ? 'var(--success)' : 'var(--warning)') + "; font-weight:700;'>(" + r.feeStatus + ")</span></td>";
+                tbody.appendChild(tr);
+            });
+
+            var totalRow = document.createElement('tr');
+            totalRow.style.background = 'rgba(59,130,246,0.15)';
+            totalRow.style.fontWeight = '800';
+            totalRow.innerHTML =
+                "<td>ANNUAL FY TOTAL</td>" +
+                "<td>" + g9.filingCounts.r1Filed + "/12 Filed</td>" +
+                "<td>" + g9.filingCounts.r3bFiled + "/12 Filed</td>" +
+                "<td>&#8377;" + fmtINR(totOutTax) + "</td>" +
+                "<td>&#8377;" + fmtINR(totRcmTax) + "</td>" +
+                "<td>&#8377;" + fmtINR(tot3bAvail) + "</td>" +
+                "<td>&#8377;" + fmtINR(tot2bAvail) + "</td>" +
+                "<td style='color:" + (excess3b > 1 ? 'var(--danger)' : 'var(--success)') + "'>&#8377;" + fmtINR(excess3b) + "</td>" +
+                "<td>&#8377;" + fmtINR(totCashPaid) + "</td>" +
+                "<td>&#8377;" + fmtINR(g9.t9.lateFee + g9.t9.interest) + "</td>" +
+                "<td>Paid: &#8377;" + fmtINR(g9.feeSummary.paid) + " | Due: &#8377;" + fmtINR(g9.feeSummary.due) + "</td>";
+            tbody.appendChild(totalRow);
+        };
+
+        // --- 1-CLICK GSTR-9 DETAILED PDF GENERATOR ---
+        window.printGstr9Dossier = function() {
+            if (!activeGstr9ClientId) return;
+            var client = db.find(function(c) { return c.id === activeGstr9ClientId; });
+            if (!client) return;
+
+            var startYear = parseInt(document.getElementById('gstr9-fy-select').value || document.getElementById('global-fy-select').value, 10);
+            var g9 = computeGstr9DossierData(client, startYear);
+            var stCode = (client.gstin || '').substring(0, 2);
+            var stLabel = GST_STATE_MAP[stCode] || stCode;
+
+            var totOutTax = g9.t4.outI + g9.t4.outC + g9.t4.outS;
+            var totRcmTax = g9.t4.rcmI + g9.t4.rcmC + g9.t4.rcmS;
+            var tot3bAvail = g9.t6.availI + g9.t6.availC + g9.t6.availS;
+            var tot2bAvail = g9.t8.itc2bI + g9.t8.itc2bC + g9.t8.itc2bS;
+            var net2bMinus3b = tot2bAvail - tot3bAvail;
+            var excess3b = tot3bAvail - tot2bAvail;
+            var totPaidItc = g9.t9.paidItcI + g9.t9.paidItcC + g9.t9.paidItcS;
+            var totCashPaid = g9.t9.paidCashI + g9.t9.paidCashC + g9.t9.paidCashS;
+
+            var mRowsHtml = "";
+            g9.monthlyRows.forEach(function(r) {
+                mRowsHtml +=
+                    "<tr>" +
+                        "<td style='text-align:left;'><strong>" + r.label + "</strong></td>" +
+                        "<td style='text-align:center;'>" + r.r1 + (r.r1Date ? " (" + r.r1Date + ")" : "") + "</td>" +
+                        "<td style='text-align:center;'>" + r.r3b + (r.r3bArn ? " [" + r.r3bArn + "]" : (r.r3bDate ? " (" + r.r3bDate + ")" : "")) + "</td>" +
+                        "<td>" + fmtINR(r.outSum) + "</td>" +
+                        "<td>" + fmtINR(r.rcmSum) + "</td>" +
+                        "<td>" + fmtINR(r.itc3bSum) + "</td>" +
+                        "<td>" + fmtINR(r.itc2bSum) + "</td>" +
+                        "<td>" + fmtINR(r.reconDiff) + "</td>" +
+                        "<td>" + fmtINR(r.cashPaid) + "</td>" +
+                        "<td>" + fmtINR(r.feeAmount) + " (" + r.feeStatus + ")</td>" +
+                    "</tr>";
+            });
+
+            var logoHtml = client.logo
+                ? "<img src='" + client.logo + "' style='max-height:52px;'>"
+                : "<div style='font-weight:900; font-size:16px;'>" + practiceConfig.firmName + "</div>";
+
+            var container = document.getElementById('print-gstr9-area');
+            container.innerHTML =
+                "<div class='print-header'>" +
+                    "<div>" + logoHtml + "</div>" +
+                    "<div style='text-align:right;'>" +
+                        "<h1>GSTR-9 Annual Return Working &amp; Reconciliation Dossier</h1>" +
+                        "<p style='font-size:12px; color:#475569;'>Prepared by " + practiceConfig.firmName + " | Generated on " + new Date().toLocaleDateString('en-IN') + "</p>" +
+                    "</div>" +
+                "</div>" +
+                "<div class='print-details'>" +
+                    "<div>" +
+                        "<strong>Legal / Trade Name:</strong> " + client.name + "<br>" +
+                        "<strong>GSTIN:</strong> " + client.gstin + " (" + stLabel + ")<br>" +
+                        "<strong>Registration Scheme:</strong> " + (client.scheme || 'Monthly') +
+                    "</div>" +
+                    "<div style='text-align:right;'>" +
+                        "<strong>Financial Year:</strong> " + g9.fyLabel + " (Apr " + startYear + " to Mar " + (startYear + 1) + ")<br>" +
+                        "<strong>Filing Compliance:</strong> Step 1: " + g9.filingCounts.r1Filed + "/12 | Step 2: " + g9.filingCounts.r3bFiled + "/12<br>" +
+                        "<strong>Annual Retainer Status:</strong> Paid: &#8377;" + fmtINR(g9.feeSummary.paid) + " | Unpaid Due: &#8377;" + fmtINR(g9.feeSummary.due) +
+                    "</div>" +
+                "</div>" +
+
+                "<div class='print-section-title'>Part II - Table 4: Details of Outward &amp; Inward Supplies on which Tax is Payable</div>" +
+                "<table class='print-table'>" +
+                    "<thead><tr><th>Table / Nature of Supplies</th><th>IGST (&#8377;)</th><th>CGST (&#8377;)</th><th>SGST (&#8377;)</th><th>Total Tax (&#8377;)</th></tr></thead>" +
+                    "<tbody>" +
+                        "<tr><td>4A to 4F. Outward Taxable Supplies (B2B + B2C + Exports)</td><td>" + fmtINR(g9.t4.outI) + "</td><td>" + fmtINR(g9.t4.outC) + "</td><td>" + fmtINR(g9.t4.outS) + "</td><td>" + fmtINR(totOutTax) + "</td></tr>" +
+                        "<tr><td>4G. Inward Supplies Liable to Reverse Charge (RCM - Mandatory Cash)</td><td>" + fmtINR(g9.t4.rcmI) + "</td><td>" + fmtINR(g9.t4.rcmC) + "</td><td>" + fmtINR(g9.t4.rcmS) + "</td><td>" + fmtINR(totRcmTax) + "</td></tr>" +
+                        "<tr class='print-total'><td>4N. Total Tax Liability on Supplies (4A to 4G)</td><td>&#8377;" + fmtINR(g9.t4.outI + g9.t4.rcmI) + "</td><td>&#8377;" + fmtINR(g9.t4.outC + g9.t4.rcmC) + "</td><td>&#8377;" + fmtINR(g9.t4.outS + g9.t4.rcmS) + "</td><td>&#8377;" + fmtINR(totOutTax + totRcmTax) + "</td></tr>" +
+                    "</tbody>" +
+                "</table>" +
+
+                "<div class='print-section-title'>Part III - Table 6 &amp; Table 8: Input Tax Credit (ITC) Availed, Set-Off &amp; GSTR-2B Reconciliation</div>" +
+                "<table class='print-table'>" +
+                    "<thead><tr><th>Particulars (Electronic Credit Ledger &amp; Table 8 Recon)</th><th>IGST (&#8377;)</th><th>CGST (&#8377;)</th><th>SGST (&#8377;)</th><th>Total ITC (&#8377;)</th></tr></thead>" +
+                    "<tbody>" +
+                        "<tr><td>Opening Electronic Credit Ledger Balance (As on 1st April " + startYear + ")</td><td>" + fmtINR(g9.t6.openI) + "</td><td>" + fmtINR(g9.t6.openC) + "</td><td>" + fmtINR(g9.t6.openS) + "</td><td>" + fmtINR(g9.t6.openI + g9.t6.openC + g9.t6.openS) + "</td></tr>" +
+                        "<tr><td>6B / 8B. Eligible Input Tax Credit Claimed in GSTR-3B (Apr to Mar)</td><td>" + fmtINR(g9.t6.availI) + "</td><td>" + fmtINR(g9.t6.availC) + "</td><td>" + fmtINR(g9.t6.availS) + "</td><td>" + fmtINR(tot3bAvail) + "</td></tr>" +
+                        "<tr><td>Less: ITC Utilized Towards Output Tax Set-Off (Under Rule 88A)</td><td>" + fmtINR(g9.t6.usedPoolI) + "</td><td>" + fmtINR(g9.t6.usedPoolC) + "</td><td>" + fmtINR(g9.t6.usedPoolS) + "</td><td>" + fmtINR(g9.t6.usedPoolI + g9.t6.usedPoolC + g9.t6.usedPoolS) + "</td></tr>" +
+                        "<tr class='print-total'><td>Closing Electronic Credit Ledger Balance (As on 31st March " + (startYear + 1) + ")</td><td>&#8377;" + fmtINR(g9.t6.closeI) + "</td><td>&#8377;" + fmtINR(g9.t6.closeC) + "</td><td>&#8377;" + fmtINR(g9.t6.closeS) + "</td><td>&#8377;" + fmtINR(g9.t6.closeI + g9.t6.closeC + g9.t6.closeS) + "</td></tr>" +
+                        "<tr><td>8A. ITC Auto-Populated as per GSTR-2B (Annual Consolidated)</td><td>" + fmtINR(g9.t8.itc2bI) + "</td><td>" + fmtINR(g9.t8.itc2bC) + "</td><td>" + fmtINR(g9.t8.itc2bS) + "</td><td>" + fmtINR(tot2bAvail) + "</td></tr>" +
+                        "<tr class='print-total'><td>8D. Net Table 8 Variance (8A GSTR-2B minus 8B GSTR-3B)</td><td>&#8377;" + fmtINR(g9.t8.itc2bI - g9.t8.itc3bI) + "</td><td>&#8377;" + fmtINR(g9.t8.itc2bC - g9.t8.itc3bC) + "</td><td>&#8377;" + fmtINR(g9.t8.itc2bS - g9.t8.itc3bS) + "</td><td>&#8377;" + fmtINR(net2bMinus3b) + "</td></tr>" +
+                    "</tbody>" +
+                "</table>" +
+
+                "<div class='print-section-title'>Part IV - Table 9: Details of Tax Paid as Declared in Returns Filed During the Financial Year</div>" +
+                "<table class='print-table'>" +
+                    "<thead><tr><th>Description of Tax Discharge</th><th>IGST (&#8377;)</th><th>CGST (&#8377;)</th><th>SGST (&#8377;)</th><th>Total (&#8377;)</th></tr></thead>" +
+                    "<tbody>" +
+                        "<tr><td>Total Tax Payable (Normal Output + RCM)</td><td>" + fmtINR(g9.t9.payI) + "</td><td>" + fmtINR(g9.t9.payC) + "</td><td>" + fmtINR(g9.t9.payS) + "</td><td>" + fmtINR(totOutTax + totRcmTax) + "</td></tr>" +
+                        "<tr><td>Paid Through Electronic Credit Ledger (ITC Set-Off)</td><td>" + fmtINR(g9.t9.paidItcI) + "</td><td>" + fmtINR(g9.t9.paidItcC) + "</td><td>" + fmtINR(g9.t9.paidItcS) + "</td><td>" + fmtINR(totPaidItc) + "</td></tr>" +
+                        "<tr class='print-total'><td>Paid Through Electronic Cash Ledger (Net Cash Tax + RCM)</td><td>&#8377;" + fmtINR(g9.t9.paidCashI) + "</td><td>&#8377;" + fmtINR(g9.t9.paidCashC) + "</td><td>&#8377;" + fmtINR(g9.t9.paidCashS) + "</td><td>&#8377;" + fmtINR(totCashPaid) + "</td></tr>" +
+                        "<tr><td>Late Fees (Sec 47) &amp; Interest (Sec 50) Discharged in Cash</td><td colspan='3' style='text-align:right;'>Late Fee: &#8377;" + fmtINR(g9.t9.lateFee) + " | Interest: &#8377;" + fmtINR(g9.t9.interest) + "</td><td>&#8377;" + fmtINR(g9.t9.lateFee + g9.t9.interest) + "</td></tr>" +
+                    "</tbody>" +
+                "</table>" +
+
+                "<div class='print-section-title'>Annexure A: 12-Month Return Filing, Reconciliation &amp; Fee Schedule (April – March)</div>" +
+                "<table class='print-table'>" +
+                    "<thead><tr><th>Period</th><th>Step 1 (R1)</th><th>Step 2 (3B / ARN)</th><th>Output (&#8377;)</th><th>RCM (&#8377;)</th><th>3B ITC (&#8377;)</th><th>2B ITC (&#8377;)</th><th>3B-2B Diff</th><th>Cash Tax</th><th>Retainer Fee</th></tr></thead>" +
+                    "<tbody>" + mRowsHtml +
+                        "<tr class='print-total'>" +
+                            "<td style='text-align:left;'>ANNUAL TOTAL</td>" +
+                            "<td style='text-align:center;'>" + g9.filingCounts.r1Filed + "/12</td>" +
+                            "<td style='text-align:center;'>" + g9.filingCounts.r3bFiled + "/12</td>" +
+                            "<td>&#8377;" + fmtINR(totOutTax) + "</td>" +
+                            "<td>&#8377;" + fmtINR(totRcmTax) + "</td>" +
+                            "<td>&#8377;" + fmtINR(tot3bAvail) + "</td>" +
+                            "<td>&#8377;" + fmtINR(tot2bAvail) + "</td>" +
+                            "<td>&#8377;" + fmtINR(excess3b) + "</td>" +
+                            "<td>&#8377;" + fmtINR(totCashPaid) + "</td>" +
+                            "<td>Due: &#8377;" + fmtINR(g9.feeSummary.due) + "</td>" +
+                        "</tr>" +
+                    "</tbody>" +
+                "</table>";
+
+            document.body.classList.add('print-mode-gstr9');
+            setTimeout(function() {
+                window.print();
+                setTimeout(function() {
+                    document.body.classList.remove('print-mode-gstr9');
+                }, 600);
+            }, 200);
+        };
+
+        // --- MODAL 2: WHATSAPP DISPATCHER ---
+        window.openWhatsAppModal = function(clientId) {
+            document.getElementById('wa-client-id').value = clientId;
+            buildWhatsAppTemplate('CHALLAN');
+            document.getElementById('wa-modal').style.display = 'flex';
+        };
+
+        window.buildWhatsAppTemplate = function(mode) {
+            var id = document.getElementById('wa-client-id').value;
+            var client = db.find(function(c) { return c.id === id; });
+            if (!client) return;
+            ensureMonthStructureInitialized(client, activeTargetPeriod);
+
+            var d = client.history[activeTargetPeriod];
+            var op = calculateCumulativeITC(client, activeTargetPeriod);
+            var due = getClientDueDates(client, activeTargetPeriod);
+            var net = computeTaxEngine(d, due.r3bDueDate, op, client.scheme);
+
+            var parts = activeTargetPeriod.split('-');
+            var periodLabel = getMonthNameByStr(parts[1]) + " " + parts[0];
+            var firm = practiceConfig.firmName || "Tax Compliance Desk";
+            var unpaidFee = (d.feeStatus === 'Paid') ? 0 : (d.feeAmount || 0);
+            var lines = [];
+
+            if (mode === 'DATA') {
+                lines.push("Dear *" + client.name + "*,");
+                lines.push("");
+                lines.push("Gentle reminder for *" + periodLabel + "* GST compliance (" + client.gstin + ").");
+                lines.push("Please share your Sales & Purchase invoices so we can reconcile GSTR-2B and file *" + due.r1Label + "* on time.");
+                lines.push("");
+                lines.push("Regards,");
+                lines.push("*" + firm + "*");
+            } else if (mode === 'CHALLAN') {
+                var taxChallanOwed = net.totalCash + net.lateFee + net.interest;
+                var grandOwed = taxChallanOwed + unpaidFee;
+                var outTot = (d.outIgst || 0) + (d.outCgst || 0) + (d.outSgst || 0);
+                var itcUsed = (op.igst + op.cgst + op.sgst) + (d.itcIgst || 0) + (d.itcCgst || 0) + (d.itcSgst || 0) - net.carryCredit;
+                lines.push("Dear *" + client.name + "*,");
+                lines.push("");
+                lines.push("GST Computation Summary for *" + periodLabel + "* (" + client.gstin + "):");
+                lines.push("- Output Liability: Rs. " + fmtINR(outTot));
+                lines.push("- ITC Set-Off Utilized: Rs. " + fmtINR(itcUsed));
+                lines.push("- *Net Cash Tax Payable: Rs. " + fmtINR(net.totalCash) + "*");
+                if (net.lateFee + net.interest > 0 && !d.waived) {
+                    lines.push("- Late Fee / Interest: Rs. " + fmtINR(net.lateFee + net.interest));
+                }
+                if (d.feeAmount > 0) {
+                    lines.push("- Professional Fee: Rs. " + fmtINR(d.feeAmount) + " (" + (d.feeStatus === 'Paid' ? "PAID - Deducted" : "Unpaid Due") + ")");
+                }
+                lines.push("- *Total Net Balance Payable: Rs. " + fmtINR(grandOwed) + "*");
+                lines.push("");
+                lines.push("Please approve and fund the challan to complete *" + due.r3bLabel + "* filing.");
+                lines.push("");
+                lines.push("Regards,");
+                lines.push("*" + firm + "*");
+            } else if (mode === 'FILED') {
+                lines.push("Dear *" + client.name + "*,");
+                lines.push("");
+                lines.push("Your GST returns for *" + periodLabel + "* (" + client.gstin + ") have been processed:");
+                lines.push("- *" + due.r1Label + ":* " + d.r1 + (d.r1Date ? " (" + d.r1Date + ")" : ""));
+                lines.push("- *" + due.r3bLabel + ":* " + d.r3b + (d.r3bDate ? " (" + d.r3bDate + ")" : ""));
+                if (d.r3bArn) lines.push("- *ARN/Ref:* " + d.r3bArn);
+                if (unpaidFee > 0) {
+                    lines.push("");
+                    lines.push("*Professional Fee Due:* Rs. " + fmtINR(unpaidFee));
+                    if (practiceConfig.upiId) lines.push("*Pay via UPI:* " + practiceConfig.upiId);
+                } else if (d.feeAmount > 0 && d.feeStatus === 'Paid') {
+                    lines.push("");
+                    lines.push("*Professional Fee (Rs. " + fmtINR(d.feeAmount) + "):* CLEARED / PAID");
+                }
+                lines.push("");
+                lines.push("Thank you,");
+                lines.push("*" + firm + "*");
+            }
+            document.getElementById('wa-message-preview').value = lines.join("\n");
+        };
+
+        window.launchWhatsAppWindow = function() {
+            var id = document.getElementById('wa-client-id').value;
+            var client = db.find(function(c) { return c.id === id; });
+            var text = document.getElementById('wa-message-preview').value;
+            var phoneParam = (client && client.phone && client.phone.length === 10) ? ("phone=91" + client.phone + "&") : "";
+            window.open("https://api.whatsapp.com/send?" + phoneParam + "text=" + encodeURIComponent(text), '_blank');
+            closeModal('wa-modal');
+        };
+
+        // --- FIXED MONTHLY CHALLAN PDF (WITH PAID FEE DEDUCTION & QR PRELOADER) ---
+        window.printChallan = function(id) {
+            var client = db.find(function(c) { return c.id === id; });
+            if (!client) return;
+            document.body.classList.remove('print-mode-gstr9');
+
+            ensureMonthStructureInitialized(client, activeTargetPeriod);
+            var data = client.history[activeTargetPeriod];
+
+            var due = getClientDueDates(client, activeTargetPeriod);
+            var opItc = calculateCumulativeITC(client, activeTargetPeriod);
+            var net = computeTaxEngine(data, due.r3bDueDate, opItc, client.scheme);
+
+            document.getElementById('print-logo-container').innerHTML = client.logo
+                ? "<img src='" + client.logo + "' style='max-height:60px;'>"
+                : "<div style='font-weight:900; font-size:18px;'>" + practiceConfig.firmName + "</div>";
+            document.getElementById('print-firm-title').textContent = "Prepared by " + practiceConfig.firmName;
+            document.getElementById('print-name').textContent = client.name;
+            document.getElementById('print-gstin').textContent = client.gstin;
+            document.getElementById('print-scheme').textContent = client.scheme || 'Monthly';
+            document.getElementById('print-status-line').textContent = due.r1Label + ": " + data.r1 + " | " + due.r3bLabel + ": " + data.r3b;
+            document.getElementById('print-arn').textContent = data.r3bArn || 'Pending / N/A';
+
+            var parts = activeTargetPeriod.split('-');
+            document.getElementById('print-period').textContent = getMonthNameByStr(parts[1]) + " " + parts[0];
+            document.getElementById('print-date').textContent = new Date().toLocaleDateString('en-IN');
+
+            // FIX 1: Deduct Professional Fee from Total Payable when marked 'Paid'
+            var feeBilled = data.feeAmount || 0;
+            var isFeePaid = (data.feeStatus === 'Paid');
+            var unpaidFee = isFeePaid ? 0 : feeBilled;
+            var govtChallanTotal = net.totalCash + net.lateFee + net.interest;
+            var grandTotal = govtChallanTotal + unpaidFee;
+
+            var feeRowLabel = isFeePaid
+                ? "9. Professional Compliance Retainer (&#8377;" + fmtINR(feeBilled) + " &mdash; <strong>PAID / DEDUCTED</strong>)"
+                : "9. Professional Compliance Retainer (Status: <strong>PAYMENT DUE</strong>)";
+
+            var tbody = document.getElementById('print-table-body');
+            tbody.innerHTML =
+                "<tr><td style='text-align:left;'>1. Opening Electronic Credit Ledger Balance</td><td>" + fmtINR(opItc.igst) + "</td><td>" + fmtINR(opItc.cgst) + "</td><td>" + fmtINR(opItc.sgst) + "</td><td>" + fmtINR(opItc.igst + opItc.cgst + opItc.sgst) + "</td></tr>" +
+                "<tr><td style='text-align:left;'>2. Add: Eligible ITC Claimed This Period (GSTR-3B)</td><td>" + fmtINR(data.itcIgst) + "</td><td>" + fmtINR(data.itcCgst) + "</td><td>" + fmtINR(data.itcSgst) + "</td><td>" + fmtINR((data.itcIgst||0) + (data.itcCgst||0) + (data.itcSgst||0)) + "</td></tr>" +
+                "<tr style='background:#f1f5f9;'><td style='text-align:left;'><strong>3. Total ITC Pool Available for Rule 88A Set-Off</strong></td><td><strong>" + fmtINR(opItc.igst + (data.itcIgst||0)) + "</strong></td><td><strong>" + fmtINR(opItc.cgst + (data.itcCgst||0)) + "</strong></td><td><strong>" + fmtINR(opItc.sgst + (data.itcSgst||0)) + "</strong></td><td><strong>" + fmtINR(opItc.igst + opItc.cgst + opItc.sgst + (data.itcIgst||0) + (data.itcCgst||0) + (data.itcSgst||0)) + "</strong></td></tr>" +
+                "<tr><td style='text-align:left;'>4. Output Tax Liability (Outward Supplies)</td><td>" + fmtINR(data.outIgst) + "</td><td>" + fmtINR(data.outCgst) + "</td><td>" + fmtINR(data.outSgst) + "</td><td>" + fmtINR((data.outIgst||0) + (data.outCgst||0) + (data.outSgst||0)) + "</td></tr>" +
+                "<tr><td style='text-align:left;'>5. Reverse Charge Liability (Mandatory Cash)</td><td>" + fmtINR(data.rcmIgst) + "</td><td>" + fmtINR(data.rcmCgst) + "</td><td>" + fmtINR(data.rcmSgst) + "</td><td>" + fmtINR((data.rcmIgst||0) + (data.rcmCgst||0) + (data.rcmSgst||0)) + "</td></tr>" +
+                "<tr class='print-total'><td style='text-align:left;'>6. Net Cash Tax Payable (After Optimal Rule 88A Set-Off)</td><td>&#8377;" + fmtINR(net.cashHeads.igst) + "</td><td>&#8377;" + fmtINR(net.cashHeads.cgst) + "</td><td>&#8377;" + fmtINR(net.cashHeads.sgst) + "</td><td>&#8377;" + fmtINR(net.totalCash) + "</td></tr>" +
+                "<tr><td style='text-align:left;'>7. Closing ITC Carried Forward to Next Period</td><td>&#8377;" + fmtINR(net.closingItc.igst) + "</td><td>&#8377;" + fmtINR(net.closingItc.cgst) + "</td><td>&#8377;" + fmtINR(net.closingItc.sgst) + "</td><td>&#8377;" + fmtINR(net.carryCredit) + "</td></tr>" +
+                "<tr><td style='text-align:left;'>8. Late Fee (Sec 47 Capped) &amp; Interest (18% p.a.) " + (data.waived ? "(WAIVED)" : "") + "</td><td colspan='3' style='text-align:right;'>Govt Challan Subtotal: &#8377;" + fmtINR(govtChallanTotal) + "</td><td>&#8377;" + fmtINR(net.lateFee + net.interest) + "</td></tr>" +
+                "<tr><td style='text-align:left;'>" + feeRowLabel + "</td><td colspan='3' style='text-align:right;'>" + (isFeePaid ? "Already Paid (&#8377;" + fmtINR(feeBilled) + ") - Minus from Total" : "Unpaid Retainer") + "</td><td>&#8377;" + fmtINR(unpaidFee) + "</td></tr>" +
+                "<tr class='print-total' style='font-size:1.18em; background:#bae6fd !important;'><td style='text-align:left;'>10. NET BALANCE PAYABLE (GOVT CHALLAN + UNPAID FEE)</td><td colspan='3' style='text-align:right;'>Govt: &#8377;" + fmtINR(govtChallanTotal) + " + Fee Due: &#8377;" + fmtINR(unpaidFee) + "</td><td>&#8377;" + fmtINR(grandTotal) + "</td></tr>";
+
+            // FIX 2: QR Code Amount Mode + One-Time UPI Prompt + Image Preloader before window.print()
+            var qrBox = document.getElementById('print-upi-qr-box');
+            var payAmt = (practiceConfig.qrMode === 'FEE_ONLY') ? unpaidFee : grandTotal;
+
+            if (payAmt > 0 && !practiceConfig.upiId) {
+                var enteredUpi = prompt("Enter your Practice UPI ID (e.g. name@okaxis) to print a Scan-to-Pay QR Code on this PDF (or leave blank to skip):", "");
+                if (enteredUpi && enteredUpi.trim()) {
+                    practiceConfig.upiId = enteredUpi.trim();
+                    localStorage.setItem('gst_beast_config', JSON.stringify(practiceConfig));
+                }
+            }
+
+            if (grandTotal <= 0) {
+                qrBox.innerHTML = "<div style='border:2px solid #059669; color:#059669; padding:8px 12px; border-radius:6px; font-weight:800; font-size:11px;'>&#10004; ALL DUES CLEARED<br>NO PAYMENT REQUIRED</div>";
+                setTimeout(function() { window.print(); }, 180);
+            } else if (practiceConfig.upiId && payAmt > 0) {
+                var upiUri = "upi://pay?pa=" + encodeURIComponent(practiceConfig.upiId) + "&pn=" + encodeURIComponent(practiceConfig.firmName) + "&am=" + payAmt.toFixed(2) + "&cu=INR";
+                var qrImgUrl = "https://api.qrserver.com/v1/create-qr-code/?size=140x140&margin=4&data=" + encodeURIComponent(upiUri);
+                var qrLabel = (practiceConfig.qrMode === 'FEE_ONLY') ? "Scan to Pay Fee" : "Scan to Pay Balance";
+
+                qrBox.innerHTML =
+                    "<div style='border:1px solid #64748b; padding:6px; border-radius:6px; display:inline-block; background:#fff;'>" +
+                        "<img id='dynamic-print-qr-img' src='" + qrImgUrl + "' alt='UPI QR' style='width:105px; height:105px; display:block; margin:0 auto;'>" +
+                        "<div style='font-size:10px; font-weight:bold; margin-top:4px; color:#0f172a;'>" + qrLabel + " (&#8377;" + fmtINR(payAmt) + ")</div>" +
+                        "<div style='font-size:9px; color:#475569;'>UPI: " + practiceConfig.upiId + "</div>" +
+                    "</div>";
+
+                var imgEl = document.getElementById('dynamic-print-qr-img');
+                var printed = false;
+                var triggerPrintOnce = function() {
+                    if (printed) return;
+                    printed = true;
+                    setTimeout(function() { window.print(); }, 120);
+                };
+                imgEl.onload = triggerPrintOnce;
+                imgEl.onerror = triggerPrintOnce;
+                setTimeout(triggerPrintOnce, 1400);
+            } else {
+                qrBox.innerHTML = "<div style='font-size:10px; color:#64748b;'>Set UPI ID in &#9881; Desk for QR</div>";
+                setTimeout(function() { window.print(); }, 180);
+            }
+        };
+
+        // --- CSV EXPORT & JSON BACKUP ---
+        window.exportMasterWorkbook = function() {
+            if (db.length === 0) return alert("Nothing to export.");
+            var headers = [
+                "Trade Name","Mobile","GSTIN","State","Scheme","Period",
+                "Total Out","Total RCM","Opening ITC","Claimed ITC",
+                "2B IGST","2B CGST","2B SGST","Recon Diff","Total Cash Due",
+                "Closing ITC Carry","Late Fees","Interest","Step 1 Status",
+                "Step 1 Date","Step 2 Status","Step 2 Date","ARN","Prof Fee Billed","Fee Status","Unpaid Fee Due","Active Notice"
+            ];
+            var rows = [headers.join(",")];
+
+            db.forEach(function(c) {
+                ensureMonthStructureInitialized(c, activeTargetPeriod);
+                var d = c.history[activeTargetPeriod];
+                var due = getClientDueDates(c, activeTargetPeriod);
+                var opItc = calculateCumulativeITC(c, activeTargetPeriod);
+                var net = computeTaxEngine(d, due.r3bDueDate, opItc, c.scheme);
+
+                var outSum = (d.outIgst||0) + (d.outCgst||0) + (d.outSgst||0);
+                var rcmSum = (d.rcmIgst||0) + (d.rcmCgst||0) + (d.rcmSgst||0);
+                var opSum = opItc.igst + opItc.cgst + opItc.sgst;
+                var itcSum = (d.itcIgst||0) + (d.itcCgst||0) + (d.itcSgst||0);
+                var stName = GST_STATE_MAP[(c.gstin || '').substring(0, 2)] || "";
+                var unpaidFee = (d.feeStatus === 'Paid') ? 0 : (d.feeAmount || 0);
+
+                var cols = [
+                    '"' + (c.name || '') + '"', '"' + (c.phone || '') + '"', '"' + (c.gstin || '') + '"',
+                    '"' + stName + '"', '"' + (c.scheme || 'Monthly') + '"', '"' + activeTargetPeriod + '"',
+                    outSum, rcmSum, opSum, itcSum, d.itc2bIgst || 0, d.itc2bCgst || 0, d.itc2bSgst || 0,
+                    net.reconDiff, net.totalCash, net.carryCredit, net.lateFee, net.interest,
+                    '"' + (d.r1 || '') + '"', '"' + (d.r1Date || '') + '"', '"' + (d.r3b || '') + '"',
+                    '"' + (d.r3bDate || '') + '"', '"' + (d.r3bArn || '') + '"', d.feeAmount || 0,
+                    '"' + (d.feeStatus || 'Due') + '"', unpaidFee, '"' + (c.notice || '') + '"'
+                ];
+                rows.push(cols.join(","));
+            });
+
+            var csvContent = rows.join("\n");
+            var link = document.createElement("a");
+            link.href = URL.createObjectURL(new Blob([csvContent], { type: 'text/csv;charset=utf-8;' }));
+            link.setAttribute("download", "GST_Master_" + activeTargetPeriod + ".csv");
+            document.body.appendChild(link); link.click(); link.remove();
+            showToast("Master CSV Downloaded");
+        };
+
+        window.backupSystemDatabase = function() {
+            if (db.length === 0) return alert("Database is empty.");
+            var a = document.createElement('a');
+            a.href = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(db, null, 2));
+            a.download = "GST_DB_" + new Date().toISOString().substring(0, 10) + ".json";
+            document.body.appendChild(a); a.click(); a.remove();
+            showToast("JSON Backup Downloaded");
+        };
+
+        window.restoreSystemDatabase = function(e) {
+            var file = e.target.files[0];
+            if (!file) return;
+            var reader = new FileReader();
+            reader.onload = function(evt) {
+                try {
+                    var parsed = JSON.parse(evt.target.result);
+                    if (Array.isArray(parsed)) {
+                        db = parsed;
+                        saveDatabase();
+                        generateFYDropdown();
+                        renderFinancialYearCalendar();
+                        renderMasterDashboard();
+                        showToast("Database Restored Successfully!");
+                    }
+                } catch(err) { alert("Invalid JSON backup file."); }
+            };
+            reader.readAsText(file);
+        };
+
+        window.addEventListener('DOMContentLoaded', function() {
+            if (practiceConfig.appPin && practiceConfig.appPin.length === 4) {
+                document.getElementById('pin-lock-overlay').style.display = 'flex';
+            }
+            generateFYDropdown();
+            renderFinancialYearCalendar();
+            renderMasterDashboard();
+            setInterval(checkDriveTokenHealth, 30000);
+        });
+    </script>
+</body>
+</html>

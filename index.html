@@ -77,7 +77,7 @@
             margin: 16px 0; padding: 12px; border: 2px solid var(--primary); border-radius: 8px;
         }
 
-        .workspace-grid { display: grid; grid-template-columns: 375px 1fr; gap: 20px; max-width: 1860px; margin: 0 auto; align-items: start; }
+        .workspace-grid { display: grid; grid-template-columns: 380px 1fr; gap: 20px; max-width: 1880px; margin: 0 auto; align-items: start; }
         .sidebar { display: flex; flex-direction: column; gap: 16px; }
         .panel-card { background-color: var(--surface-card); border: 1px solid var(--border); border-radius: 12px; padding: 18px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2); }
 
@@ -98,6 +98,7 @@
         }
         input:focus, select:focus, textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 2px var(--primary-glow); outline: none; }
 
+        .split-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
         .split-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
         .split-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; }
 
@@ -140,14 +141,14 @@
         .dot-clean { color: var(--success); }
 
         .main-window { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
-        .summary-banner { display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; }
+        .summary-banner { display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; }
         .summary-card {
             background-color: var(--surface-card); border-left: 4px solid var(--primary);
-            padding: 13px 14px; border-radius: 10px; border-top: 1px solid var(--border);
+            padding: 12px 12px; border-radius: 10px; border-top: 1px solid var(--border);
             border-right: 1px solid var(--border); border-bottom: 1px solid var(--border);
         }
-        .summary-label { font-size: 0.68rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; }
-        .summary-val { font-size: 1.35rem; font-weight: 800; margin-top: 4px; }
+        .summary-label { font-size: 0.65rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; }
+        .summary-val { font-size: 1.25rem; font-weight: 800; margin-top: 4px; }
 
         .toolbar-card {
             background-color: var(--surface-card); border: 1px solid var(--border);
@@ -157,14 +158,14 @@
         .search-filter { display: flex; gap: 8px; flex: 1; min-width: 280px; }
         .filter-pills { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
         .pill {
-            padding: 5px 11px; border-radius: 20px; font-size: 0.73rem; font-weight: 600;
+            padding: 5px 11px; border-radius: 20px; font-size: 0.72rem; font-weight: 600;
             background: var(--surface-input); color: var(--text-muted); border: 1px solid var(--border);
             cursor: pointer; width: auto;
         }
         .pill.active { background: var(--primary); color: #fff; border-color: var(--primary); }
 
         .table-container { background-color: var(--surface-card); border: 1px solid var(--border); border-radius: 12px; overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.84rem; min-width: 1180px; }
+        table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.84rem; min-width: 1220px; }
         th { background-color: rgba(0,0,0,0.3); padding: 12px 14px; color: var(--text-muted); font-weight: 700; font-size: 0.74rem; text-transform: uppercase; border-bottom: 1px solid var(--border); }
         td { padding: 13px 14px; border-bottom: 1px solid var(--border); vertical-align: top; }
         tr:hover td { background-color: rgba(255,255,255,0.015); }
@@ -172,15 +173,21 @@
         .gstin-mono { font-family: monospace; font-size: 0.8rem; color: #cbd5e1; font-weight: 600; }
         .state-pill { font-size: 0.65rem; background: rgba(6, 182, 212, 0.15); color: #67e8f9; border: 1px solid rgba(6, 182, 212, 0.3); padding: 1px 6px; border-radius: 4px; margin-left: 4px; }
         .credential-bar {
-            display: inline-flex; align-items: center; gap: 6px; flex-wrap: wrap;
+            display: inline-flex; align-items: center; gap: 5px; flex-wrap: wrap;
             font-family: monospace; background: var(--surface-input); padding: 4px 8px;
-            border-radius: 6px; font-size: 0.75rem; margin-top: 6px; border: 1px solid var(--border);
+            border-radius: 6px; font-size: 0.74rem; margin-top: 6px; border: 1px solid var(--border);
         }
         .copy-chip {
-            cursor: pointer; color: #93c5fd; font-size: 0.7rem; padding: 1px 5px;
-            border-radius: 3px; background: rgba(59,130,246,0.12); user-select: none;
+            cursor: pointer; color: #93c5fd; font-size: 0.69rem; padding: 1px 5px;
+            border-radius: 3px; background: rgba(59,130,246,0.14); user-select: none;
         }
         .copy-chip:hover { background: var(--primary); color: white; }
+        .portal-launch-chip {
+            cursor: pointer; color: #6ee7b7; font-size: 0.69rem; padding: 1px 6px;
+            border-radius: 3px; background: rgba(16,185,129,0.16); border: 1px solid rgba(16,185,129,0.35);
+            user-select: none; font-weight: 700;
+        }
+        .portal-launch-chip:hover { background: var(--success); color: #041f14; }
 
         .segment-tag {
             display: inline-block; background: rgba(139, 92, 246, 0.15); color: #c4b5fd;
@@ -194,31 +201,35 @@
         }
 
         .badge {
-            display: inline-block; padding: 4px 9px; font-size: 0.73rem; font-weight: 700;
+            display: inline-block; padding: 4px 9px; font-size: 0.72rem; font-weight: 700;
             border-radius: 5px; cursor: pointer; text-align: center; min-width: 105px; user-select: none;
         }
         .badge-pending { background-color: rgba(239, 68, 68, 0.15); color: #fca5a5; border: 1px solid var(--danger); }
         .badge-filed { background-color: rgba(16, 185, 129, 0.15); color: #6ee7b7; border: 1px solid var(--success); }
+        .badge-challan-warn { background-color: rgba(245, 158, 11, 0.18); color: #fcd34d; border: 1px solid var(--warning); }
+        .badge-challan-utr { background-color: rgba(6, 182, 212, 0.18); color: #67e8f9; border: 1px solid var(--cyan); }
+        .badge-challan-none { background-color: rgba(148, 163, 184, 0.12); color: var(--text-muted); border: 1px solid var(--border-light); }
 
         .ledger-box { font-size: 0.74rem; line-height: 1.45; background-color: var(--surface-input); padding: 7px 9px; border-radius: 6px; border: 1px solid var(--border); }
-        .action-row { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; }
-        .btn-inline { background: var(--surface-input); color: var(--text-muted); font-size: 0.72rem; padding: 5px 8px; border: 1px solid var(--border); width: auto; border-radius: 5px; }
+        .action-row { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 8px; }
+        .btn-inline { background: var(--surface-input); color: var(--text-muted); font-size: 0.71rem; padding: 5px 7px; border: 1px solid var(--border); width: auto; border-radius: 5px; }
         .btn-inline:hover { color: white; border-color: var(--text-muted); }
         .btn-print { border-color: var(--primary); color: #93c5fd; }
         .btn-whatsapp { border-color: var(--success); color: #6ee7b7; }
         .btn-gstr9 { border-color: var(--purple); color: #c4b5fd; }
+        .btn-fee-passbook { border-color: var(--cyan); color: #67e8f9; }
         .btn-waiver { border-color: var(--warning); color: var(--warning); font-size: 0.68rem; padding: 2px 6px; margin-top: 4px; }
 
         .date-edit, .arn-edit {
             background-color: var(--surface-input); border: 1px solid var(--border);
-            color: var(--text-main); border-radius: 4px; padding: 2px 5px; font-size: 0.69rem;
-            width: 112px; margin-top: 4px; outline: none;
+            color: var(--text-main); border-radius: 4px; padding: 2px 5px; font-size: 0.68rem;
+            width: 110px; margin-top: 4px; outline: none;
         }
-        .arn-edit { width: 118px; font-family: monospace; }
+        .arn-edit { width: 116px; font-family: monospace; }
         .date-edit::-webkit-calendar-picker-indicator { filter: invert(1); cursor: pointer; }
         .recon-alert { font-size: 0.69rem; font-weight: 700; padding: 3px 7px; border-radius: 4px; margin-top: 4px; display: inline-block; }
 
-        /* Modals & Detailed GSTR-9 Dossier Styling */
+        /* Modals & Detailed GSTR-9 / Fee Passbook Styling */
         .modal-backdrop {
             position: fixed; top: 0; left: 0; right: 0; bottom: 0;
             background: rgba(7, 11, 20, 0.88); backdrop-filter: blur(6px);
@@ -251,6 +262,9 @@
         }
         details.form-accordion[open] summary { margin-bottom: 8px; }
 
+        @media (max-width: 1360px) {
+            .summary-banner { grid-template-columns: repeat(4, 1fr); }
+        }
         @media (max-width: 1240px) {
             .workspace-grid { grid-template-columns: 1fr; }
             .sidebar { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); }
@@ -273,17 +287,18 @@
             #master-table td:last-child { border-bottom: none; }
         }
         @media (max-width: 480px) {
-            .split-3, .split-2, .gstr9-kpi-grid { grid-template-columns: 1fr; }
+            .split-4, .split-3, .split-2, .gstr9-kpi-grid { grid-template-columns: 1fr; }
         }
 
-        /* DUAL PRINT ENGINE (Challan PDF vs GSTR-9 Annual Dossier PDF) */
-        #print-area, #print-gstr9-area { display: none; }
+        /* TRIPLE PRINT ENGINE (Monthly Challan PDF vs GSTR-9 Dossier PDF vs Consolidated Fee Invoice PDF) */
+        #print-area, #print-gstr9-area, #print-fee-area { display: none; }
         @media print {
             body { background: white !important; color: black !important; padding: 0 !important; margin: 0 !important; }
             .workspace-grid, .modal-backdrop, #toast-banner, #pin-lock-overlay { display: none !important; }
 
-            body:not(.print-mode-gstr9) #print-area { display: block !important; padding: 24px; font-family: Arial, sans-serif; color: #111; }
+            body:not(.print-mode-gstr9):not(.print-mode-fee) #print-area { display: block !important; padding: 24px; font-family: Arial, sans-serif; color: #111; }
             body.print-mode-gstr9 #print-gstr9-area { display: block !important; padding: 20px; font-family: Arial, sans-serif; color: #111; }
+            body.print-mode-fee #print-fee-area { display: block !important; padding: 24px; font-family: Arial, sans-serif; color: #111; }
 
             .print-header { border-bottom: 2px solid #0f172a; padding-bottom: 12px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; }
             .print-header h1 { margin: 0; font-size: 19px; text-transform: uppercase; color: #0f172a; }
@@ -338,7 +353,7 @@
                     </svg>
                     <div>
                         <div style="font-size: 1.15rem; font-weight: 800;">GST Beast Pro</div>
-                        <div style="font-size: 0.7rem; color: var(--success); font-weight: 700;">2B JSON + 3B/R1 PDF Reader</div>
+                        <div style="font-size: 0.7rem; color: var(--success); font-weight: 700;">Challan Tracker &bull; JSON/PDF Recon</div>
                     </div>
                 </div>
                 <button type="button" class="btn-inline" onclick="openSettingsModal()">&#9881; Desk</button>
@@ -358,7 +373,7 @@
             <div class="panel-card">
                 <h2>
                     <span id="form-title">Client &amp; Return Entry</span>
-                    <button type="button" class="btn-chip" onclick="document.getElementById('portal-json-input').click()">&#128194; Import 2B JSON / 3B &amp; R1 PDF</button>
+                    <button type="button" class="btn-chip" onclick="document.getElementById('portal-json-input').click()">&#128194; Import 2B / 3B / R1 / PMT-06</button>
                 </h2>
                 <input type="file" id="portal-json-input" accept=".json,.pdf,application/json,application/pdf" multiple style="display:none;" onchange="handlePortalFileImport(event)">
                 <input type="hidden" id="editing-client-id" value="">
@@ -426,6 +441,50 @@
                         <input type="number" id="itc-igst" placeholder="3B IGST" min="0" step="0.01">
                         <input type="number" id="itc-cgst" placeholder="3B CGST" min="0" step="0.01">
                         <input type="number" id="itc-sgst" placeholder="3B SGST" min="0" step="0.01">
+                    </div>
+                </div>
+
+                <!-- NEW: CASH LEDGER SHORTFALL & PMT-06 NEFT/RTGS CHALLAN TRACKER -->
+                <div class="form-group" style="border: 1px dashed var(--warning); padding: 9px; border-radius: 8px;">
+                    <label style="color:var(--warning);">
+                        <span>&#127974; Cash Ledger &amp; NEFT/RTGS Challan Tracker</span>
+                    </label>
+                    <div class="split-2" style="margin-bottom:6px;">
+                        <div>
+                            <label style="font-size:0.68rem;">Existing Cash Ledger Bal (&#8377;)</label>
+                            <input type="number" id="cash-ledger-bal" placeholder="Already in Portal" min="0" step="0.01">
+                        </div>
+                        <div>
+                            <label style="font-size:0.68rem;">Challan Status (Auto-Paid on 3B)</label>
+                            <select id="challan-status">
+                                <option value="None" selected>Auto / No Challan</option>
+                                <option value="Pending">Challan Pending (Sent)</option>
+                                <option value="UTR_Sent">UTR Received (Link Pending)</option>
+                                <option value="Paid">Challan Paid / Settled</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="split-3">
+                        <div>
+                            <label style="font-size:0.66rem;">Remittance Mode</label>
+                            <select id="challan-mode">
+                                <option value="NEFT/RTGS" selected>NEFT / RTGS</option>
+                                <option value="NetBanking">E-Pay / NetBank</option>
+                                <option value="IMPS/UPI">IMPS / UPI</option>
+                                <option value="OTC">Over Counter</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="font-size:0.66rem;">14-Digit CPIN</label>
+                            <input type="text" id="challan-cpin" placeholder="CPIN Number" maxlength="14">
+                        </div>
+                        <div>
+                            <label style="font-size:0.66rem;">Challan Date / UTR</label>
+                            <input type="date" id="challan-date" title="Challan Generation Date (15-Day Validity)">
+                        </div>
+                    </div>
+                    <div style="margin-top:6px;">
+                        <input type="text" id="challan-utr" placeholder="Bank NEFT / RTGS UTR Number (Optional)" style="font-size:0.78rem; padding:6px 8px;">
                     </div>
                 </div>
 
@@ -534,12 +593,16 @@
                     <div class="summary-label">Step 2 Pending (3B/PMT)</div>
                     <div id="stat-3b" class="summary-val" style="color: var(--danger);">0</div>
                 </div>
+                <div class="summary-card" style="border-left-color: #f59e0b;">
+                    <div class="summary-label">Challans Pending (NEFT)</div>
+                    <div id="stat-challan" class="summary-val" style="color: #fcd34d;">0</div>
+                </div>
                 <div class="summary-card" style="border-left-color: var(--cyan);">
                     <div class="summary-label">2B Recon Mismatches</div>
                     <div id="stat-recon" class="summary-val" style="color: var(--cyan);">0</div>
                 </div>
                 <div class="summary-card" style="border-left-color: var(--success);">
-                    <div class="summary-label">Net Cash Tax Payable</div>
+                    <div class="summary-label">Net Challan Shortfall</div>
                     <div id="stat-cash" class="summary-val" style="color: var(--success);">&#8377;0</div>
                 </div>
                 <div class="summary-card" style="border-left-color: var(--purple);">
@@ -551,10 +614,10 @@
             <div class="toolbar-card">
                 <div class="header-bar">
                     <div class="search-filter">
-                        <input type="text" id="search-bar" placeholder="Search trade name, GSTIN, PAN, state, notice, or tag..." oninput="renderMasterDashboard()">
+                        <input type="text" id="search-bar" placeholder="Search trade name, GSTIN, CPIN, UTR, state, notice, or tag..." oninput="renderMasterDashboard()">
                         <select id="sort-select" onchange="renderMasterDashboard()" style="max-width: 220px;">
                             <option value="NAME_ASC">Sort: Trade Name (A-Z)</option>
-                            <option value="CASH_DESC">Sort: Cash Tax (High-Low)</option>
+                            <option value="CASH_DESC">Sort: Shortfall (High-Low)</option>
                             <option value="FEE_DESC">Sort: Unpaid Fee First</option>
                             <option value="PENDING_FIRST">Sort: Pending Filings First</option>
                         </select>
@@ -567,11 +630,12 @@
                     <button type="button" class="pill active" data-filter="ALL" onclick="setFilterPill('ALL')">All Accounts</button>
                     <button type="button" class="pill" data-filter="R1_PENDING" onclick="setFilterPill('R1_PENDING')">R1 / IFF Pending</button>
                     <button type="button" class="pill" data-filter="3B_PENDING" onclick="setFilterPill('3B_PENDING')">3B / PMT Pending</button>
+                    <button type="button" class="pill" data-filter="CHALLAN_PENDING" onclick="setFilterPill('CHALLAN_PENDING')">&#127974; Challan Pending</button>
                     <button type="button" class="pill" data-filter="OVERDUE" onclick="setFilterPill('OVERDUE')">Overdue Today</button>
                     <button type="button" class="pill" data-filter="RECON_MISMATCH" onclick="setFilterPill('RECON_MISMATCH')">2B Mismatch</button>
-                    <button type="button" class="pill" data-filter="CASH_LIABLE" onclick="setFilterPill('CASH_LIABLE')">Cash Payable</button>
+                    <button type="button" class="pill" data-filter="CASH_LIABLE" onclick="setFilterPill('CASH_LIABLE')">Cash Shortfall</button>
                     <button type="button" class="pill" data-filter="FEE_DUE" onclick="setFilterPill('FEE_DUE')">Fee Unpaid</button>
-                    <button type="button" class="pill" data-filter="HAS_NOTICE" onclick="setFilterPill('HAS_NOTICE')">Active Notice/Refund</button>
+                    <button type="button" class="pill" data-filter="HAS_NOTICE" onclick="setFilterPill('HAS_NOTICE')">Active Notice</button>
                 </div>
             </div>
 
@@ -579,11 +643,11 @@
                 <table id="master-table">
                     <thead>
                         <tr>
-                            <th width="22%">Client Profile &amp; Credentials</th>
-                            <th width="18%">Output &amp; RCM Liability</th>
-                            <th width="20%">Rule 88A ITC &amp; 2B Recon</th>
-                            <th width="20%">Filing Workflow &amp; Sec 47</th>
-                            <th width="20%">Net Cash, Billing &amp; Actions</th>
+                            <th width="22%">Client Profile &amp; Portal Launch</th>
+                            <th width="17%">Output &amp; RCM Liability</th>
+                            <th width="19%">Rule 88A ITC &amp; 2B Recon</th>
+                            <th width="21%">Filing &amp; NEFT Challan Tracker</th>
+                            <th width="21%">Shortfall, Billing &amp; Actions</th>
                         </tr>
                     </thead>
                     <tbody id="table-body"></tbody>
@@ -677,9 +741,9 @@
         </div>
     </div>
 
-    <!-- MODAL 2: WHATSAPP DISPATCHER -->
+    <!-- MODAL 2: 4-TEMPLATE WHATSAPP DISPATCHER (WITH NEFT CHALLAN MANDATE) -->
     <div class="modal-backdrop" id="wa-modal">
-        <div class="modal-card" style="max-width: 520px;">
+        <div class="modal-card" style="max-width: 560px;">
             <div class="modal-header">
                 <h2 style="margin-bottom:0;">WhatsApp Client Broadcast</h2>
                 <button type="button" class="modal-close" onclick="closeModal('wa-modal')">Close</button>
@@ -687,15 +751,16 @@
             <input type="hidden" id="wa-client-id">
             <div class="form-group">
                 <label>Select Message Template</label>
-                <div class="split-3" style="margin-bottom:10px;">
+                <div class="split-4" style="margin-bottom:10px;">
                     <button type="button" class="btn-inline" onclick="buildWhatsAppTemplate('DATA')">1. Data Reminder</button>
-                    <button type="button" class="btn-inline" onclick="buildWhatsAppTemplate('CHALLAN')">2. Tax Challan</button>
-                    <button type="button" class="btn-inline" onclick="buildWhatsAppTemplate('FILED')">3. Filed + Fee</button>
+                    <button type="button" class="btn-inline" onclick="buildWhatsAppTemplate('CHALLAN')">2. Tax Summary</button>
+                    <button type="button" class="btn-inline" style="border-color:var(--warning); color:#fcd34d;" onclick="buildWhatsAppTemplate('NEFT')">3. NEFT Challan</button>
+                    <button type="button" class="btn-inline" onclick="buildWhatsAppTemplate('FILED')">4. Filed + Fee</button>
                 </div>
             </div>
             <div class="form-group">
                 <label>Message Preview (Editable before sending)</label>
-                <textarea id="wa-message-preview" rows="8"></textarea>
+                <textarea id="wa-message-preview" rows="9"></textarea>
             </div>
             <button type="button" class="btn-success" onclick="launchWhatsAppWindow()">Send via WhatsApp</button>
         </div>
@@ -709,17 +774,17 @@
                 <button type="button" class="modal-close" onclick="closeModal('settings-modal')">Close</button>
             </div>
             <div class="form-group">
-                <label>Firm / Practice Name (Printed on PDF Challans &amp; GSTR-9)</label>
+                <label>Firm / Practice Name (Printed on PDF Challans &amp; Invoices)</label>
                 <input type="text" id="setting-firm-name" placeholder="Tax Compliance Desk">
             </div>
             <div class="form-group">
-                <label>Firm UPI ID (Generates Scan-to-Pay QR on PDF Challan)</label>
+                <label>Firm UPI ID (Generates Scan-to-Pay QR on PDF Challan &amp; Fee Invoice)</label>
                 <input type="text" id="setting-upi-id" placeholder="yourname@okaxis">
             </div>
             <div class="form-group">
-                <label>UPI QR Code Amount Mode on PDF</label>
+                <label>UPI QR Code Amount Mode on Monthly Challan PDF</label>
                 <select id="setting-qr-mode">
-                    <option value="TOTAL">Collect Total Balance Payable (Tax + Unpaid Fee)</option>
+                    <option value="TOTAL">Collect Total Balance Payable (Shortfall + Unpaid Fee)</option>
                     <option value="FEE_ONLY">Collect Unpaid Professional Fee Only</option>
                 </select>
             </div>
@@ -750,12 +815,45 @@
         </div>
     </div>
 
-    <!-- PRINT AREA 1: MONTHLY TAX COMPUTATION & BILLING CHALLAN -->
+    <!-- MODAL 5: CLIENT MULTI-MONTH FEE PASSBOOK & CONSOLIDATED DUES INVOICE -->
+    <div class="modal-backdrop" id="fee-ledger-modal">
+        <div class="modal-card" style="max-width: 880px;">
+            <div class="modal-header">
+                <div>
+                    <h2 id="fee-modal-title" style="margin-bottom:2px;">&#128188; Client Multi-Month Fee Passbook</h2>
+                    <div id="fee-modal-subtitle" style="font-size:0.78rem; color:var(--text-muted);">Annual Retainer Billing &amp; Outstanding Dues Statement</div>
+                </div>
+                <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+                    <select id="fee-fy-select" onchange="refreshActiveFeeModal()" style="width:auto; padding:6px 10px; font-size:0.8rem;"></select>
+                    <button type="button" class="btn-primary" style="width:auto; padding:7px 14px;" onclick="printConsolidatedFeeInvoice()">&#128424; Print Consolidated Fee Invoice PDF</button>
+                    <button type="button" class="modal-close" onclick="closeModal('fee-ledger-modal')">Close</button>
+                </div>
+            </div>
+            <div id="fee-kpi-container" class="split-3" style="margin-bottom:14px;"></div>
+            <div class="gstr9-panel">
+                <table style="min-width:680px; font-size:0.8rem;">
+                    <thead>
+                        <tr>
+                            <th>Tax Period</th>
+                            <th>Step 1 (R1/IFF)</th>
+                            <th>Step 2 (3B/PMT)</th>
+                            <th>Challan Status</th>
+                            <th>Retainer Fee (&#8377;)</th>
+                            <th>Payment Status (Click to Toggle)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="fee-passbook-tbody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- PRINT AREA 1: MONTHLY TAX COMPUTATION & NEFT/RTGS BILLING CHALLAN -->
     <div id="print-area">
         <div class="print-header">
             <div id="print-logo-container"></div>
             <div style="text-align:right;">
-                <h1>GST Tax Computation &amp; Billing Challan</h1>
+                <h1>GST Tax Computation &amp; NEFT/RTGS Billing Challan</h1>
                 <p id="print-firm-title" style="font-size:12.5px; color:#475569;">Generated by GST Compliance Pro Engine</p>
             </div>
         </div>
@@ -768,13 +866,13 @@
             <div style="text-align: right;">
                 <strong>Tax Period:</strong> <span id="print-period">--</span><br>
                 <strong>Statement Date:</strong> <span id="print-date">--</span><br>
-                <strong>ARN / Reference:</strong> <span id="print-arn">--</span>
+                <strong>ARN / CPIN / UTR:</strong> <span id="print-arn">--</span>
             </div>
         </div>
         <table class="print-table">
             <thead>
                 <tr>
-                    <th style="text-align:left;">Particulars (Head-Wise Rule 88A Computation)</th>
+                    <th style="text-align:left;">Particulars (Head-Wise Rule 88A &amp; Cash Shortfall Computation)</th>
                     <th>IGST (&#8377;)</th>
                     <th>CGST (&#8377;)</th>
                     <th>SGST (&#8377;)</th>
@@ -786,7 +884,7 @@
         <div class="print-footer-grid">
             <div class="print-warning">
                 * <strong>Rule 88A Set-Off Applied:</strong> IGST credit is completely exhausted first before utilizing CGST or SGST credits.<br>
-                * <strong>RCM Liability:</strong> Reverse Charge liabilities must be discharged strictly via Electronic Cash Ledger.<br>
+                * <strong>NEFT / RTGS Challan Validity:</strong> Form GST PMT-06 mandates expire 15 days after generation. Please share the Bank UTR number immediately after remittance.<br>
                 * <strong>Professional Fee Deduction:</strong> If the monthly retainer is marked <em>Paid</em>, &#8377;0 is added to the Net Balance Payable.
             </div>
             <div id="print-upi-qr-box" style="text-align:center; min-width:140px;"></div>
@@ -795,6 +893,9 @@
 
     <!-- PRINT AREA 2: GSTR-9 ANNUAL WORKING DOSSIER PDF -->
     <div id="print-gstr9-area"></div>
+
+    <!-- PRINT AREA 3: CONSOLIDATED MULTI-MONTH FEE PASSBOOK INVOICE PDF -->
+    <div id="print-fee-area"></div>
     <script>
         var GOOGLE_CLIENT_ID = "1090891293641-vr4iba4fi7sooc58g5rgn69ek6sd9odl.apps.googleusercontent.com";
 
@@ -822,6 +923,7 @@
         var activeFilterPill = 'ALL';
         var revealedPasswords = {};
         var activeGstr9ClientId = null;
+        var activeFeeClientId = null;
 
         var GST_STATE_MAP = {
             "01": "Jammu & Kashmir", "02": "Himachal Pradesh", "03": "Punjab", "04": "Chandigarh",
@@ -873,7 +975,7 @@
             if (!t) return;
             t.textContent = msg;
             t.classList.add('show');
-            setTimeout(function() { t.classList.remove('show'); }, 2400);
+            setTimeout(function() { t.classList.remove('show'); }, 2600);
         }
 
         // --- SETTINGS & PIN LOCK ---
@@ -968,7 +1070,6 @@
                     callback: function(response) {
                         if (response.error !== undefined) throw (response);
                         gDriveAccessToken = response.access_token;
-                        // Standard 60-minute (3600s) Google OAuth session window
                         var durationSec = Number(response.expires_in) || 3600;
                         gDriveTokenExpiry = Date.now() + (durationSec * 1000);
                         sessionWarningShown = false;
@@ -1030,7 +1131,6 @@
                 modalCountdown.textContent = formattedTime;
             }
 
-            // Trigger Warning State & Pop-up when < 5 minutes (300 seconds) remain
             if (remainingSec <= 300) {
                 badge.className = "cloud-timer-pill timer-warn";
                 if (!sessionWarningShown) {
@@ -1148,8 +1248,10 @@
         function generateFYDropdown() {
             var select = document.getElementById('global-fy-select');
             var g9Select = document.getElementById('gstr9-fy-select');
+            var feeSelect = document.getElementById('fee-fy-select');
             select.innerHTML = '';
             if (g9Select) g9Select.innerHTML = '';
+            if (feeSelect) feeSelect.innerHTML = '';
 
             for (var y = 2017; y <= currentYearInt + 15; y++) {
                 var labelTxt = "FY " + y + "-" + String(y + 1).substring(2) + " (Apr " + y + " - Mar " + (y + 1) + ")";
@@ -1165,6 +1267,13 @@
                     opt2.textContent = labelTxt;
                     if (y === currentFyStartYear) opt2.selected = true;
                     g9Select.appendChild(opt2);
+                }
+                if (feeSelect) {
+                    var opt3 = document.createElement('option');
+                    opt3.value = y;
+                    opt3.textContent = labelTxt;
+                    if (y === currentFyStartYear) opt3.selected = true;
+                    feeSelect.appendChild(opt3);
                 }
             }
         }
@@ -1206,7 +1315,9 @@
             var selectedYr = document.getElementById('global-fy-select').value;
             activeTargetPeriod = selectedYr + "-04";
             var g9Select = document.getElementById('gstr9-fy-select');
+            var feeSelect = document.getElementById('fee-fy-select');
             if (g9Select) g9Select.value = selectedYr;
+            if (feeSelect) feeSelect.value = selectedYr;
             renderFinancialYearCalendar();
             renderMasterDashboard();
             clearForm();
@@ -1295,7 +1406,7 @@
             }
         };
 
-        // --- UNIFIED GST PORTAL IMPORTER (GSTR-2B JSON + FILED GSTR-3B & GSTR-1 PDF READER) ---
+        // --- UNIFIED GST PORTAL IMPORTER (2B JSON + 3B PDF + R1 PDF + PMT-06 CHALLAN PDF) ---
         function parsePortalDateToISO(dStr) {
             if (!dStr) return "";
             var clean = dStr.trim().replace(/\./g, '/').replace(/-/g, '/');
@@ -1365,14 +1476,32 @@
         function parseGstPortalPdfText(text) {
             var gstinMatch = text.match(/\b([0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1})\b/);
             var arnMatch = text.match(/ARN\s*[:\-]?\s*([A-Z]{2}[0-9A-Z]{13})/i);
-            var dateMatch = text.match(/Date(?:\s+of\s+Filing)?\s*[:\-]?\s*(\d{2}[\/\-]\d{2}[\/\-]\d{4})/i);
-            var nameMatch = text.match(/(?:Trade\s+name|Legal\s+name\s+of\s+the\s+registered\s+person)\s*[:\-]?\s*([A-Za-z0-9\s\.\,&\-\(\)]+?)(?=\s+(?:GSTIN|Trade|Form|ARN|Date|3\.1|Year|Period))/i);
+            var dateMatch = text.match(/Date(?:\s+of\s+(?:Filing|Generation))?\s*[:\-]?\s*(\d{2}[\/\-]\d{2}[\/\-]\d{4})/i);
+            var nameMatch = text.match(/(?:Trade\s+name|Legal\s+name(?:\s+of\s+the\s+registered\s+person)?)\s*[:\-]?\s*([A-Za-z0-9\s\.\,&\-\(\)]+?)(?=\s+(?:GSTIN|Trade|Form|ARN|Date|3\.1|Year|Period|Email|Mobile))/i);
 
             var gstin = gstinMatch ? gstinMatch[1].toUpperCase() : "";
             var arn = arnMatch ? arnMatch[1].toUpperCase() : "";
             var filingDate = dateMatch ? parsePortalDateToISO(dateMatch[1]) : "";
             var clientName = nameMatch ? nameMatch[1].trim() : "";
             var periodKey = detectPeriodFromPdfText(text);
+
+            // Check if PDF is a Form GST PMT-06 Tax Challan / NEFT Mandate
+            var cpinMatch = text.match(/CPIN\s*[:\-]?\s*(\d{14})\b/i);
+            var isPmt06 = /PMT[\s\-]*06/i.test(text) || /Challan\s+Expiry\s+Date/i.test(text) || Boolean(cpinMatch);
+
+            if (isPmt06 && !(/GSTR[\s\-]*3B/i.test(text))) {
+                var cpinVal = cpinMatch ? cpinMatch[1] : "";
+                var modeVal = "NEFT/RTGS";
+                if (/E[\s\-]*Payment|Net\s*Banking/i.test(text)) modeVal = "NetBanking";
+                else if (/IMPS|UPI/i.test(text)) modeVal = "IMPS/UPI";
+                else if (/Over\s+the\s+Counter|OTC/i.test(text)) modeVal = "OTC";
+
+                return {
+                    docType: 'PMT06',
+                    gstin: gstin, name: clientName, periodKey: periodKey,
+                    cpin: cpinVal, challanDate: filingDate, challanMode: modeVal
+                };
+            }
 
             var is3B = /GSTR[\s\-]*3B/i.test(text) || /3\.1\s+Details\s+of\s+Outward/i.test(text);
             var isR1 = /GSTR[\s\-]*1/i.test(text) || /IFF/i.test(text);
@@ -1528,6 +1657,11 @@
                     if (rec.rcmIgst + rec.rcmCgst + rec.rcmSgst > 0) {
                         h.rcmIgst = rec.rcmIgst; h.rcmCgst = rec.rcmCgst; h.rcmSgst = rec.rcmSgst;
                     }
+                } else if (rec.docType === 'PMT06') {
+                    h.challanStatus = (h.r3b === 'Filed') ? 'Paid' : 'Pending';
+                    if (rec.cpin) h.challanCpin = rec.cpin;
+                    if (rec.challanDate) h.challanDate = rec.challanDate;
+                    if (rec.challanMode) h.challanMode = rec.challanMode;
                 } else if (rec.docType === '3B' || rec.docType === '3B_JSON') {
                     h.outIgst = rec.outIgst; h.outCgst = rec.outCgst; h.outSgst = rec.outSgst;
                     h.rcmIgst = rec.rcmIgst; h.rcmCgst = rec.rcmCgst; h.rcmSgst = rec.rcmSgst;
@@ -1536,6 +1670,10 @@
                         h.r3b = 'Filed';
                         if (rec.filingDate) h.r3bDate = rec.filingDate;
                         if (rec.arn) h.r3bArn = rec.arn;
+                        // Auto-sync challan status to Paid when 3B is filed
+                        if (h.challanStatus === 'Pending' || h.challanStatus === 'UTR_Sent' || h.challanCpin) {
+                            h.challanStatus = 'Paid';
+                        }
                     }
                 } else if (rec.docType === 'R1' || rec.docType === 'R1_JSON') {
                     if (rec.outIgst + rec.outCgst + rec.outSgst > 0) {
@@ -1569,6 +1707,11 @@
                         document.getElementById('rcm-cgst').value = rec.rcmCgst;
                         document.getElementById('rcm-sgst').value = rec.rcmSgst;
                     }
+                } else if (rec.docType === 'PMT06') {
+                    document.getElementById('challan-status').value = 'Pending';
+                    document.getElementById('challan-cpin').value = rec.cpin || '';
+                    document.getElementById('challan-date').value = rec.challanDate || '';
+                    document.getElementById('challan-mode').value = rec.challanMode || 'NEFT/RTGS';
                 } else if (rec.docType === '3B' || rec.docType === '3B_JSON') {
                     document.getElementById('out-igst').value = rec.outIgst;
                     document.getElementById('out-cgst').value = rec.outCgst;
@@ -1609,7 +1752,11 @@
                         if (pdfRec.docType !== 'UNKNOWN') {
                             if (applyParsedPortalRecordToDb(pdfRec, isSingle)) {
                                 importedCount++;
-                                lastTypeLabel = "GSTR-" + pdfRec.docType + " PDF" + (pdfRec.arn ? " (ARN: " + pdfRec.arn + ")" : "");
+                                if (pdfRec.docType === 'PMT06') {
+                                    lastTypeLabel = "PMT-06 Challan PDF" + (pdfRec.cpin ? " (CPIN: " + pdfRec.cpin + ")" : "");
+                                } else {
+                                    lastTypeLabel = "GSTR-" + pdfRec.docType + " PDF" + (pdfRec.arn ? " (ARN: " + pdfRec.arn + ")" : "");
+                                }
                             }
                         }
                     } else {
@@ -1634,7 +1781,7 @@
             event.target.value = '';
 
             if (importedCount === 0) {
-                alert("Could not match or parse the selected file(s). Ensure it is an official GST Portal GSTR-2B JSON or system-generated GSTR-3B / GSTR-1 PDF.");
+                alert("Could not match or parse the selected file(s). Ensure it is an official GSTR-2B JSON or system-generated GSTR-3B / GSTR-1 / PMT-06 PDF.");
             } else if (isSingle) {
                 showToast("Imported " + lastTypeLabel + "!");
             } else {
@@ -1647,12 +1794,15 @@
                 'editing-client-id','client-name','client-phone','client-gstin','portal-user','portal-pass',
                 'out-igst','out-cgst','out-sgst','rcm-igst','rcm-cgst','rcm-sgst','itc-igst','itc-cgst','itc-sgst',
                 'itc-2b-igst','itc-2b-cgst','itc-2b-sgst','month-notes','client-fee','client-logo',
-                'client-logo-base64','client-tags','client-notice','init-itc-igst','init-itc-cgst','init-itc-sgst'
+                'client-logo-base64','client-tags','client-notice','init-itc-igst','init-itc-cgst','init-itc-sgst',
+                'cash-ledger-bal','challan-cpin','challan-date','challan-utr'
             ];
             ids.forEach(function(id) {
                 var el = document.getElementById(id);
                 if (el) el.value = '';
             });
+            document.getElementById('challan-status').value = 'None';
+            document.getElementById('challan-mode').value = 'NEFT/RTGS';
             document.getElementById('logo-preview').style.display = 'none';
             document.getElementById('logo-preview').innerHTML = '';
             document.getElementById('remove-logo-btn').style.display = 'none';
@@ -1679,7 +1829,13 @@
                     r3b: "Pending", r3bDate: "", r3bArn: "",
                     waived: false,
                     feeAmount: target.defaultFee || 0,
-                    feeStatus: "Due"
+                    feeStatus: "Due",
+                    cashLedgerBal: 0,
+                    challanStatus: "None",
+                    challanMode: "NEFT/RTGS",
+                    challanCpin: "",
+                    challanDate: "",
+                    challanUtr: ""
                 };
             } else {
                 var h = target.history[periodKey];
@@ -1692,6 +1848,12 @@
                 if (h.feeStatus === undefined) h.feeStatus = "Due";
                 if (h.r1Arn === undefined) h.r1Arn = "";
                 if (h.r3bArn === undefined) h.r3bArn = "";
+                if (h.cashLedgerBal === undefined) h.cashLedgerBal = 0;
+                if (h.challanStatus === undefined) h.challanStatus = (h.r3b === 'Filed') ? "Paid" : "None";
+                if (h.challanMode === undefined) h.challanMode = "NEFT/RTGS";
+                if (h.challanCpin === undefined) h.challanCpin = "";
+                if (h.challanDate === undefined) h.challanDate = "";
+                if (h.challanUtr === undefined) h.challanUtr = "";
             }
         }
 
@@ -1707,6 +1869,11 @@
             var logoData = document.getElementById('client-logo-base64').value;
             var tagsData = document.getElementById('client-tags').value.split(',').map(function(t) { return t.trim(); }).filter(function(t) { return Boolean(t); });
             var feeEntered = parseFloat(document.getElementById('client-fee').value) || 0;
+            var cpinEntered = document.getElementById('challan-cpin').value.trim();
+            var challanStatEntered = document.getElementById('challan-status').value || "None";
+            if (cpinEntered && challanStatEntered === 'None') {
+                challanStatEntered = 'Pending';
+            }
 
             var payload = {
                 outIgst: parseFloat(document.getElementById('out-igst').value) || 0,
@@ -1724,6 +1891,12 @@
                 notes: document.getElementById('month-notes').value.trim(),
                 feeAmount: feeEntered,
                 feeStatus: document.getElementById('fee-status').value || "Due",
+                cashLedgerBal: parseFloat(document.getElementById('cash-ledger-bal').value) || 0,
+                challanStatus: challanStatEntered,
+                challanMode: document.getElementById('challan-mode').value || "NEFT/RTGS",
+                challanCpin: cpinEntered,
+                challanDate: document.getElementById('challan-date').value || "",
+                challanUtr: document.getElementById('challan-utr').value.trim(),
                 r1: "Pending", r1Date: "", r1Arn: "",
                 r3b: "Pending", r3bDate: "", r3bArn: "",
                 waived: false
@@ -1755,6 +1928,10 @@
                     payload.r1 = existing.r1; payload.r1Date = existing.r1Date; payload.r1Arn = existing.r1Arn || "";
                     payload.r3b = existing.r3b; payload.r3bDate = existing.r3bDate; payload.r3bArn = existing.r3bArn || "";
                     payload.waived = existing.waived || false;
+
+                    if (payload.r3b === 'Filed' && (payload.challanStatus === 'Pending' || payload.challanStatus === 'UTR_Sent')) {
+                        payload.challanStatus = 'Paid';
+                    }
 
                     target.history[activeTargetPeriod] = payload;
                     showToast("Updated " + name);
@@ -1825,6 +2002,13 @@
             document.getElementById('itc-2b-cgst').value = data.itc2bCgst || '';
             document.getElementById('itc-2b-sgst').value = data.itc2bSgst || '';
 
+            document.getElementById('cash-ledger-bal').value = data.cashLedgerBal || '';
+            document.getElementById('challan-status').value = data.challanStatus || 'None';
+            document.getElementById('challan-mode').value = data.challanMode || 'NEFT/RTGS';
+            document.getElementById('challan-cpin').value = data.challanCpin || '';
+            document.getElementById('challan-date').value = data.challanDate || '';
+            document.getElementById('challan-utr').value = data.challanUtr || '';
+
             document.getElementById('month-notes').value = data.notes || '';
             document.getElementById('client-fee').value = data.feeAmount || target.defaultFee || '';
             document.getElementById('fee-status').value = data.feeStatus || 'Due';
@@ -1837,7 +2021,7 @@
             window.scrollTo({ top: 0, behavior: 'smooth' });
         };
 
-        // --- RULE 88A SET-OFF ENGINE ---
+        // --- RULE 88A SET-OFF ENGINE & EXACT SHORTFALL CALCULATOR ---
         function runRule88ASetOff(poolIgst, poolCgst, poolSgst, outIgst, outCgst, outSgst) {
             if (poolIgst > 0 && outIgst > 0) {
                 var off1 = Math.min(poolIgst, outIgst);
@@ -1949,8 +2133,27 @@
             }
 
             if (data.waived) { lateFee = 0; interest = 0; }
+
+            var grossChallan = totalCash + lateFee + interest;
+            var cashLedgerBal = data.cashLedgerBal || 0;
+            var cashShortfall = Math.max(0, grossChallan - cashLedgerBal);
+
+            // 15-Day CPIN Expiry Countdown
+            var cpinDaysLeft = null;
+            if (data.challanDate && (data.challanStatus === 'Pending' || data.challanStatus === 'UTR_Sent')) {
+                var genDate = new Date(data.challanDate);
+                genDate.setHours(0, 0, 0, 0);
+                var expDate = new Date(genDate.getTime() + (15 * 86400000));
+                var todayMid = new Date();
+                todayMid.setHours(0, 0, 0, 0);
+                cpinDaysLeft = Math.ceil((expDate - todayMid) / 86400000);
+            }
+
             return {
-                totalCash: totalCash, carryCredit: carryCredit, reconDiff: reconDiff, headMismatch: headMismatch,
+                totalCash: totalCash, grossChallan: grossChallan,
+                cashLedgerBal: cashLedgerBal, cashShortfall: cashShortfall,
+                cpinDaysLeft: cpinDaysLeft,
+                carryCredit: carryCredit, reconDiff: reconDiff, headMismatch: headMismatch,
                 lateFee: lateFee, interest: interest, delayDays: delayDays,
                 cashHeads: { igst: cashIgst, cgst: cashCgst, sgst: cashSgst },
                 closingItc: { igst: res.poolIgst, cgst: res.poolCgst, sgst: res.poolSgst },
@@ -1996,22 +2199,35 @@
             };
         }
 
-        // --- WORKFLOW TOGGLES ---
+        // --- WORKFLOW TOGGLES & AUTO-PAID CHALLAN ON 3B FILING ---
         window.toggleReturnStatus = function(id, type) {
             var target = db.find(function(c) { return c.id === id; });
             if (!target) return;
 
             ensureMonthStructureInitialized(target, activeTargetPeriod);
-            var isFiled = target.history[activeTargetPeriod][type] === 'Filed';
-            target.history[activeTargetPeriod][type] = isFiled ? 'Pending' : 'Filed';
+            var h = target.history[activeTargetPeriod];
+            var isFiled = h[type] === 'Filed';
+            h[type] = isFiled ? 'Pending' : 'Filed';
 
             var today = new Date();
             var todayStr = today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0') + '-' + String(today.getDate()).padStart(2, '0');
 
-            if (!isFiled && !target.history[activeTargetPeriod][type + 'Date']) {
-                target.history[activeTargetPeriod][type + 'Date'] = todayStr;
+            if (!isFiled && !h[type + 'Date']) {
+                h[type + 'Date'] = todayStr;
             } else if (isFiled) {
-                target.history[activeTargetPeriod][type + 'Date'] = '';
+                h[type + 'Date'] = '';
+            }
+
+            // AUTO-SYNC RULE: When GSTR-3B / PMT-06 is marked Filed, automatically mark Challan as Paid
+            if (type === 'r3b') {
+                if (!isFiled) {
+                    if (h.challanStatus === 'Pending' || h.challanStatus === 'UTR_Sent' || h.challanCpin) {
+                        h.challanStatus = 'Paid';
+                        showToast("GSTR-3B Filed -> Challan marked Paid!");
+                    }
+                } else if (isFiled && h.challanStatus === 'Paid' && h.challanCpin) {
+                    h.challanStatus = 'Pending';
+                }
             }
 
             if ((target.scheme === 'QRMP' || target.scheme === 'Composition') && !isFiled) {
@@ -2026,12 +2242,42 @@
                             target.history[p][type] = 'Filed';
                             target.history[p][type + 'Date'] = todayStr;
                             target.history[p].waived = true;
+                            if (type === 'r3b' && target.history[p].challanStatus === 'Pending') {
+                                target.history[p].challanStatus = 'Paid';
+                            }
                         }
                     });
                 }
             }
             saveDatabase();
             renderFinancialYearCalendar();
+            renderMasterDashboard();
+        };
+
+        window.toggleChallanStatus = function(id) {
+            var target = db.find(function(c) { return c.id === id; });
+            if (!target) return;
+            ensureMonthStructureInitialized(target, activeTargetPeriod);
+            var h = target.history[activeTargetPeriod];
+
+            var today = new Date();
+            var todayStr = today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0') + '-' + String(today.getDate()).padStart(2, '0');
+
+            var cur = h.challanStatus || 'None';
+            if (cur === 'None') {
+                h.challanStatus = 'Pending';
+                if (!h.challanDate) h.challanDate = todayStr;
+                showToast("Challan Marked Pending (15-Day Validity)");
+            } else if (cur === 'Pending') {
+                h.challanStatus = 'UTR_Sent';
+                showToast("Status: UTR Received from Client");
+            } else if (cur === 'UTR_Sent') {
+                h.challanStatus = 'Paid';
+                showToast("Challan Marked Paid / Settled");
+            } else {
+                h.challanStatus = 'None';
+            }
+            saveDatabase();
             renderMasterDashboard();
         };
 
@@ -2055,13 +2301,17 @@
             }
         };
 
-        window.toggleFeeStatus = function(id) {
+        window.toggleFeeStatus = function(id, customPeriod) {
             var target = db.find(function(c) { return c.id === id; });
             if (target) {
-                ensureMonthStructureInitialized(target, activeTargetPeriod);
-                target.history[activeTargetPeriod].feeStatus = target.history[activeTargetPeriod].feeStatus === 'Paid' ? 'Due' : 'Paid';
+                var pKey = customPeriod || activeTargetPeriod;
+                ensureMonthStructureInitialized(target, pKey);
+                target.history[pKey].feeStatus = target.history[pKey].feeStatus === 'Paid' ? 'Due' : 'Paid';
                 saveDatabase();
                 renderMasterDashboard();
+                if (customPeriod && activeFeeClientId === id) {
+                    refreshActiveFeeModal();
+                }
             }
         };
 
@@ -2082,6 +2332,18 @@
             navigator.clipboard.writeText(target[field]).then(function() {
                 showToast("Copied " + (field === 'user' ? 'Username' : 'Password'));
             });
+        };
+
+        window.launchGstPortal = function(id) {
+            var target = db.find(function(c) { return c.id === id; });
+            if (!target) return;
+            if (target.user) {
+                navigator.clipboard.writeText(target.user).catch(function() {});
+                showToast("Copied ID: " + target.user + " | PW: " + (target.pass || "N/A"));
+            } else {
+                showToast("Opening GST Portal Login...");
+            }
+            window.open("https://services.gst.gov.in/services/login", "_blank");
         };
 
         window.togglePassMask = function(id) {
@@ -2109,7 +2371,7 @@
             document.getElementById('current-view-badge').textContent = getMonthNameByStr(targetMonthStr) + " " + targetYear;
 
             var now = new Date();
-            var totalAccounts = 0, r1PendingCount = 0, r3bPendingCount = 0, reconMismatchCount = 0, aggregateCashNeeded = 0, aggregateUncollectedFees = 0;
+            var totalAccounts = 0, r1PendingCount = 0, r3bPendingCount = 0, challanPendingCount = 0, reconMismatchCount = 0, aggregateShortfallNeeded = 0, aggregateUncollectedFees = 0;
 
             var rowsData = [];
             db.forEach(function(client) {
@@ -2119,30 +2381,40 @@
                 var dueInfo = getClientDueDates(client, activeTargetPeriod);
                 var net = computeTaxEngine(data, dueInfo.r3bDueDate, openingBal, client.scheme);
 
+                // Ensure auto-paid sync if 3B is already Filed
+                if (data.r3b === 'Filed' && (data.challanStatus === 'Pending' || data.challanStatus === 'UTR_Sent')) {
+                    data.challanStatus = 'Paid';
+                }
+
                 var isOverdue = (data.r1 === 'Pending' && now > dueInfo.r1DueDate) || (data.r3b === 'Pending' && now > dueInfo.r3bDueDate);
                 var has2B = ((data.itc2bIgst || 0) + (data.itc2bCgst || 0) + (data.itc2bSgst || 0)) > 0;
                 var isMismatch = has2B && (net.reconDiff > 1 || net.headMismatch);
+                var isChallanActivePending = (data.challanStatus === 'Pending' || data.challanStatus === 'UTR_Sent' || (data.r3b === 'Pending' && net.cashShortfall > 0 && data.challanStatus !== 'Paid'));
 
                 var stName = (GST_STATE_MAP[(client.gstin || '').substring(0, 2)] || "").toLowerCase();
                 var tagMatch = client.tags ? client.tags.some(function(t) { return t.toLowerCase().indexOf(search) !== -1; }) : false;
                 var noticeMatch = (client.notice || '').toLowerCase().indexOf(search) !== -1;
+                var cpinMatch = (data.challanCpin || '').toLowerCase().indexOf(search) !== -1;
+                var utrMatch = (data.challanUtr || '').toLowerCase().indexOf(search) !== -1;
 
-                if (search && client.name.toLowerCase().indexOf(search) === -1 && client.gstin.toLowerCase().indexOf(search) === -1 && stName.indexOf(search) === -1 && !tagMatch && !noticeMatch) {
+                if (search && client.name.toLowerCase().indexOf(search) === -1 && client.gstin.toLowerCase().indexOf(search) === -1 && stName.indexOf(search) === -1 && !tagMatch && !noticeMatch && !cpinMatch && !utrMatch) {
                     return;
                 }
 
                 totalAccounts++;
                 if (data.r1 === 'Pending') r1PendingCount++;
                 if (data.r3b === 'Pending') r3bPendingCount++;
+                if (isChallanActivePending) challanPendingCount++;
                 if (isMismatch) reconMismatchCount++;
-                aggregateCashNeeded += net.totalCash + net.lateFee + net.interest;
+                aggregateShortfallNeeded += net.cashShortfall;
                 if (data.feeAmount > 0 && data.feeStatus === 'Due') aggregateUncollectedFees += data.feeAmount;
 
                 if (activeFilterPill === 'R1_PENDING' && data.r1 !== 'Pending') return;
                 if (activeFilterPill === '3B_PENDING' && data.r3b !== 'Pending') return;
+                if (activeFilterPill === 'CHALLAN_PENDING' && !isChallanActivePending) return;
                 if (activeFilterPill === 'OVERDUE' && !isOverdue) return;
                 if (activeFilterPill === 'RECON_MISMATCH' && !isMismatch) return;
-                if (activeFilterPill === 'CASH_LIABLE' && net.totalCash <= 0) return;
+                if (activeFilterPill === 'CASH_LIABLE' && net.cashShortfall <= 0) return;
                 if (activeFilterPill === 'FEE_DUE' && (data.feeAmount === 0 || data.feeStatus === 'Paid')) return;
                 if (activeFilterPill === 'HAS_NOTICE' && !client.notice) return;
 
@@ -2150,7 +2422,7 @@
             });
 
             rowsData.sort(function(a, b) {
-                if (sortMode === 'CASH_DESC') return (b.net.totalCash + b.net.lateFee) - (a.net.totalCash + a.net.lateFee);
+                if (sortMode === 'CASH_DESC') return b.net.cashShortfall - a.net.cashShortfall;
                 if (sortMode === 'FEE_DESC') {
                     var feeA = a.data.feeStatus === 'Due' ? a.data.feeAmount : 0;
                     var feeB = b.data.feeStatus === 'Due' ? b.data.feeAmount : 0;
@@ -2187,9 +2459,9 @@
                 var penaltyHtml = "";
                 if (net.delayDays > 0) {
                     if (data.waived) {
-                        penaltyHtml = "<div style='font-size:0.69rem; color:var(--success); border:1px solid var(--success); border-radius:5px; padding:4px 6px; margin-top:6px;'><strong>Penalty Waived</strong> <button type='button' class='btn-inline btn-waiver' onclick=\"toggleWaiver('" + client.id + "')\">Undo</button></div>";
+                        penaltyHtml = "<div style='font-size:0.68rem; color:var(--success); border:1px solid var(--success); border-radius:5px; padding:3px 6px; margin-top:5px;'><strong>Penalty Waived</strong> <button type='button' class='btn-inline btn-waiver' onclick=\"toggleWaiver('" + client.id + "')\">Undo</button></div>";
                     } else if (net.lateFee > 0 || net.interest > 0) {
-                        penaltyHtml = "<div style='font-size:0.69rem; color:#fca5a5; border:1px solid var(--danger); border-radius:5px; padding:4px 6px; margin-top:6px;'><strong>Sec 47 (" + net.delayDays + "d late)</strong><br>Fee: &#8377;" + fmtINR(net.lateFee) + " | Int: &#8377;" + fmtINR(net.interest) + "<br><button type='button' class='btn-inline btn-waiver' onclick=\"toggleWaiver('" + client.id + "')\">Waive Penalty</button></div>";
+                        penaltyHtml = "<div style='font-size:0.68rem; color:#fca5a5; border:1px solid var(--danger); border-radius:5px; padding:3px 6px; margin-top:5px;'><strong>Sec 47 (" + net.delayDays + "d late)</strong><br>Fee: &#8377;" + fmtINR(net.lateFee) + " | Int: &#8377;" + fmtINR(net.interest) + " <button type='button' class='btn-inline btn-waiver' onclick=\"toggleWaiver('" + client.id + "')\">Waive</button></div>";
                     }
                 }
 
@@ -2198,19 +2470,64 @@
                     r1SubHtml = "<br><input type='date' class='date-edit' value='" + (data.r1Date || '') + "' onchange=\"updateFilingMeta('" + client.id + "', 'r1Date', this.value)\">" +
                                 "<input type='text' class='arn-edit' placeholder='R1 ARN #' value='" + (data.r1Arn || '') + "' onchange=\"updateFilingMeta('" + client.id + "', 'r1Arn', this.value)\">";
                 } else if (now > dueInfo.r1DueDate) {
-                    r1SubHtml = "<div style='font-size:0.68rem; color:var(--danger); font-weight:700; margin-top:2px;'>OVERDUE (" + dueInfo.r1DueDay + " " + dueMonthName + ")</div>";
+                    r1SubHtml = "<div style='font-size:0.67rem; color:var(--danger); font-weight:700; margin-top:2px;'>OVERDUE (" + dueInfo.r1DueDay + " " + dueMonthName + ")</div>";
                 } else {
-                    r1SubHtml = "<div style='font-size:0.68rem; color:var(--warning); margin-top:2px;'>Due " + dueInfo.r1DueDay + " " + dueMonthName + "</div>";
+                    r1SubHtml = "<div style='font-size:0.67rem; color:var(--warning); margin-top:2px;'>Due " + dueInfo.r1DueDay + " " + dueMonthName + "</div>";
                 }
 
                 var r3bSubHtml = "";
                 if (data.r3b === 'Filed') {
                     r3bSubHtml = "<br><input type='date' class='date-edit' value='" + (data.r3bDate || '') + "' onchange=\"updateFilingMeta('" + client.id + "', 'r3bDate', this.value)\">" +
-                                "<input type='text' class='arn-edit' placeholder='3B ARN / CPIN #' value='" + (data.r3bArn || '') + "' onchange=\"updateFilingMeta('" + client.id + "', 'r3bArn', this.value)\">";
+                                "<input type='text' class='arn-edit' placeholder='3B ARN #' value='" + (data.r3bArn || '') + "' onchange=\"updateFilingMeta('" + client.id + "', 'r3bArn', this.value)\">";
                 } else if (now > dueInfo.r3bDueDate) {
-                    r3bSubHtml = "<div style='font-size:0.68rem; color:var(--danger); font-weight:700; margin-top:2px;'>OVERDUE (" + dueInfo.r3bDueDay + " " + dueMonthName + ")</div>";
+                    r3bSubHtml = "<div style='font-size:0.67rem; color:var(--danger); font-weight:700; margin-top:2px;'>OVERDUE (" + dueInfo.r3bDueDay + " " + dueMonthName + ")</div>";
                 } else {
-                    r3bSubHtml = "<div style='font-size:0.68rem; color:var(--warning); margin-top:2px;'>Due " + dueInfo.r3bDueDay + " " + dueMonthName + "</div>";
+                    r3bSubHtml = "<div style='font-size:0.67rem; color:var(--warning); margin-top:2px;'>Due " + dueInfo.r3bDueDay + " " + dueMonthName + "</div>";
+                }
+
+                // Smart NEFT / PMT-06 Challan Tracker Widget
+                var cStat = data.challanStatus || 'None';
+                var challanBadgeClass = "badge-challan-none";
+                var challanBadgeText = "Challan: None";
+
+                if (data.r3b === 'Filed' && (cStat === 'Paid' || net.totalCash > 0 || data.challanCpin)) {
+                    challanBadgeClass = "badge-filed";
+                    challanBadgeText = "Challan: Paid (Filed)";
+                } else if (cStat === 'Paid') {
+                    challanBadgeClass = "badge-filed";
+                    challanBadgeText = "Challan: Paid";
+                } else if (cStat === 'UTR_Sent') {
+                    challanBadgeClass = "badge-challan-utr";
+                    challanBadgeText = "UTR Sent (Link Pending)";
+                } else if (cStat === 'Pending') {
+                    challanBadgeClass = "badge-challan-warn";
+                    challanBadgeText = "Challan Pending (" + (data.challanMode || 'NEFT') + ")";
+                } else if (net.cashShortfall > 0) {
+                    challanBadgeClass = "badge-pending";
+                    challanBadgeText = "Create Challan (Shortfall)";
+                } else {
+                    challanBadgeClass = "badge-challan-none";
+                    challanBadgeText = "No Challan Needed";
+                }
+
+                var cpinExpiryAlert = "";
+                if ((cStat === 'Pending' || cStat === 'UTR_Sent') && net.cpinDaysLeft !== null) {
+                    if (net.cpinDaysLeft < 0) {
+                        cpinExpiryAlert = "<div style='font-size:0.66rem; color:var(--danger); font-weight:700; margin-top:2px;'>CPIN EXPIRED (" + Math.abs(net.cpinDaysLeft) + "d ago)</div>";
+                    } else if (net.cpinDaysLeft <= 3) {
+                        cpinExpiryAlert = "<div style='font-size:0.66rem; color:var(--warning); font-weight:700; margin-top:2px;'>CPIN Expires in " + net.cpinDaysLeft + "d</div>";
+                    } else {
+                        cpinExpiryAlert = "<div style='font-size:0.65rem; color:var(--text-muted); margin-top:2px;'>CPIN Valid: " + net.cpinDaysLeft + "d left</div>";
+                    }
+                }
+
+                var challanMetaInputs = "";
+                if (cStat === 'Pending' || cStat === 'UTR_Sent' || cStat === 'Paid' || data.challanCpin || data.challanUtr) {
+                    challanMetaInputs =
+                        "<div style='margin-top:3px;'>" +
+                            "<input type='text' class='arn-edit' placeholder='14-Digit CPIN' maxlength='14' value='" + (data.challanCpin || '') + "' onchange=\"updateFilingMeta('" + client.id + "', 'challanCpin', this.value)\"> " +
+                            "<input type='text' class='arn-edit' placeholder='Bank UTR #' value='" + (data.challanUtr || '') + "' onchange=\"updateFilingMeta('" + client.id + "', 'challanUtr', this.value)\">" +
+                        "</div>";
                 }
 
                 var rcmActive = ((data.rcmIgst || 0) + (data.rcmCgst || 0) + (data.rcmSgst || 0)) > 0;
@@ -2219,9 +2536,18 @@
                     ? client.tags.map(function(t) { return "<span class='segment-tag'>" + t + "</span>"; }).join('') + "<br>"
                     : "";
 
-                var netBoxSummary = net.totalCash > 0
-                    ? "<span style='color:#fca5a5; font-weight:800;'>Cash Payable: &#8377;" + fmtINR(net.totalCash) + "</span><br><span style='font-size:0.67rem; color:var(--text-muted);'>I:&#8377;" + fmtINR(net.cashHeads.igst) + " | C:&#8377;" + fmtINR(net.cashHeads.cgst) + " | S:&#8377;" + fmtINR(net.cashHeads.sgst) + "</span>"
-                    : "<span style='color:#6ee7b7; font-weight:800;'>ITC Carry: &#8377;" + fmtINR(net.carryCredit) + "</span><br><span style='font-size:0.67rem; color:var(--text-muted);'>I:&#8377;" + fmtINR(net.closingItc.igst) + " | C:&#8377;" + fmtINR(net.closingItc.cgst) + " | S:&#8377;" + fmtINR(net.closingItc.sgst) + "</span>";
+                var netBoxSummary = "";
+                if (net.totalCash > 0) {
+                    netBoxSummary = "<span style='color:#fca5a5; font-weight:800;'>Gross Cash Tax: &#8377;" + fmtINR(net.totalCash) + "</span>" +
+                                    "<br><span style='font-size:0.66rem; color:var(--text-muted);'>I:&#8377;" + fmtINR(net.cashHeads.igst) + " | C:&#8377;" + fmtINR(net.cashHeads.cgst) + " | S:&#8377;" + fmtINR(net.cashHeads.sgst) + "</span>";
+                    if (net.cashLedgerBal > 0) {
+                        netBoxSummary += "<br><span style='font-size:0.68rem; color:var(--cyan);'>Less Cash Ledger: -&#8377;" + fmtINR(net.cashLedgerBal) + "</span>" +
+                                         "<br><span style='color:#fcd34d; font-weight:800;'>NEFT Shortfall: &#8377;" + fmtINR(net.cashShortfall) + "</span>";
+                    }
+                } else {
+                    netBoxSummary = "<span style='color:#6ee7b7; font-weight:800;'>ITC Carry: &#8377;" + fmtINR(net.carryCredit) + "</span>" +
+                                    "<br><span style='font-size:0.66rem; color:var(--text-muted);'>I:&#8377;" + fmtINR(net.closingItc.igst) + " | C:&#8377;" + fmtINR(net.closingItc.cgst) + " | S:&#8377;" + fmtINR(net.closingItc.sgst) + "</span>";
+                }
 
                 var row = document.createElement('tr');
                 row.innerHTML =
@@ -2240,6 +2566,7 @@
                             "<span>| PW: " + passDisplay + "</span>" +
                             "<span class='copy-chip' onclick=\"togglePassMask('" + client.id + "')\">Show</span>" +
                             "<span class='copy-chip' onclick=\"copyClientCredential('" + client.id + "', 'pass')\">Copy</span>" +
+                            "<span class='portal-launch-chip' onclick=\"launchGstPortal('" + client.id + "')\" title='Copy ID &amp; Open GST Portal'>&#128640; Portal</span>" +
                         "</div>" +
                         (data.notes ? "<div style='font-size:0.72rem; color:#fcd34d; background:rgba(245,158,11,0.08); border:1px dashed rgba(245,158,11,0.3); padding:5px 7px; border-radius:5px; margin-top:6px;'>" + data.notes + "</div>" : "") +
                     "</td>" +
@@ -2254,28 +2581,34 @@
                         reconHtml +
                     "</td>" +
                     "<td>" +
-                        "<div style='margin-bottom:8px;'>" +
+                        "<div style='margin-bottom:6px;'>" +
                             "<span class='badge " + (data.r1 === 'Filed' ? 'badge-filed' : 'badge-pending') + "' onclick=\"toggleReturnStatus('" + client.id + "', 'r1')\">" + dueInfo.r1Label + ": " + data.r1 + "</span>" +
                             r1SubHtml +
                         "</div>" +
-                        "<div>" +
+                        "<div style='margin-bottom:6px;'>" +
                             "<span class='badge " + (data.r3b === 'Filed' ? 'badge-filed' : 'badge-pending') + "' onclick=\"toggleReturnStatus('" + client.id + "', 'r3b')\">" + dueInfo.r3bLabel + ": " + data.r3b + "</span>" +
                             r3bSubHtml +
+                        "</div>" +
+                        "<div style='border-top:1px dashed var(--border); padding-top:6px;'>" +
+                            "<span class='badge " + challanBadgeClass + "' onclick=\"toggleChallanStatus('" + client.id + "')\" title='Click to cycle Challan Status'>" + challanBadgeText + "</span>" +
+                            cpinExpiryAlert +
+                            challanMetaInputs +
                         "</div>" +
                         penaltyHtml +
                     "</td>" +
                     "<td>" +
-                        "<div class='ledger-box' style='margin-bottom:5px; border-color:" + (net.totalCash > 0 ? 'var(--danger)' : 'var(--success)') + "'>" +
+                        "<div class='ledger-box' style='margin-bottom:5px; border-color:" + (net.cashShortfall > 0 ? 'var(--danger)' : 'var(--success)') + "'>" +
                             netBoxSummary +
                             (net.lateFee + net.interest > 0 && !data.waived ? "<br><span style='color:var(--danger); font-weight:700;'>+ Penalty: &#8377;" + fmtINR(net.lateFee + net.interest) + "</span>" : "") +
                         "</div>" +
                         "<div class='ledger-box' style='margin-bottom:6px; display:flex; justify-content:space-between; align-items:center; border-color:" + (data.feeStatus === 'Due' ? 'var(--warning)' : 'var(--success)') + "'>" +
                             "<div><strong>Fee: &#8377;" + fmtINR(data.feeAmount) + "</strong>" + (data.feeStatus === 'Paid' ? " <span style='font-size:0.65rem; color:var(--success);'>(Cleared)</span>" : "") + "</div>" +
-                            "<span class='badge " + (data.feeStatus === 'Paid' ? 'badge-filed' : 'badge-pending') + "' style='min-width:75px; padding:2px 6px;' onclick=\"toggleFeeStatus('" + client.id + "')\">" + data.feeStatus + "</span>" +
+                            "<span class='badge " + (data.feeStatus === 'Paid' ? 'badge-filed' : 'badge-pending') + "' style='min-width:70px; padding:2px 6px;' onclick=\"toggleFeeStatus('" + client.id + "')\">" + data.feeStatus + "</span>" +
                         "</div>" +
                         "<div class='action-row'>" +
                             "<button type='button' class='btn-inline' onclick=\"triggerInlineEdit('" + client.id + "')\">Edit</button>" +
                             "<button type='button' class='btn-inline btn-gstr9' onclick=\"openGstr9Modal('" + client.id + "')\">GSTR-9</button>" +
+                            "<button type='button' class='btn-inline btn-fee-passbook' onclick=\"openFeePassbookModal('" + client.id + "')\">&#128188; Fee</button>" +
                             "<button type='button' class='btn-inline btn-print' onclick=\"printChallan('" + client.id + "')\">PDF</button>" +
                             "<button type='button' class='btn-inline btn-whatsapp' onclick=\"openWhatsAppModal('" + client.id + "')\">WA</button>" +
                             "<button type='button' class='btn-inline' style='color:var(--danger);' onclick=\"purgeClientProfile('" + client.id + "')\">Del</button>" +
@@ -2287,8 +2620,9 @@
             document.getElementById('stat-total').textContent = totalAccounts;
             document.getElementById('stat-r1').textContent = r1PendingCount;
             document.getElementById('stat-3b').textContent = r3bPendingCount;
+            document.getElementById('stat-challan').textContent = challanPendingCount;
             document.getElementById('stat-recon').textContent = reconMismatchCount;
-            document.getElementById('stat-cash').innerHTML = '&#8377;' + fmtINR(aggregateCashNeeded);
+            document.getElementById('stat-cash').innerHTML = '&#8377;' + fmtINR(aggregateShortfallNeeded);
             document.getElementById('stat-fees').innerHTML = '&#8377;' + fmtINR(aggregateUncollectedFees);
         };
 
@@ -2298,20 +2632,14 @@
             var fyOpenItc = calculateCumulativeITC(client, aprilPeriod);
             var fyCloseItc = { igst: 0, cgst: 0, sgst: 0 };
 
-            var t4 = {
-                outI: 0, outC: 0, outS: 0,
-                rcmI: 0, rcmC: 0, rcmS: 0
-            };
+            var t4 = { outI: 0, outC: 0, outS: 0, rcmI: 0, rcmC: 0, rcmS: 0 };
             var t6 = {
                 openI: fyOpenItc.igst, openC: fyOpenItc.cgst, openS: fyOpenItc.sgst,
                 availI: 0, availC: 0, availS: 0,
                 usedPoolI: 0, usedPoolC: 0, usedPoolS: 0,
                 closeI: 0, closeC: 0, closeS: 0
             };
-            var t8 = {
-                itc2bI: 0, itc2bC: 0, itc2bS: 0,
-                itc3bI: 0, itc3bC: 0, itc3bS: 0
-            };
+            var t8 = { itc2bI: 0, itc2bC: 0, itc2bS: 0, itc3bI: 0, itc3bC: 0, itc3bS: 0 };
             var t9 = {
                 payI: 0, payC: 0, payS: 0,
                 paidItcI: 0, paidItcC: 0, paidItcS: 0,
@@ -2371,9 +2699,12 @@
                 if (d.r3b === 'Filed') filingCounts.r3bFiled++;
 
                 monthlyRows.push({
+                    periodKey: pKey,
                     label: m.name + " " + yr,
                     r1: d.r1, r1Date: d.r1Date || '', r1Arn: d.r1Arn || '',
                     r3b: d.r3b, r3bDate: d.r3bDate || '', r3bArn: d.r3bArn || '',
+                    challanStatus: d.challanStatus || 'None',
+                    challanCpin: d.challanCpin || '',
                     outSum: oI + oC + oS,
                     rcmSum: rI + rC + rS,
                     itc3bSum: c3I + c3C + c3S,
@@ -2635,6 +2966,7 @@
                     "</tbody>" +
                 "</table>";
 
+            document.body.classList.remove('print-mode-fee');
             document.body.classList.add('print-mode-gstr9');
             setTimeout(function() {
                 window.print();
@@ -2644,10 +2976,183 @@
             }, 200);
         };
 
-        // --- MODAL 2: WHATSAPP DISPATCHER ---
+        // --- MODAL 5: CLIENT MULTI-MONTH FEE PASSBOOK & CONSOLIDATED INVOICE PDF ---
+        window.openFeePassbookModal = function(clientId) {
+            activeFeeClientId = clientId;
+            var mainFy = document.getElementById('global-fy-select').value;
+            var feeSelect = document.getElementById('fee-fy-select');
+            if (feeSelect) feeSelect.value = mainFy;
+            refreshActiveFeeModal();
+            document.getElementById('fee-ledger-modal').style.display = 'flex';
+        };
+
+        window.refreshActiveFeeModal = function() {
+            if (!activeFeeClientId) return;
+            var client = db.find(function(c) { return c.id === activeFeeClientId; });
+            if (!client) return;
+
+            var startYear = parseInt(document.getElementById('fee-fy-select').value || document.getElementById('global-fy-select').value, 10);
+            var g9 = computeGstr9DossierData(client, startYear);
+
+            document.getElementById('fee-modal-title').textContent = "Client Multi-Month Fee Passbook - " + client.name;
+            document.getElementById('fee-modal-subtitle').textContent = "GSTIN: " + client.gstin + " | " + g9.fyLabel + " | Click any month's status badge to toggle Paid / Due";
+
+            document.getElementById('fee-kpi-container').innerHTML =
+                "<div class='gstr9-kpi-box'>" +
+                    "<div class='summary-label'>Total FY Retainer Billed</div>" +
+                    "<div style='font-size:1.25rem; font-weight:800; color:var(--primary); margin-top:4px;'>&#8377;" + fmtINR(g9.feeSummary.billed) + "</div>" +
+                "</div>" +
+                "<div class='gstr9-kpi-box'>" +
+                    "<div class='summary-label'>Total Collected (Paid)</div>" +
+                    "<div style='font-size:1.25rem; font-weight:800; color:var(--success); margin-top:4px;'>&#8377;" + fmtINR(g9.feeSummary.paid) + "</div>" +
+                "</div>" +
+                "<div class='gstr9-kpi-box'>" +
+                    "<div class='summary-label'>Total Outstanding (Unpaid Due)</div>" +
+                    "<div style='font-size:1.25rem; font-weight:800; color:var(--danger); margin-top:4px;'>&#8377;" + fmtINR(g9.feeSummary.due) + "</div>" +
+                "</div>";
+
+            var tbody = document.getElementById('fee-passbook-tbody');
+            tbody.innerHTML = '';
+            g9.monthlyRows.forEach(function(r) {
+                var tr = document.createElement('tr');
+                tr.innerHTML =
+                    "<td><strong>" + r.label + "</strong></td>" +
+                    "<td style='color:" + (r.r1 === 'Filed' ? 'var(--success)' : 'var(--warning)') + "'>" + r.r1 + (r.r1Date ? " (" + r.r1Date + ")" : "") + "</td>" +
+                    "<td style='color:" + (r.r3b === 'Filed' ? 'var(--success)' : 'var(--danger)') + "'>" + r.r3b + (r.r3bDate ? " (" + r.r3bDate + ")" : "") + "</td>" +
+                    "<td>" + r.challanStatus + (r.challanCpin ? " [" + r.challanCpin + "]" : "") + "</td>" +
+                    "<td><strong>&#8377;" + fmtINR(r.feeAmount) + "</strong></td>" +
+                    "<td><span class='badge " + (r.feeStatus === 'Paid' ? 'badge-filed' : 'badge-pending') + "' onclick=\"toggleFeeStatus('" + client.id + "', '" + r.periodKey + "')\">" + r.feeStatus + "</span></td>";
+                tbody.appendChild(tr);
+            });
+        };
+
+        window.printConsolidatedFeeInvoice = function() {
+            if (!activeFeeClientId) return;
+            var client = db.find(function(c) { return c.id === activeFeeClientId; });
+            if (!client) return;
+
+            var startYear = parseInt(document.getElementById('fee-fy-select').value || document.getElementById('global-fy-select').value, 10);
+            var g9 = computeGstr9DossierData(client, startYear);
+            var stCode = (client.gstin || '').substring(0, 2);
+            var stLabel = GST_STATE_MAP[stCode] || stCode;
+
+            var dueAmt = g9.feeSummary.due;
+            if (dueAmt > 0 && !practiceConfig.upiId) {
+                var enteredUpi = prompt("Enter your Practice UPI ID (e.g. name@okaxis) to print a Scan-to-Pay QR Code on this Fee Statement (or leave blank to skip):", "");
+                if (enteredUpi && enteredUpi.trim()) {
+                    practiceConfig.upiId = enteredUpi.trim();
+                    localStorage.setItem('gst_beast_config', JSON.stringify(practiceConfig));
+                }
+            }
+
+            var rowsHtml = "";
+            g9.monthlyRows.forEach(function(r) {
+                var netRowDue = (r.feeStatus === 'Paid') ? 0 : r.feeAmount;
+                rowsHtml +=
+                    "<tr>" +
+                        "<td style='text-align:left;'><strong>" + r.label + "</strong></td>" +
+                        "<td style='text-align:center;'>" + r.r1 + "</td>" +
+                        "<td style='text-align:center;'>" + r.r3b + (r.r3bArn ? " (" + r.r3bArn + ")" : "") + "</td>" +
+                        "<td>&#8377;" + fmtINR(r.feeAmount) + "</td>" +
+                        "<td style='text-align:center;'><strong>" + (r.feeStatus === 'Paid' ? "PAID / CLEARED" : "UNPAID DUE") + "</strong></td>" +
+                        "<td>&#8377;" + fmtINR(netRowDue) + "</td>" +
+                    "</tr>";
+            });
+
+            var logoHtml = client.logo
+                ? "<img src='" + client.logo + "' style='max-height:55px;'>"
+                : "<div style='font-weight:900; font-size:18px;'>" + practiceConfig.firmName + "</div>";
+
+            var qrSectionHtml = "";
+            if (dueAmt <= 0) {
+                qrSectionHtml = "<div style='border:2px solid #059669; color:#059669; padding:8px 12px; border-radius:6px; font-weight:800; font-size:11px;'>&#10004; ALL RETAINER FEES CLEARED</div>";
+            } else if (practiceConfig.upiId) {
+                var upiUri = "upi://pay?pa=" + encodeURIComponent(practiceConfig.upiId) + "&pn=" + encodeURIComponent(practiceConfig.firmName) + "&am=" + dueAmt.toFixed(2) + "&cu=INR";
+                var qrImgUrl = "https://api.qrserver.com/v1/create-qr-code/?size=140x140&margin=4&data=" + encodeURIComponent(upiUri);
+                qrSectionHtml =
+                    "<div style='border:1px solid #64748b; padding:6px; border-radius:6px; display:inline-block; background:#fff; text-align:center;'>" +
+                        "<img id='dynamic-fee-qr-img' src='" + qrImgUrl + "' alt='UPI QR' style='width:105px; height:105px; display:block; margin:0 auto;'>" +
+                        "<div style='font-size:10px; font-weight:bold; margin-top:4px; color:#0f172a;'>Scan to Pay Dues (&#8377;" + fmtINR(dueAmt) + ")</div>" +
+                        "<div style='font-size:9px; color:#475569;'>UPI: " + practiceConfig.upiId + "</div>" +
+                    "</div>";
+            }
+
+            var container = document.getElementById('print-fee-area');
+            container.innerHTML =
+                "<div class='print-header'>" +
+                    "<div>" + logoHtml + "</div>" +
+                    "<div style='text-align:right;'>" +
+                        "<h1>Consolidated Professional Fee Statement &amp; Invoice</h1>" +
+                        "<p style='font-size:12px; color:#475569;'>Issued by " + practiceConfig.firmName + " | Date: " + new Date().toLocaleDateString('en-IN') + "</p>" +
+                    "</div>" +
+                "</div>" +
+                "<div class='print-details'>" +
+                    "<div>" +
+                        "<strong>Billed To:</strong> " + client.name + "<br>" +
+                        "<strong>GSTIN:</strong> " + client.gstin + " (" + stLabel + ")<br>" +
+                        "<strong>Compliance Scheme:</strong> " + (client.scheme || 'Monthly') +
+                    "</div>" +
+                    "<div style='text-align:right;'>" +
+                        "<strong>Financial Cycle:</strong> " + g9.fyLabel + "<br>" +
+                        "<strong>Total Billed:</strong> &#8377;" + fmtINR(g9.feeSummary.billed) + " | <strong>Paid:</strong> &#8377;" + fmtINR(g9.feeSummary.paid) + "<br>" +
+                        "<strong>Net Balance Due:</strong> &#8377;" + fmtINR(dueAmt) +
+                    "</div>" +
+                "</div>" +
+                "<table class='print-table'>" +
+                    "<thead><tr><th>Tax Period</th><th>Step 1 (R1/IFF)</th><th>Step 2 (3B/PMT &amp; ARN)</th><th>Retainer Billed (&#8377;)</th><th>Payment Status</th><th>Net Unpaid Due (&#8377;)</th></tr></thead>" +
+                    "<tbody>" + rowsHtml +
+                        "<tr class='print-total' style='font-size:1.15em; background:#bae6fd !important;'>" +
+                            "<td colspan='3' style='text-align:left;'>CONSOLIDATED ANNUAL RETAINER SUMMARY (" + g9.fyLabel + ")</td>" +
+                            "<td>&#8377;" + fmtINR(g9.feeSummary.billed) + "</td>" +
+                            "<td style='text-align:center;'>Paid: &#8377;" + fmtINR(g9.feeSummary.paid) + "</td>" +
+                            "<td>&#8377;" + fmtINR(dueAmt) + "</td>" +
+                        "</tr>" +
+                    "</tbody>" +
+                "</table>" +
+                "<div class='print-footer-grid'>" +
+                    "<div class='print-warning'>" +
+                        "* Months marked <strong>PAID / CLEARED</strong> have already been settled and are deducted from the Net Unpaid Due.<br>" +
+                        "* Please remit the Net Unpaid Due via UPI QR or bank transfer and share the confirmation reference." +
+                    "</div>" +
+                    "<div>" + qrSectionHtml + "</div>" +
+                "</div>";
+
+            document.body.classList.remove('print-mode-gstr9');
+            document.body.classList.add('print-mode-fee');
+
+            var qrImg = document.getElementById('dynamic-fee-qr-img');
+            var launchPrint = function() {
+                setTimeout(function() {
+                    window.print();
+                    setTimeout(function() {
+                        document.body.classList.remove('print-mode-fee');
+                    }, 600);
+                }, 150);
+            };
+            if (qrImg) {
+                var done = false;
+                var once = function() { if (!done) { done = true; launchPrint(); } };
+                qrImg.onload = once;
+                qrImg.onerror = once;
+                setTimeout(once, 1400);
+            } else {
+                launchPrint();
+            }
+        };
+
+        // --- MODAL 2: 4-TEMPLATE WHATSAPP DISPATCHER (WITH NEFT MANDATE) ---
         window.openWhatsAppModal = function(clientId) {
             document.getElementById('wa-client-id').value = clientId;
-            buildWhatsAppTemplate('CHALLAN');
+            var client = db.find(function(c) { return c.id === clientId; });
+            if (client) {
+                ensureMonthStructureInitialized(client, activeTargetPeriod);
+                var d = client.history[activeTargetPeriod];
+                if (d.challanStatus === 'Pending' || d.challanCpin) {
+                    buildWhatsAppTemplate('NEFT');
+                } else {
+                    buildWhatsAppTemplate('CHALLAN');
+                }
+            }
             document.getElementById('wa-modal').style.display = 'flex';
         };
 
@@ -2677,8 +3182,7 @@
                 lines.push("Regards,");
                 lines.push("*" + firm + "*");
             } else if (mode === 'CHALLAN') {
-                var taxChallanOwed = net.totalCash + net.lateFee + net.interest;
-                var grandOwed = taxChallanOwed + unpaidFee;
+                var grandOwed = net.cashShortfall + unpaidFee;
                 var outTot = (d.outIgst || 0) + (d.outCgst || 0) + (d.outSgst || 0);
                 var itcUsed = (op.igst + op.cgst + op.sgst) + (d.itcIgst || 0) + (d.itcCgst || 0) + (d.itcSgst || 0) - net.carryCredit;
                 lines.push("Dear *" + client.name + "*,");
@@ -2686,9 +3190,13 @@
                 lines.push("GST Computation Summary for *" + periodLabel + "* (" + client.gstin + "):");
                 lines.push("- Output Liability: Rs. " + fmtINR(outTot));
                 lines.push("- ITC Set-Off Utilized: Rs. " + fmtINR(itcUsed));
-                lines.push("- *Net Cash Tax Payable: Rs. " + fmtINR(net.totalCash) + "*");
+                lines.push("- Gross Cash Tax Payable: Rs. " + fmtINR(net.totalCash));
                 if (net.lateFee + net.interest > 0 && !d.waived) {
                     lines.push("- Late Fee / Interest: Rs. " + fmtINR(net.lateFee + net.interest));
+                }
+                if (net.cashLedgerBal > 0) {
+                    lines.push("- Less Existing Cash Ledger Bal: Rs. " + fmtINR(net.cashLedgerBal));
+                    lines.push("- *Net Cash Shortfall to Deposit: Rs. " + fmtINR(net.cashShortfall) + "*");
                 }
                 if (d.feeAmount > 0) {
                     lines.push("- Professional Fee: Rs. " + fmtINR(d.feeAmount) + " (" + (d.feeStatus === 'Paid' ? "PAID - Deducted" : "Unpaid Due") + ")");
@@ -2696,6 +3204,30 @@
                 lines.push("- *Total Net Balance Payable: Rs. " + fmtINR(grandOwed) + "*");
                 lines.push("");
                 lines.push("Please approve and fund the challan to complete *" + due.r3bLabel + "* filing.");
+                lines.push("");
+                lines.push("Regards,");
+                lines.push("*" + firm + "*");
+            } else if (mode === 'NEFT') {
+                lines.push("Dear *" + client.name + "*,");
+                lines.push("");
+                lines.push("Your GST Challan Mandate (*Form GST PMT-06*) for *" + periodLabel + "* (" + client.gstin + ") has been generated for bank remittance:");
+                lines.push("");
+                lines.push("- *Remittance Mode:* " + (d.challanMode || "NEFT/RTGS"));
+                if (d.challanCpin) lines.push("- *14-Digit CPIN:* " + d.challanCpin);
+                if (d.challanDate) {
+                    var expD = new Date(new Date(d.challanDate).getTime() + (15 * 86400000));
+                    lines.push("- *Challan Valid Till (15 Days):* " + expD.toLocaleDateString('en-IN'));
+                }
+                lines.push("- *Gross Cash Tax + Penalty:* Rs. " + fmtINR(net.grossChallan));
+                if (net.cashLedgerBal > 0) {
+                    lines.push("- *Less Existing Cash Ledger Bal:* Rs. " + fmtINR(net.cashLedgerBal));
+                }
+                lines.push("- *EXACT CHALLAN AMOUNT TO REMIT: Rs. " + fmtINR(net.cashShortfall) + "*");
+                if (unpaidFee > 0) {
+                    lines.push("- *Professional Retainer Due:* Rs. " + fmtINR(unpaidFee));
+                }
+                lines.push("");
+                lines.push("*Important:* Please remit the exact challan amount via your bank and share the *NEFT / RTGS UTR Number* with us immediately so we can link the UTR on the GST Portal and file your *" + due.r3bLabel + "*.");
                 lines.push("");
                 lines.push("Regards,");
                 lines.push("*" + firm + "*");
@@ -2730,11 +3262,12 @@
             closeModal('wa-modal');
         };
 
-        // --- FIXED MONTHLY CHALLAN PDF (WITH PAID FEE DEDUCTION & QR PRELOADER) ---
+        // --- FIXED MONTHLY CHALLAN PDF (WITH CASH LEDGER SHORTFALL, PAID FEE DEDUCTION & QR PRELOADER) ---
         window.printChallan = function(id) {
             var client = db.find(function(c) { return c.id === id; });
             if (!client) return;
             document.body.classList.remove('print-mode-gstr9');
+            document.body.classList.remove('print-mode-fee');
 
             ensureMonthStructureInitialized(client, activeTargetPeriod);
             var data = client.history[activeTargetPeriod];
@@ -2750,22 +3283,29 @@
             document.getElementById('print-name').textContent = client.name;
             document.getElementById('print-gstin').textContent = client.gstin;
             document.getElementById('print-scheme').textContent = client.scheme || 'Monthly';
-            document.getElementById('print-status-line').textContent = due.r1Label + ": " + data.r1 + " | " + due.r3bLabel + ": " + data.r3b;
-            document.getElementById('print-arn').textContent = data.r3bArn || data.r1Arn || 'Pending / N/A';
+            document.getElementById('print-status-line').textContent = due.r1Label + ": " + data.r1 + " | " + due.r3bLabel + ": " + data.r3b + " | Challan: " + (data.challanStatus || 'None');
+
+            var refParts = [];
+            if (data.r3bArn) refParts.push("ARN: " + data.r3bArn);
+            if (data.challanCpin) refParts.push("CPIN (" + (data.challanMode || 'NEFT') + "): " + data.challanCpin);
+            if (data.challanUtr) refParts.push("UTR: " + data.challanUtr);
+            document.getElementById('print-arn').textContent = refParts.length > 0 ? refParts.join(" | ") : "Pending / N/A";
 
             var parts = activeTargetPeriod.split('-');
             document.getElementById('print-period').textContent = getMonthNameByStr(parts[1]) + " " + parts[0];
             document.getElementById('print-date').textContent = new Date().toLocaleDateString('en-IN');
 
-            var feeBilled = data.feeAmount || 0;
+                        var feeBilled = data.feeAmount || 0;
             var isFeePaid = (data.feeStatus === 'Paid');
             var unpaidFee = isFeePaid ? 0 : feeBilled;
-            var govtChallanTotal = net.totalCash + net.lateFee + net.interest;
-            var grandTotal = govtChallanTotal + unpaidFee;
+            var isChallanPaid = (data.challanStatus === 'Paid' || data.r3b === 'Filed');
+            var unpaidChallanShortfall = isChallanPaid ? 0 : net.cashShortfall;
+            var grandTotal = unpaidChallanShortfall + unpaidFee;
+
 
             var feeRowLabel = isFeePaid
-                ? "9. Professional Compliance Retainer (&#8377;" + fmtINR(feeBilled) + " &mdash; <strong>PAID / DEDUCTED</strong>)"
-                : "9. Professional Compliance Retainer (Status: <strong>PAYMENT DUE</strong>)";
+                ? "10. Professional Compliance Retainer (&#8377;" + fmtINR(feeBilled) + " &mdash; <strong>PAID / DEDUCTED</strong>)"
+                : "10. Professional Compliance Retainer (Status: <strong>PAYMENT DUE</strong>)";
 
             var tbody = document.getElementById('print-table-body');
             tbody.innerHTML =
@@ -2774,11 +3314,12 @@
                 "<tr style='background:#f1f5f9;'><td style='text-align:left;'><strong>3. Total ITC Pool Available for Rule 88A Set-Off</strong></td><td><strong>" + fmtINR(opItc.igst + (data.itcIgst||0)) + "</strong></td><td><strong>" + fmtINR(opItc.cgst + (data.itcCgst||0)) + "</strong></td><td><strong>" + fmtINR(opItc.sgst + (data.itcSgst||0)) + "</strong></td><td><strong>" + fmtINR(opItc.igst + opItc.cgst + opItc.sgst + (data.itcIgst||0) + (data.itcCgst||0) + (data.itcSgst||0)) + "</strong></td></tr>" +
                 "<tr><td style='text-align:left;'>4. Output Tax Liability (Outward Supplies)</td><td>" + fmtINR(data.outIgst) + "</td><td>" + fmtINR(data.outCgst) + "</td><td>" + fmtINR(data.outSgst) + "</td><td>" + fmtINR((data.outIgst||0) + (data.outCgst||0) + (data.outSgst||0)) + "</td></tr>" +
                 "<tr><td style='text-align:left;'>5. Reverse Charge Liability (Mandatory Cash)</td><td>" + fmtINR(data.rcmIgst) + "</td><td>" + fmtINR(data.rcmCgst) + "</td><td>" + fmtINR(data.rcmSgst) + "</td><td>" + fmtINR((data.rcmIgst||0) + (data.rcmCgst||0) + (data.rcmSgst||0)) + "</td></tr>" +
-                "<tr class='print-total'><td style='text-align:left;'>6. Net Cash Tax Payable (After Optimal Rule 88A Set-Off)</td><td>&#8377;" + fmtINR(net.cashHeads.igst) + "</td><td>&#8377;" + fmtINR(net.cashHeads.cgst) + "</td><td>&#8377;" + fmtINR(net.cashHeads.sgst) + "</td><td>&#8377;" + fmtINR(net.totalCash) + "</td></tr>" +
+                "<tr class='print-total'><td style='text-align:left;'>6. Gross Cash Tax Payable (After Optimal Rule 88A Set-Off)</td><td>&#8377;" + fmtINR(net.cashHeads.igst) + "</td><td>&#8377;" + fmtINR(net.cashHeads.cgst) + "</td><td>&#8377;" + fmtINR(net.cashHeads.sgst) + "</td><td>&#8377;" + fmtINR(net.totalCash) + "</td></tr>" +
                 "<tr><td style='text-align:left;'>7. Closing ITC Carried Forward to Next Period</td><td>&#8377;" + fmtINR(net.closingItc.igst) + "</td><td>&#8377;" + fmtINR(net.closingItc.cgst) + "</td><td>&#8377;" + fmtINR(net.closingItc.sgst) + "</td><td>&#8377;" + fmtINR(net.carryCredit) + "</td></tr>" +
-                "<tr><td style='text-align:left;'>8. Late Fee (Sec 47 Capped) &amp; Interest (18% p.a.) " + (data.waived ? "(WAIVED)" : "") + "</td><td colspan='3' style='text-align:right;'>Govt Challan Subtotal: &#8377;" + fmtINR(govtChallanTotal) + "</td><td>&#8377;" + fmtINR(net.lateFee + net.interest) + "</td></tr>" +
+                "<tr><td style='text-align:left;'>8. Late Fee (Sec 47 Capped) &amp; Interest (18% p.a.) " + (data.waived ? "(WAIVED)" : "") + "</td><td colspan='3' style='text-align:right;'>Gross Challan (Tax + Penalty): &#8377;" + fmtINR(net.grossChallan) + "</td><td>&#8377;" + fmtINR(net.lateFee + net.interest) + "</td></tr>" +
+                "<tr><td style='text-align:left;'>9. Less: Existing Electronic Cash Ledger Balance Available</td><td colspan='3' style='text-align:right;'><strong>Net NEFT / PMT-06 Challan Shortfall: &#8377;" + fmtINR(net.cashShortfall) + "</strong></td><td>-&#8377;" + fmtINR(net.cashLedgerBal) + "</td></tr>" +
                 "<tr><td style='text-align:left;'>" + feeRowLabel + "</td><td colspan='3' style='text-align:right;'>" + (isFeePaid ? "Already Paid (&#8377;" + fmtINR(feeBilled) + ") - Minus from Total" : "Unpaid Retainer") + "</td><td>&#8377;" + fmtINR(unpaidFee) + "</td></tr>" +
-                "<tr class='print-total' style='font-size:1.18em; background:#bae6fd !important;'><td style='text-align:left;'>10. NET BALANCE PAYABLE (GOVT CHALLAN + UNPAID FEE)</td><td colspan='3' style='text-align:right;'>Govt: &#8377;" + fmtINR(govtChallanTotal) + " + Fee Due: &#8377;" + fmtINR(unpaidFee) + "</td><td>&#8377;" + fmtINR(grandTotal) + "</td></tr>";
+                "<tr class='print-total' style='font-size:1.18em; background:#bae6fd !important;'><td style='text-align:left;'>11. NET BALANCE PAYABLE (CHALLAN SHORTFALL + UNPAID FEE)</td><td colspan='3' style='text-align:right;'>Challan Shortfall: &#8377;" + fmtINR(net.cashShortfall) + " + Fee Due: &#8377;" + fmtINR(unpaidFee) + "</td><td>&#8377;" + fmtINR(grandTotal) + "</td></tr>";
 
             var qrBox = document.getElementById('print-upi-qr-box');
             var payAmt = (practiceConfig.qrMode === 'FEE_ONLY') ? unpaidFee : grandTotal;
@@ -2831,7 +3372,8 @@
             var headers = [
                 "Trade Name","Mobile","GSTIN","State","Scheme","Period",
                 "Total Out","Total RCM","Opening ITC","Claimed ITC",
-                "2B IGST","2B CGST","2B SGST","Recon Diff","Total Cash Due",
+                "2B IGST","2B CGST","2B SGST","Recon Diff","Gross Cash Tax",
+                "Cash Ledger Bal","Net Cash Shortfall","Challan Status","Challan Mode","CPIN","Challan Date","Bank UTR",
                 "Closing ITC Carry","Late Fees","Interest","Step 1 Status",
                 "Step 1 Date","Step 1 ARN","Step 2 Status","Step 2 Date","Step 2 ARN",
                 "Prof Fee Billed","Fee Status","Unpaid Fee Due","Active Notice"
@@ -2856,7 +3398,10 @@
                     '"' + (c.name || '') + '"', '"' + (c.phone || '') + '"', '"' + (c.gstin || '') + '"',
                     '"' + stName + '"', '"' + (c.scheme || 'Monthly') + '"', '"' + activeTargetPeriod + '"',
                     outSum, rcmSum, opSum, itcSum, d.itc2bIgst || 0, d.itc2bCgst || 0, d.itc2bSgst || 0,
-                    net.reconDiff, net.totalCash, net.carryCredit, net.lateFee, net.interest,
+                    net.reconDiff, net.totalCash, net.cashLedgerBal, net.cashShortfall,
+                    '"' + (d.challanStatus || 'None') + '"', '"' + (d.challanMode || 'NEFT/RTGS') + '"',
+                    '"' + (d.challanCpin || '') + '"', '"' + (d.challanDate || '') + '"', '"' + (d.challanUtr || '') + '"',
+                    net.carryCredit, net.lateFee, net.interest,
                     '"' + (d.r1 || '') + '"', '"' + (d.r1Date || '') + '"', '"' + (d.r1Arn || '') + '"',
                     '"' + (d.r3b || '') + '"', '"' + (d.r3bDate || '') + '"', '"' + (d.r3bArn || '') + '"',
                     d.feeAmount || 0, '"' + (d.feeStatus || 'Due') + '"', unpaidFee, '"' + (c.notice || '') + '"'

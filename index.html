@@ -1011,7 +1011,7 @@
                     </div>
                     <div>
                         <label>GSTIN *</label>
-                        <input type="text" id="rfd-gstin" value="09HVSPS7502B1Z4" placeholder="09HVSPS7502B1Z4" maxlength="15" oninput="runRfd01Calculation()">
+                        <input type="text" id="rfd-gstin" value="" placeholder="09HVSPS7502B1Z4" maxlength="15" oninput="runRfd01Calculation()">
                     </div>
                     <div>
                         <label>Legal Name</label>
@@ -4103,13 +4103,12 @@
                 sel.appendChild(opt);
             });
             document.getElementById('rfd01-modal').style.display = 'flex';
-            if (clientId) {
+                        if (clientId) {
                 loadClientIntoRfd01();
-            } else if (rfdState.inwardRaw.length === 0 && rfdState.outwardRaw.length === 0) {
-                loadSampleRfd01Data(true);
             } else {
                 runRfd01Calculation();
             }
+
         };
 
         window.loadSampleRfd01Data = function(silent) {
@@ -5111,4 +5110,3 @@
     </script>
 </body>
 </html>
-

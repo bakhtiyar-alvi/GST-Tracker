@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GST Beast Pro - Compliance, Recon &amp; GSTR-9 Suite</title>
+    <title>GST Beast Pro — Enterprise Compliance, GSTR-9 &amp; RFD-01 Suite</title>
     <link rel="manifest" href="manifest.json">
     <link rel="icon" type="image/png" href="./Logo.png">
     <link rel="apple-touch-icon" href="./Logo.png">
-    <meta name="theme-color" content="#070b14">
+    <meta name="theme-color" content="#060913">
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', function() {
@@ -21,6 +21,7 @@
     </script>
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script>
         if (window.pdfjsLib) {
             window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
@@ -29,94 +30,121 @@
 
     <style>
         :root {
-            --surface-dark: #070b14;
-            --surface-card: #111827;
-            --surface-elevated: #1a2438;
-            --surface-input: #0b111e;
+            --surface-dark: #060913;
+            --surface-card: #0f172a;
+            --surface-elevated: #1e293b;
+            --surface-input: #090e1a;
             --primary: #3b82f6;
-            --primary-glow: rgba(59, 130, 246, 0.25);
+            --primary-hover: #2563eb;
+            --primary-glow: rgba(59, 130, 246, 0.28);
             --success: #10b981;
             --warning: #f59e0b;
             --danger: #ef4444;
             --purple: #8b5cf6;
             --cyan: #06b6d4;
+            --rose: #f43f5e;
             --text-main: #f8fafc;
             --text-muted: #94a3b8;
             --border: #1e293b;
             --border-light: #334155;
+            --shadow-card: 0 10px 25px -5px rgba(0, 0, 0, 0.45), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
-        body { background-color: var(--surface-dark); color: var(--text-main); padding: 18px; min-height: 100vh; overflow-x: hidden; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif; }
+        body {
+            background-color: var(--surface-dark);
+            background-image:
+                radial-gradient(at 0% 0%, rgba(59, 130, 246, 0.10) 0px, transparent 45%),
+                radial-gradient(at 100% 0%, rgba(139, 92, 246, 0.10) 0px, transparent 45%);
+            color: var(--text-main);
+            padding: 16px;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
 
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: var(--surface-dark); }
         ::-webkit-scrollbar-thumb { background: var(--border-light); border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--primary); }
 
         #toast-banner {
             position: fixed; bottom: 24px; right: 24px; z-index: 9999;
-            background: var(--surface-elevated); color: var(--text-main);
-            border: 1px solid var(--primary); border-left: 4px solid var(--primary);
-            padding: 12px 18px; border-radius: 8px; font-size: 0.85rem; font-weight: 600;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.5); transform: translateY(120px);
-            opacity: 0; transition: all 0.25s ease; pointer-events: none;
+            background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(12px);
+            color: var(--text-main); border: 1px solid var(--primary); border-left: 4px solid var(--primary);
+            padding: 12px 18px; border-radius: 10px; font-size: 0.84rem; font-weight: 600;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.6); transform: translateY(120px);
+            opacity: 0; transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1); pointer-events: none;
         }
         #toast-banner.show { transform: translateY(0); opacity: 1; }
 
         #pin-lock-overlay {
             position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(7, 11, 20, 0.96); backdrop-filter: blur(10px);
+            background: rgba(6, 9, 19, 0.96); backdrop-filter: blur(12px);
             z-index: 10000; display: none; align-items: center; justify-content: center; padding: 20px;
         }
         .pin-box {
             background: var(--surface-card); border: 1px solid var(--border-light); border-radius: 16px;
-            padding: 28px; width: 100%; max-width: 340px; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+            padding: 28px; width: 100%; max-width: 350px; text-align: center; box-shadow: 0 25px 60px rgba(0,0,0,0.7);
         }
         .pin-input {
             letter-spacing: 12px; font-size: 1.5rem; text-align: center; font-weight: bold;
             margin: 16px 0; padding: 12px; border: 2px solid var(--primary); border-radius: 8px;
         }
 
-        .workspace-grid { display: grid; grid-template-columns: 380px 1fr; gap: 20px; max-width: 1880px; margin: 0 auto; align-items: start; }
-        .sidebar { display: flex; flex-direction: column; gap: 16px; }
-        .panel-card { background-color: var(--surface-card); border: 1px solid var(--border); border-radius: 12px; padding: 18px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2); }
+        .workspace-grid { display: grid; grid-template-columns: 390px 1fr; gap: 18px; max-width: 1920px; margin: 0 auto; align-items: start; }
+        .sidebar { display: flex; flex-direction: column; gap: 14px; }
+        .panel-card {
+            background: linear-gradient(180deg, rgba(15, 23, 42, 0.95) 0%, rgba(11, 17, 30, 0.98) 100%);
+            border: 1px solid var(--border); border-radius: 14px; padding: 16px;
+            box-shadow: var(--shadow-card); position: relative;
+        }
 
         .brand-header {
-            display: flex; align-items: center; justify-content: space-between;
-            background: linear-gradient(135deg, rgba(30,41,59,0.7), rgba(15,23,42,0.9));
-            border: 1px solid var(--border-light); border-radius: 12px; padding: 14px 16px;
+            display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap;
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.85), rgba(15, 23, 42, 0.95));
+            border: 1px solid var(--border-light); border-radius: 14px; padding: 14px 16px;
+            box-shadow: var(--shadow-card);
         }
-        .brand-left { display: flex; align-items: center; gap: 12px; }
-        .app-logo-img { width: 44px; height: 44px; border-radius: 10px; object-fit: cover; border: 1px solid var(--border-light); }
+        .brand-left { display: flex; align-items: center; gap: 11px; }
+        .app-logo-img { width: 42px; height: 42px; border-radius: 10px; object-fit: cover; border: 1px solid var(--border-light); }
 
-        h2 { font-size: 1rem; font-weight: 700; margin-bottom: 14px; display: flex; align-items: center; justify-content: space-between; color: var(--text-main); }
-        .form-group { margin-bottom: 11px; }
-        label { display: flex; justify-content: space-between; align-items: center; font-size: 0.76rem; color: var(--text-muted); margin-bottom: 4px; font-weight: 600; }
+        h2 { font-size: 0.95rem; font-weight: 700; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; color: var(--text-main); letter-spacing: 0.2px; }
+        .form-group { margin-bottom: 10px; }
+        label { display: flex; justify-content: space-between; align-items: center; font-size: 0.74rem; color: var(--text-muted); margin-bottom: 4px; font-weight: 600; }
         input, select, textarea {
             width: 100%; background-color: var(--surface-input); border: 1px solid var(--border);
-            border-radius: 6px; padding: 9px 10px; color: white; font-size: 0.85rem; transition: all 0.2s;
+            border-radius: 7px; padding: 8px 10px; color: white; font-size: 0.83rem; transition: all 0.18s;
         }
-        input:focus, select:focus, textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 2px var(--primary-glow); outline: none; }
+        input:focus, select:focus, textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-glow); outline: none; }
 
+        .split-5 { display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px; }
         .split-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
         .split-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
         .split-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; }
 
-        button { width: 100%; padding: 9px 12px; font-size: 0.85rem; font-weight: 600; border: none; border-radius: 6px; cursor: pointer; transition: all 0.18s; }
-        .btn-primary { background: linear-gradient(135deg, #3b82f6, #2563eb); color: white; }
-        .btn-primary:hover { filter: brightness(1.1); }
+        button { width: 100%; padding: 9px 12px; font-size: 0.83rem; font-weight: 600; border: none; border-radius: 7px; cursor: pointer; transition: all 0.18s; }
+        .btn-primary { background: linear-gradient(135deg, #3b82f6, #2563eb); color: white; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3); }
+        .btn-primary:hover { filter: brightness(1.1); transform: translateY(-1px); }
         .btn-success { background: linear-gradient(135deg, #10b981, #059669); color: #041f14; font-weight: 700; }
         .btn-warning { background: linear-gradient(135deg, #f59e0b, #d97706); color: #1f1202; font-weight: 700; }
+        .btn-rose { background: linear-gradient(135deg, #f43f5e, #e11d48); color: #fff; font-weight: 700; }
         .btn-chip {
-            width: auto; padding: 3px 8px; font-size: 0.68rem; border-radius: 4px;
-            background: rgba(59, 130, 246, 0.15); color: #93c5fd; border: 1px solid rgba(59, 130, 246, 0.35);
+            width: auto; padding: 3px 8px; font-size: 0.68rem; border-radius: 5px;
+            background: rgba(59, 130, 246, 0.15); color: #93c5fd; border: 1px solid rgba(59, 130, 246, 0.38);
         }
         .btn-chip:hover { background: var(--primary); color: #fff; }
+
+        /* Feature 3: Turnover-to-Tax Quick Rate Buttons */
+        .rate-btn {
+            padding: 5px 4px; font-size: 0.69rem; font-weight: 700; border-radius: 5px;
+            background: rgba(6, 182, 212, 0.14); color: #67e8f9; border: 1px solid rgba(6, 182, 212, 0.35);
+        }
+        .rate-btn:hover { background: var(--cyan); color: #041f14; transform: translateY(-1px); }
 
         /* 60-Min Cloud Timer Badge */
         .cloud-timer-pill {
             font-family: monospace; font-size: 0.72rem; font-weight: 700;
-            padding: 2px 7px; border-radius: 12px; border: 1px solid var(--border);
+            padding: 2px 8px; border-radius: 12px; border: 1px solid var(--border);
             background: var(--surface-input); color: var(--text-muted); display: inline-block;
         }
         .cloud-timer-pill.timer-active { color: #6ee7b7; border-color: var(--success); background: rgba(16, 185, 129, 0.12); }
@@ -131,28 +159,34 @@
         .fy-matrix-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-top: 10px; }
         .fy-month-block {
             background-color: var(--surface-input); border: 1px solid var(--border);
-            border-radius: 6px; padding: 7px 4px; text-align: center; font-size: 0.76rem;
+            border-radius: 7px; padding: 7px 4px; text-align: center; font-size: 0.75rem;
             cursor: pointer; transition: all 0.18s;
         }
         .fy-month-block:hover { border-color: var(--text-muted); transform: translateY(-1px); }
-        .fy-month-block.active-month { border-color: var(--primary); background-color: rgba(59, 130, 246, 0.15); font-weight: 700; }
-        .micro-indicator-row { display: flex; justify-content: center; gap: 4px; margin-top: 3px; font-size: 0.62rem; font-weight: 600; }
+        .fy-month-block.active-month {
+            border-color: var(--primary); background: rgba(59, 130, 246, 0.18);
+            font-weight: 700; box-shadow: inset 0 0 10px rgba(59, 130, 246, 0.2);
+        }
+        .micro-indicator-row { display: flex; justify-content: center; gap: 4px; margin-top: 3px; font-size: 0.61rem; font-weight: 600; }
         .dot-pending { color: var(--warning); }
         .dot-clean { color: var(--success); }
 
-        .main-window { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+        .main-window { display: flex; flex-direction: column; gap: 15px; min-width: 0; }
         .summary-banner { display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; }
         .summary-card {
-            background-color: var(--surface-card); border-left: 4px solid var(--primary);
-            padding: 12px 12px; border-radius: 10px; border-top: 1px solid var(--border);
-            border-right: 1px solid var(--border); border-bottom: 1px solid var(--border);
+            background: linear-gradient(180deg, rgba(15, 23, 42, 0.95) 0%, rgba(11, 17, 30, 0.98) 100%);
+            border-left: 4px solid var(--primary); padding: 12px 13px; border-radius: 12px;
+            border-top: 1px solid var(--border); border-right: 1px solid var(--border); border-bottom: 1px solid var(--border);
+            box-shadow: var(--shadow-card); transition: transform 0.18s;
         }
-        .summary-label { font-size: 0.65rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; }
+        .summary-card:hover { transform: translateY(-2px); }
+        .summary-label { font-size: 0.64rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.4px; }
         .summary-val { font-size: 1.25rem; font-weight: 800; margin-top: 4px; }
 
         .toolbar-card {
-            background-color: var(--surface-card); border: 1px solid var(--border);
-            border-radius: 10px; padding: 12px 16px; display: flex; flex-direction: column; gap: 10px;
+            background: linear-gradient(180deg, rgba(15, 23, 42, 0.95) 0%, rgba(11, 17, 30, 0.98) 100%);
+            border: 1px solid var(--border); border-radius: 12px; padding: 12px 16px;
+            display: flex; flex-direction: column; gap: 10px; box-shadow: var(--shadow-card);
         }
         .header-bar { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
         .search-filter { display: flex; gap: 8px; flex: 1; min-width: 280px; }
@@ -160,30 +194,47 @@
         .pill {
             padding: 5px 11px; border-radius: 20px; font-size: 0.72rem; font-weight: 600;
             background: var(--surface-input); color: var(--text-muted); border: 1px solid var(--border);
-            cursor: pointer; width: auto;
+            cursor: pointer; width: auto; transition: all 0.15s;
         }
-        .pill.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+        .pill:hover { border-color: var(--text-muted); color: #fff; }
+        .pill.active { background: var(--primary); color: #fff; border-color: var(--primary); box-shadow: 0 2px 10px var(--primary-glow); }
 
-        .table-container { background-color: var(--surface-card); border: 1px solid var(--border); border-radius: 12px; overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.84rem; min-width: 1220px; }
-        th { background-color: rgba(0,0,0,0.3); padding: 12px 14px; color: var(--text-muted); font-weight: 700; font-size: 0.74rem; text-transform: uppercase; border-bottom: 1px solid var(--border); }
+        /* Feature 4: Floating Batch Action Bar */
+        #batch-action-bar {
+            display: none; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap;
+            background: linear-gradient(135deg, rgba(30, 58, 138, 0.9), rgba(15, 23, 42, 0.96));
+            border: 1px solid var(--primary); border-radius: 12px; padding: 10px 16px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+        }
+        .row-checkbox { width: 15px; height: 15px; accent-color: var(--primary); cursor: pointer; vertical-align: middle; margin-right: 6px; }
+
+        .table-container {
+            background-color: var(--surface-card); border: 1px solid var(--border);
+            border-radius: 14px; overflow-x: auto; max-height: 76vh; box-shadow: var(--shadow-card);
+        }
+        table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.83rem; min-width: 1250px; }
+        th {
+            background-color: #0b111e; padding: 12px 14px; color: var(--text-muted);
+            font-weight: 700; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.4px;
+            border-bottom: 1px solid var(--border-light); position: sticky; top: 0; z-index: 10;
+        }
         td { padding: 13px 14px; border-bottom: 1px solid var(--border); vertical-align: top; }
-        tr:hover td { background-color: rgba(255,255,255,0.015); }
+        tr:hover td { background-color: rgba(59, 130, 246, 0.03); }
 
-        .gstin-mono { font-family: monospace; font-size: 0.8rem; color: #cbd5e1; font-weight: 600; }
-        .state-pill { font-size: 0.65rem; background: rgba(6, 182, 212, 0.15); color: #67e8f9; border: 1px solid rgba(6, 182, 212, 0.3); padding: 1px 6px; border-radius: 4px; margin-left: 4px; }
+        .gstin-mono { font-family: monospace; font-size: 0.79rem; color: #cbd5e1; font-weight: 600; }
+        .state-pill { font-size: 0.64rem; background: rgba(6, 182, 212, 0.15); color: #67e8f9; border: 1px solid rgba(6, 182, 212, 0.3); padding: 1px 6px; border-radius: 4px; margin-left: 4px; }
         .credential-bar {
             display: inline-flex; align-items: center; gap: 5px; flex-wrap: wrap;
             font-family: monospace; background: var(--surface-input); padding: 4px 8px;
-            border-radius: 6px; font-size: 0.74rem; margin-top: 6px; border: 1px solid var(--border);
+            border-radius: 6px; font-size: 0.73rem; margin-top: 6px; border: 1px solid var(--border);
         }
         .copy-chip {
-            cursor: pointer; color: #93c5fd; font-size: 0.69rem; padding: 1px 5px;
+            cursor: pointer; color: #93c5fd; font-size: 0.68rem; padding: 1px 5px;
             border-radius: 3px; background: rgba(59,130,246,0.14); user-select: none;
         }
         .copy-chip:hover { background: var(--primary); color: white; }
         .portal-launch-chip {
-            cursor: pointer; color: #6ee7b7; font-size: 0.69rem; padding: 1px 6px;
+            cursor: pointer; color: #6ee7b7; font-size: 0.68rem; padding: 1px 6px;
             border-radius: 3px; background: rgba(16,185,129,0.16); border: 1px solid rgba(16,185,129,0.35);
             user-select: none; font-weight: 700;
         }
@@ -191,34 +242,36 @@
 
         .segment-tag {
             display: inline-block; background: rgba(139, 92, 246, 0.15); color: #c4b5fd;
-            padding: 2px 7px; border-radius: 10px; font-size: 0.63rem; font-weight: 700;
+            padding: 2px 7px; border-radius: 10px; font-size: 0.62rem; font-weight: 700;
             margin-right: 4px; margin-top: 5px; border: 1px solid rgba(139, 92, 246, 0.3); text-transform: uppercase;
         }
         .notice-tag {
             display: inline-block; background: rgba(239, 68, 68, 0.18); color: #fca5a5;
-            padding: 3px 8px; border-radius: 6px; font-size: 0.68rem; font-weight: 700;
+            padding: 3px 8px; border-radius: 6px; font-size: 0.67rem; font-weight: 700;
             margin-top: 5px; border: 1px solid var(--danger);
         }
 
         .badge {
-            display: inline-block; padding: 4px 9px; font-size: 0.72rem; font-weight: 700;
-            border-radius: 5px; cursor: pointer; text-align: center; min-width: 105px; user-select: none;
+            display: inline-block; padding: 4px 9px; font-size: 0.71rem; font-weight: 700;
+            border-radius: 5px; cursor: pointer; text-align: center; min-width: 105px; user-select: none; transition: transform 0.12s;
         }
+        .badge:hover { transform: scale(1.02); }
         .badge-pending { background-color: rgba(239, 68, 68, 0.15); color: #fca5a5; border: 1px solid var(--danger); }
         .badge-filed { background-color: rgba(16, 185, 129, 0.15); color: #6ee7b7; border: 1px solid var(--success); }
         .badge-challan-warn { background-color: rgba(245, 158, 11, 0.18); color: #fcd34d; border: 1px solid var(--warning); }
         .badge-challan-utr { background-color: rgba(6, 182, 212, 0.18); color: #67e8f9; border: 1px solid var(--cyan); }
         .badge-challan-none { background-color: rgba(148, 163, 184, 0.12); color: var(--text-muted); border: 1px solid var(--border-light); }
 
-        .ledger-box { font-size: 0.74rem; line-height: 1.45; background-color: var(--surface-input); padding: 7px 9px; border-radius: 6px; border: 1px solid var(--border); }
+        .ledger-box { font-size: 0.73rem; line-height: 1.45; background-color: var(--surface-input); padding: 7px 9px; border-radius: 7px; border: 1px solid var(--border); }
         .action-row { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 8px; }
-        .btn-inline { background: var(--surface-input); color: var(--text-muted); font-size: 0.71rem; padding: 5px 7px; border: 1px solid var(--border); width: auto; border-radius: 5px; }
+        .btn-inline { background: var(--surface-input); color: var(--text-muted); font-size: 0.69rem; padding: 5px 7px; border: 1px solid var(--border); width: auto; border-radius: 5px; }
         .btn-inline:hover { color: white; border-color: var(--text-muted); }
         .btn-print { border-color: var(--primary); color: #93c5fd; }
         .btn-whatsapp { border-color: var(--success); color: #6ee7b7; }
         .btn-gstr9 { border-color: var(--purple); color: #c4b5fd; }
         .btn-fee-passbook { border-color: var(--cyan); color: #67e8f9; }
-        .btn-waiver { border-color: var(--warning); color: var(--warning); font-size: 0.68rem; padding: 2px 6px; margin-top: 4px; }
+        .btn-rfd01 { border-color: var(--rose); color: #fda4af; }
+        .btn-waiver { border-color: var(--warning); color: var(--warning); font-size: 0.67rem; padding: 2px 6px; margin-top: 4px; }
 
         .date-edit, .arn-edit {
             background-color: var(--surface-input); border: 1px solid var(--border);
@@ -227,29 +280,30 @@
         }
         .arn-edit { width: 116px; font-family: monospace; }
         .date-edit::-webkit-calendar-picker-indicator { filter: invert(1); cursor: pointer; }
-        .recon-alert { font-size: 0.69rem; font-weight: 700; padding: 3px 7px; border-radius: 4px; margin-top: 4px; display: inline-block; }
+        .recon-alert { font-size: 0.68rem; font-weight: 700; padding: 3px 7px; border-radius: 4px; margin-top: 4px; display: inline-block; }
 
-        /* Modals & Detailed GSTR-9 / Fee Passbook Styling */
+        /* Modals & Working Dossiers */
         .modal-backdrop {
             position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(7, 11, 20, 0.88); backdrop-filter: blur(6px);
+            background: rgba(6, 9, 19, 0.88); backdrop-filter: blur(8px);
             z-index: 9000; display: none; align-items: center; justify-content: center; padding: 14px;
         }
         .modal-card {
-            background: var(--surface-card); border: 1px solid var(--border-light); border-radius: 14px;
-            width: 100%; max-width: 1220px; max-height: 92vh; overflow-y: auto; padding: 22px;
-            box-shadow: 0 25px 60px rgba(0,0,0,0.65);
+            background: var(--surface-card); border: 1px solid var(--border-light); border-radius: 16px;
+            width: 100%; max-width: 1300px; max-height: 92vh; overflow-y: auto; padding: 22px;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.75);
         }
         .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 12px; margin-bottom: 16px; flex-wrap: wrap; gap: 10px; }
         .modal-close { width: auto; background: transparent; border: 1px solid var(--border); color: var(--text-muted); padding: 6px 12px; }
+        .modal-close:hover { border-color: var(--danger); color: #fca5a5; }
 
         .gstr9-kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 16px; }
-        .gstr9-kpi-box { background: var(--surface-input); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; }
-        .gstr9-section-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin-bottom: 16px; }
-        .gstr9-panel { background: var(--surface-input); border: 1px solid var(--border); border-radius: 10px; padding: 12px; overflow-x: auto; }
-        .gstr9-panel h3 { font-size: 0.84rem; color: #93c5fd; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.4px; }
-        .gstr9-mini-table { width: 100%; min-width: 440px; border-collapse: collapse; font-size: 0.78rem; }
-        .gstr9-mini-table th, .gstr9-mini-table td { padding: 7px 8px; border-bottom: 1px solid var(--border); text-align: right; }
+        .gstr9-kpi-box { background: var(--surface-input); border: 1px solid var(--border); border-radius: 10px; padding: 11px 13px; }
+        .gstr9-section-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin-bottom: 14px; }
+        .gstr9-panel { background: var(--surface-input); border: 1px solid var(--border); border-radius: 10px; padding: 12px; overflow-x: auto; margin-bottom: 12px; }
+        .gstr9-panel h3 { font-size: 0.82rem; color: #93c5fd; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.4px; display: flex; justify-content: space-between; align-items: center; }
+        .gstr9-mini-table { width: 100%; min-width: 440px; border-collapse: collapse; font-size: 0.77rem; }
+        .gstr9-mini-table th, .gstr9-mini-table td { padding: 7px 8px; border-bottom: 1px solid var(--border); text-align: right; position: static; }
         .gstr9-mini-table th:first-child, .gstr9-mini-table td:first-child { text-align: left; }
 
         details.form-accordion {
@@ -257,7 +311,7 @@
             margin-bottom: 10px; background: rgba(255,255,255,0.01);
         }
         details.form-accordion summary {
-            font-size: 0.78rem; font-weight: 700; cursor: pointer; color: var(--primary);
+            font-size: 0.76rem; font-weight: 700; cursor: pointer; color: var(--primary);
             list-style: none; display: flex; justify-content: space-between; align-items: center;
         }
         details.form-accordion[open] summary { margin-bottom: 8px; }
@@ -287,31 +341,32 @@
             #master-table td:last-child { border-bottom: none; }
         }
         @media (max-width: 480px) {
-            .split-4, .split-3, .split-2, .gstr9-kpi-grid { grid-template-columns: 1fr; }
+            .split-5, .split-4, .split-3, .split-2, .gstr9-kpi-grid { grid-template-columns: 1fr; }
         }
 
-        /* TRIPLE PRINT ENGINE (Monthly Challan PDF vs GSTR-9 Dossier PDF vs Consolidated Fee Invoice PDF) */
-        #print-area, #print-gstr9-area, #print-fee-area { display: none; }
+        /* QUADRUPLE PRINT ENGINE (Challan PDF vs GSTR-9 PDF vs Consolidated Fee PDF vs RFD-01 Recon PDF) */
+        #print-area, #print-gstr9-area, #print-fee-area, #print-rfd01-area { display: none; }
         @media print {
-            body { background: white !important; color: black !important; padding: 0 !important; margin: 0 !important; }
+            body { background: white !important; background-image: none !important; color: black !important; padding: 0 !important; margin: 0 !important; }
             .workspace-grid, .modal-backdrop, #toast-banner, #pin-lock-overlay { display: none !important; }
 
-            body:not(.print-mode-gstr9):not(.print-mode-fee) #print-area { display: block !important; padding: 24px; font-family: Arial, sans-serif; color: #111; }
+            body:not(.print-mode-gstr9):not(.print-mode-fee):not(.print-mode-rfd01) #print-area { display: block !important; padding: 24px; font-family: Arial, sans-serif; color: #111; }
             body.print-mode-gstr9 #print-gstr9-area { display: block !important; padding: 20px; font-family: Arial, sans-serif; color: #111; }
             body.print-mode-fee #print-fee-area { display: block !important; padding: 24px; font-family: Arial, sans-serif; color: #111; }
+            body.print-mode-rfd01 #print-rfd01-area { display: block !important; padding: 20px; font-family: Arial, sans-serif; color: #111; }
 
             .print-header { border-bottom: 2px solid #0f172a; padding-bottom: 12px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; }
-            .print-header h1 { margin: 0; font-size: 19px; text-transform: uppercase; color: #0f172a; }
+            .print-header h1 { margin: 0; font-size: 18px; text-transform: uppercase; color: #0f172a; }
             .print-details { display: flex; justify-content: space-between; margin-bottom: 14px; font-size: 12px; line-height: 1.5; background: #f8fafc; padding: 10px 12px; border: 1px solid #cbd5e1; }
-            .print-table { width: 100%; border-collapse: collapse; margin-bottom: 14px; font-size: 11.5px; min-width: 100%; }
-            .print-table th, .print-table td { border: 1px solid #94a3b8; padding: 6px 8px; text-align: right; display: table-cell; }
+            .print-table { width: 100%; border-collapse: collapse; margin-bottom: 14px; font-size: 11px; min-width: 100%; }
+            .print-table th, .print-table td { border: 1px solid #94a3b8; padding: 5px 7px; text-align: right; display: table-cell; position: static; }
             .print-table th:first-child, .print-table td:first-child { text-align: left; }
             .print-table tr { display: table-row; }
             .print-table thead { display: table-header-group; }
             .print-table tbody { display: table-row-group; }
             .print-table th { background: #e2e8f0 !important; text-align: center; font-weight: bold; color: #0f172a; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
             .print-total { font-weight: bold; font-size: 1.04em; background: #e0f2fe !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-            .print-section-title { font-size: 12.5px; font-weight: bold; text-transform: uppercase; background: #0f172a !important; color: #fff !important; padding: 5px 10px; margin: 12px 0 6px 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .print-section-title { font-size: 12px; font-weight: bold; text-transform: uppercase; background: #0f172a !important; color: #fff !important; padding: 5px 10px; margin: 12px 0 6px 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
             .print-footer-grid { display: flex; justify-content: space-between; align-items: center; margin-top: 16px; padding-top: 12px; border-top: 1px dashed #94a3b8; page-break-inside: avoid; }
             .print-warning { color: #334155; font-size: 10.5px; line-height: 1.45; max-width: 65%; }
         }
@@ -336,7 +391,7 @@
             <div class="brand-header">
                 <div class="brand-left">
                     <img src="./Logo.png" alt="Logo" class="app-logo-img" onerror="this.style.display='none'; document.getElementById('fallback-svg-logo').style.display='block';">
-                    <svg id="fallback-svg-logo" style="display:none;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="44" height="44">
+                    <svg id="fallback-svg-logo" style="display:none;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="42" height="42">
                         <defs>
                             <linearGradient id="lbg" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#1e293b" /><stop offset="100%" stop-color="#090d16" /></linearGradient>
                             <linearGradient id="lg" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#3b82f6" /><stop offset="100%" stop-color="#8b5cf6" /></linearGradient>
@@ -352,11 +407,15 @@
                         <path d="M 170 300 L 240 360 L 390 180" fill="none" stroke="url(#lchk)" stroke-width="36" stroke-linecap="round" stroke-linejoin="round" />
                     </svg>
                     <div>
-                        <div style="font-size: 1.15rem; font-weight: 800;">GST Beast Pro</div>
-                        <div style="font-size: 0.7rem; color: var(--success); font-weight: 700;">Challan Tracker &bull; JSON/PDF Recon</div>
+                        <div style="font-size: 1.08rem; font-weight: 800;">GST Beast Pro</div>
+                        <div style="font-size: 0.68rem; color: var(--success); font-weight: 700;">RFD-01 &bull; 2B Inspector &bull; GSTR-9</div>
                     </div>
                 </div>
-                <button type="button" class="btn-inline" onclick="openSettingsModal()">&#9881; Desk</button>
+                <div style="display:flex; gap:4px; flex-wrap:wrap;">
+                    <button type="button" class="btn-inline btn-rfd01" onclick="openRfd01Modal()">&#127963; RFD-01</button>
+                    <button type="button" class="btn-inline" style="border-color:var(--purple); color:#c4b5fd;" onclick="openFirmAnalyticsModal()">&#128200; Firm</button>
+                    <button type="button" class="btn-inline" onclick="openSettingsModal()">&#9881;</button>
+                </div>
             </div>
 
             <div class="panel-card">
@@ -408,11 +467,32 @@
                     </div>
                 </div>
 
+                <!-- FEATURE 3: SMART TURNOVER-TO-TAX AUTO-CALCULATOR + OUTPUT LIABILITY -->
                 <div class="form-group" style="border: 1px dashed var(--border-light); padding: 9px; border-radius: 8px;">
-                    <label style="color:var(--primary);">
-                        <span>Output Tax Liability (GSTR-1 / 3B)</span>
+                    <label style="color:var(--cyan);">
+                        <span>&#9889; Quick Turnover-to-Tax Calculator</span>
                         <button type="button" class="btn-chip" onclick="clonePrevMonthFigures()">Clone Prev Fee</button>
                     </label>
+                    <div style="display:grid; grid-template-columns: 1.2fr 1fr 1fr; gap:5px; margin-bottom:6px;">
+                        <input type="number" id="calc-turnover-val" placeholder="Turnover (₹)" min="0" step="0.01" style="padding:6px 8px; font-size:0.78rem;">
+                        <select id="calc-turnover-mode" style="padding:6px; font-size:0.74rem;">
+                            <option value="TAXABLE" selected>Taxable Val</option>
+                            <option value="INCLUSIVE">GST Inclusive</option>
+                        </select>
+                        <select id="calc-supply-type" style="padding:6px; font-size:0.74rem;">
+                            <option value="INTRA" selected>Intra (C+S)</option>
+                            <option value="INTER">Inter (IGST)</option>
+                        </select>
+                    </div>
+                    <div class="split-5" style="margin-bottom:8px;">
+                        <button type="button" class="rate-btn" onclick="applyTurnoverTaxRate(1)">1% CMP</button>
+                        <button type="button" class="rate-btn" onclick="applyTurnoverTaxRate(5)">5%</button>
+                        <button type="button" class="rate-btn" onclick="applyTurnoverTaxRate(12)">12%</button>
+                        <button type="button" class="rate-btn" onclick="applyTurnoverTaxRate(18)">18%</button>
+                        <button type="button" class="rate-btn" onclick="applyTurnoverTaxRate(28)">28%</button>
+                    </div>
+
+                    <label style="color:var(--primary);">Output Tax Liability (GSTR-1 / 3B)</label>
                     <div class="split-3">
                         <input type="number" id="out-igst" placeholder="IGST" min="0" step="0.01">
                         <input type="number" id="out-cgst" placeholder="CGST" min="0" step="0.01">
@@ -444,7 +524,7 @@
                     </div>
                 </div>
 
-                <!-- NEW: CASH LEDGER SHORTFALL & PMT-06 NEFT/RTGS CHALLAN TRACKER -->
+                <!-- CASH LEDGER SHORTFALL & PMT-06 NEFT/RTGS CHALLAN TRACKER -->
                 <div class="form-group" style="border: 1px dashed var(--warning); padding: 9px; border-radius: 8px;">
                     <label style="color:var(--warning);">
                         <span>&#127974; Cash Ledger &amp; NEFT/RTGS Challan Tracker</span>
@@ -622,8 +702,12 @@
                             <option value="PENDING_FIRST">Sort: Pending Filings First</option>
                         </select>
                     </div>
-                    <div style="font-size: 0.85rem; font-weight: 700; background: var(--surface-input); padding: 8px 14px; border-radius: 6px; border: 1px solid var(--border); white-space: nowrap;">
-                        Period: <span id="current-view-badge" style="color: var(--primary);">--</span>
+                    <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+                        <button type="button" class="btn-inline btn-rfd01" style="padding:7px 12px; font-weight:700;" onclick="openRfd01Modal()">&#127963; RFD-01 INVITC Refund</button>
+                        <button type="button" class="btn-inline" style="padding:7px 12px; border-color:var(--purple); color:#c4b5fd; font-weight:700;" onclick="openFirmAnalyticsModal()">&#128200; Firm Analytics</button>
+                        <div style="font-size: 0.84rem; font-weight: 700; background: var(--surface-input); padding: 7px 12px; border-radius: 6px; border: 1px solid var(--border); white-space: nowrap;">
+                            Period: <span id="current-view-badge" style="color: var(--primary);">--</span>
+                        </div>
                     </div>
                 </div>
                 <div class="filter-pills">
@@ -639,14 +723,30 @@
                 </div>
             </div>
 
+            <!-- FEATURE 4: MULTI-CLIENT BATCH ACTIONS BAR -->
+            <div id="batch-action-bar">
+                <div style="font-size:0.84rem; font-weight:700; color:#fff;">
+                    &#9889; <span id="batch-selected-count">0</span> Client(s) Selected
+                </div>
+                <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                    <button type="button" class="btn-inline" style="color:#6ee7b7; border-color:var(--success); font-weight:700;" onclick="executeBatchAction('NIL_FILED')">&#10004; Mark Selected Nil &amp; Filed (R1 + 3B)</button>
+                    <button type="button" class="btn-inline" style="color:#93c5fd; border-color:var(--primary); font-weight:700;" onclick="executeBatchAction('CLONE_FEE')">&#8634; Clone Prev Month Fee</button>
+                    <button type="button" class="btn-inline" style="color:#c4b5fd; border-color:var(--purple); font-weight:700;" onclick="executeBatchAction('FEE_PAID')">&#128188; Mark Fees Paid</button>
+                    <button type="button" class="btn-inline" onclick="clearBatchSelection()">Clear</button>
+                </div>
+            </div>
+
             <div class="table-container">
                 <table id="master-table">
                     <thead>
                         <tr>
-                            <th width="22%">Client Profile &amp; Portal Launch</th>
+                            <th width="23%">
+                                <input type="checkbox" id="select-all-checkbox" class="row-checkbox" onchange="toggleSelectAllClients(this.checked)" title="Select All Visible Clients">
+                                Client Profile &amp; Portal Launch
+                            </th>
                             <th width="17%">Output &amp; RCM Liability</th>
                             <th width="19%">Rule 88A ITC &amp; 2B Recon</th>
-                            <th width="21%">Filing &amp; NEFT Challan Tracker</th>
+                            <th width="20%">Filing &amp; NEFT Challan Tracker</th>
                             <th width="21%">Shortfall, Billing &amp; Actions</th>
                         </tr>
                     </thead>
@@ -656,7 +756,7 @@
         </div>
     </div>
 
-    <!-- MODAL 1: DETAILED GSTR-9 WORKING DOSSIER (TABLES 4, 6, 8, 9 & 12-MONTH SCHEDULE) -->
+    <!-- MODAL 1: DETAILED GSTR-9 WORKING DOSSIER -->
     <div class="modal-backdrop" id="gstr9-modal">
         <div class="modal-card">
             <div class="modal-header">
@@ -670,68 +770,46 @@
                     <button type="button" class="modal-close" onclick="closeModal('gstr9-modal')">Close</button>
                 </div>
             </div>
-
             <div id="gstr9-kpi-container" class="gstr9-kpi-grid"></div>
-
             <div class="gstr9-section-grid">
                 <div class="gstr9-panel">
                     <h3>Table 4: Outward &amp; Reverse Charge Supplies (&#8377;)</h3>
                     <table class="gstr9-mini-table">
-                        <thead>
-                            <tr><th>Description</th><th>IGST</th><th>CGST</th><th>SGST</th><th>Total</th></tr>
-                        </thead>
+                        <thead><tr><th>Description</th><th>IGST</th><th>CGST</th><th>SGST</th><th>Total</th></tr></thead>
                         <tbody id="gstr9-t4-body"></tbody>
                     </table>
                 </div>
-
                 <div class="gstr9-panel">
                     <h3>Table 6: ITC Availed &amp; Rule 88A Set-Off (&#8377;)</h3>
                     <table class="gstr9-mini-table">
-                        <thead>
-                            <tr><th>Description</th><th>IGST</th><th>CGST</th><th>SGST</th><th>Total</th></tr>
-                        </thead>
+                        <thead><tr><th>Description</th><th>IGST</th><th>CGST</th><th>SGST</th><th>Total</th></tr></thead>
                         <tbody id="gstr9-t6-body"></tbody>
                     </table>
                 </div>
-
                 <div class="gstr9-panel">
                     <h3>Table 8: GSTR-2B vs GSTR-3B Annual Recon (&#8377;)</h3>
                     <table class="gstr9-mini-table">
-                        <thead>
-                            <tr><th>Description</th><th>IGST</th><th>CGST</th><th>SGST</th><th>Total</th></tr>
-                        </thead>
+                        <thead><tr><th>Description</th><th>IGST</th><th>CGST</th><th>SGST</th><th>Total</th></tr></thead>
                         <tbody id="gstr9-t8-body"></tbody>
                     </table>
                 </div>
-
                 <div class="gstr9-panel">
                     <h3>Table 9: Tax Paid Split (ITC vs Cash) &amp; Late Fees (&#8377;)</h3>
                     <table class="gstr9-mini-table">
-                        <thead>
-                            <tr><th>Description</th><th>IGST</th><th>CGST</th><th>SGST</th><th>Total</th></tr>
-                        </thead>
+                        <thead><tr><th>Description</th><th>IGST</th><th>CGST</th><th>SGST</th><th>Total</th></tr></thead>
                         <tbody id="gstr9-t9-body"></tbody>
                     </table>
                 </div>
             </div>
-
             <div class="gstr9-panel">
                 <h3>12-Month Compliance, Filing ARN &amp; Fee Ledger (April – March)</h3>
                 <div style="overflow-x:auto;">
                     <table style="min-width:980px; font-size:0.78rem;">
                         <thead>
                             <tr>
-                                <th>Period</th>
-                                <th>Step 1 (R1/IFF)</th>
-                                <th>Step 2 (3B/PMT) &amp; ARN</th>
-                                <th>Output Tax (&#8377;)</th>
-                                <th>RCM Cash (&#8377;)</th>
-                                <th>3B ITC (&#8377;)</th>
-                                <th>2B ITC (&#8377;)</th>
-                                <th>2B vs 3B Diff</th>
-                                <th>Cash Tax Paid</th>
-                                <th>Late Fee/Int</th>
-                                <th>Retainer Fee</th>
+                                <th>Period</th><th>Step 1 (R1/IFF)</th><th>Step 2 (3B/PMT) &amp; ARN</th>
+                                <th>Output Tax (&#8377;)</th><th>RCM Cash (&#8377;)</th><th>3B ITC (&#8377;)</th>
+                                <th>2B ITC (&#8377;)</th><th>2B vs 3B Diff</th><th>Cash Tax Paid</th><th>Late Fee/Int</th><th>Retainer Fee</th>
                             </tr>
                         </thead>
                         <tbody id="gstr9-tbody"></tbody>
@@ -741,7 +819,7 @@
         </div>
     </div>
 
-    <!-- MODAL 2: 4-TEMPLATE WHATSAPP DISPATCHER (WITH NEFT CHALLAN MANDATE) -->
+    <!-- MODAL 2: 4-TEMPLATE WHATSAPP DISPATCHER -->
     <div class="modal-backdrop" id="wa-modal">
         <div class="modal-card" style="max-width: 560px;">
             <div class="modal-header">
@@ -834,16 +912,220 @@
                 <table style="min-width:680px; font-size:0.8rem;">
                     <thead>
                         <tr>
-                            <th>Tax Period</th>
-                            <th>Step 1 (R1/IFF)</th>
-                            <th>Step 2 (3B/PMT)</th>
-                            <th>Challan Status</th>
-                            <th>Retainer Fee (&#8377;)</th>
-                            <th>Payment Status (Click to Toggle)</th>
+                            <th>Tax Period</th><th>Step 1 (R1/IFF)</th><th>Step 2 (3B/PMT)</th>
+                            <th>Challan Status</th><th>Retainer Fee (&#8377;)</th><th>Payment Status (Click to Toggle)</th>
                         </tr>
                     </thead>
                     <tbody id="fee-passbook-tbody"></tbody>
                 </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 6 (FEATURE 2): GSTR-2B PARTY-WISE & INVOICE-WISE INSPECTOR -->
+    <div class="modal-backdrop" id="gstr2b-inspector-modal">
+        <div class="modal-card" style="max-width: 1140px;">
+            <div class="modal-header">
+                <div>
+                    <h2 id="gstr2b-modal-title" style="margin-bottom:2px;">&#128269; GSTR-2B Party-Wise &amp; Invoice-Wise Inspector</h2>
+                    <div id="gstr2b-modal-subtitle" style="font-size:0.78rem; color:var(--text-muted);">B2B Invoices &amp; Credit Notes Imported from GSTR-2B JSON</div>
+                </div>
+                <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+                    <input type="text" id="gstr2b-search-input" placeholder="Filter supplier GSTIN, name, or invoice #..." oninput="render2BInspectorTable()" style="width:240px; padding:6px 10px; font-size:0.8rem;">
+                    <button type="button" class="btn-success" style="width:auto; padding:7px 14px;" onclick="export2BInvoicesCsv()">&#128202; Export 2B Invoices CSV</button>
+                    <button type="button" class="modal-close" onclick="closeModal('gstr2b-inspector-modal')">Close</button>
+                </div>
+            </div>
+            <div id="gstr2b-kpi-row" class="gstr9-kpi-grid"></div>
+            <div class="gstr9-panel">
+                <table style="min-width:960px; font-size:0.78rem;">
+                    <thead>
+                        <tr>
+                            <th>#</th><th>Supplier GSTIN</th><th>Supplier Name</th><th>Doc Type</th>
+                            <th>Invoice No.</th><th>Invoice Date</th><th>Rate (%)</th>
+                            <th>Taxable Val (&#8377;)</th><th>IGST (&#8377;)</th><th>CGST (&#8377;)</th><th>SGST (&#8377;)</th><th>ITC Eligible</th>
+                        </tr>
+                    </thead>
+                    <tbody id="gstr2b-inspector-tbody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 7 (FEATURE 5): PRACTICE REVENUE & DEBTOR AGING ANALYTICS -->
+    <div class="modal-backdrop" id="firm-analytics-modal">
+        <div class="modal-card" style="max-width: 1060px;">
+            <div class="modal-header">
+                <div>
+                    <h2 style="margin-bottom:2px;">&#128200; Practice Revenue &amp; Multi-Month Debtor Aging</h2>
+                    <div id="analytics-subtitle" style="font-size:0.78rem; color:var(--text-muted);">Consolidated Firm Billing Across All 12 Months</div>
+                </div>
+                <div style="display:flex; gap:8px; align-items:center;">
+                    <select id="analytics-fy-select" onchange="renderFirmAnalyticsModal()" style="width:auto; padding:6px 10px; font-size:0.8rem;"></select>
+                    <button type="button" class="modal-close" onclick="closeModal('firm-analytics-modal')">Close</button>
+                </div>
+            </div>
+            <div id="analytics-kpi-grid" class="gstr9-kpi-grid"></div>
+            <div class="gstr9-panel">
+                <h3>Client-Wise Fee Aging &amp; Unpaid Backlog Ranking</h3>
+                <table style="min-width:860px; font-size:0.8rem;">
+                    <thead>
+                        <tr>
+                            <th>Client Trade Name</th><th>GSTIN</th><th>Unpaid Months</th>
+                            <th>Total FY Billed (&#8377;)</th><th>Collected (&#8377;)</th><th>Pending Backlog (&#8377;)</th><th>Quick Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="analytics-aging-tbody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 8: RFD-01 INVERTED DUTY STRUCTURE (INVITC) REFUND ARCHITECT -->
+    <div class="modal-backdrop" id="rfd01-modal">
+        <div class="modal-card" style="max-width: 1320px;">
+            <div class="modal-header">
+                <div>
+                    <h2 style="margin-bottom:2px; color:#fda4af;">&#127963; Form GST RFD-01 — Inverted Duty Structure (INVITC) Refund Architect</h2>
+                    <div style="font-size:0.75rem; color:var(--text-muted);">Sec 54(3)(ii) &bull; Rule 89(5) &bull; Circular 135/05/2020 &amp; 125/44/2019 &bull; Statement 1A v2.0 + Annexure B v1.0</div>
+                </div>
+                <div style="display:flex; gap:6px; align-items:center; flex-wrap:wrap;">
+                    <button type="button" class="btn-success" style="width:auto; padding:7px 12px;" onclick="exportRfd01Statement1AJson()">&#11015; Statement 1A.json</button>
+                    <button type="button" class="btn-warning" style="width:auto; padding:7px 12px;" onclick="exportRfd01AnnexureBJson()">&#11015; Annexure B.json</button>
+                    <button type="button" class="btn-primary" style="width:auto; padding:7px 12px;" onclick="printRfd01ReconDossier()">&#128424; Print Recon PDF</button>
+                    <button type="button" class="btn-inline" style="color:var(--cyan); border-color:var(--cyan);" onclick="exportRfd01ReconCsv()">&#128202; Recon CSV</button>
+                    <button type="button" class="modal-close" onclick="closeModal('rfd01-modal')">Close</button>
+                </div>
+            </div>
+
+            <!-- 1. Taxpayer Metadata & Refund Period -->
+            <div class="gstr9-panel">
+                <h3>
+                    <span>1. Taxpayer Metadata, Refund Period &amp; Multi-Format Ingestion (Excel / CSV / JSON)</span>
+                    <button type="button" class="btn-chip" onclick="loadSampleRfd01Data()">Load Sample INVITC Dataset</button>
+                </h3>
+                <div class="split-4" style="margin-bottom:8px;">
+                    <div>
+                        <label>Load Client Profile</label>
+                        <select id="rfd-client-select" onchange="loadClientIntoRfd01()"></select>
+                    </div>
+                    <div>
+                        <label>GSTIN *</label>
+                        <input type="text" id="rfd-gstin" value="09HVSPS7502B1Z4" placeholder="09HVSPS7502B1Z4" maxlength="15" oninput="runRfd01Calculation()">
+                    </div>
+                    <div>
+                        <label>Legal Name</label>
+                        <input type="text" id="rfd-legal-name" placeholder="Legal Name of Taxpayer" oninput="runRfd01Calculation()">
+                    </div>
+                    <div>
+                        <label>Trade Name &amp; Address</label>
+                        <input type="text" id="rfd-name" placeholder="Trade Name / Principal Address" oninput="runRfd01Calculation()">
+                    </div>
+                </div>
+                <div class="split-5" style="margin-bottom:10px;">
+                    <div>
+                        <label>From Period (MMYYYY)</label>
+                        <input type="text" id="rfd-from-fp" value="052025" placeholder="052025" maxlength="6" oninput="runRfd01Calculation()">
+                    </div>
+                    <div>
+                        <label>To Period (MMYYYY)</label>
+                        <input type="text" id="rfd-to-fp" value="032026" placeholder="032026" maxlength="6" oninput="runRfd01Calculation()">
+                    </div>
+                    <div>
+                        <label>Default Input HSN</label>
+                        <input type="text" id="rfd-hsn" value="4819" placeholder="4819" maxlength="8" oninput="runRfd01Calculation()">
+                    </div>
+                    <div>
+                        <label>GSTR-2B (Excel/CSV/JSON)</label>
+                        <input type="file" id="rfd-2b-files" accept=".csv,.json,.xlsx,.xls" multiple onchange="handleRfd01InwardUpload(event)" style="padding:5px; font-size:0.71rem;">
+                    </div>
+                    <div>
+                        <label>GSTR-1 B2B (CSV/Excel/JSON)</label>
+                        <input type="file" id="rfd-r1-files" accept=".csv,.json,.xlsx,.xls" multiple onchange="handleRfd01OutwardUpload(event)" style="padding:5px; font-size:0.71rem;">
+                    </div>
+                </div>
+
+                <!-- Electronic Credit Ledger Balances & Turnover Override -->
+                <div class="split-3" style="border-top:1px dashed var(--border); padding-top:8px;">
+                    <div>
+                        <label style="color:var(--cyan);">ECL Balance at End of Refund Period (&#8377;)</label>
+                        <div class="split-3">
+                            <input type="number" id="rfd-ecl-end-i" placeholder="End IGST" min="0" step="0.01" oninput="runRfd01Calculation()">
+                            <input type="number" id="rfd-ecl-end-c" placeholder="End CGST" min="0" step="0.01" oninput="runRfd01Calculation()">
+                            <input type="number" id="rfd-ecl-end-s" placeholder="End SGST" min="0" step="0.01" oninput="runRfd01Calculation()">
+                        </div>
+                    </div>
+                    <div>
+                        <label style="color:var(--warning);">ECL Balance at Time of Filing RFD-01 (&#8377;)</label>
+                        <div class="split-3">
+                            <input type="number" id="rfd-ecl-fil-i" placeholder="File IGST" min="0" step="0.01" oninput="runRfd01Calculation()">
+                            <input type="number" id="rfd-ecl-fil-c" placeholder="File CGST" min="0" step="0.01" oninput="runRfd01Calculation()">
+                            <input type="number" id="rfd-ecl-fil-s" placeholder="File SGST" min="0" step="0.01" oninput="runRfd01Calculation()">
+                        </div>
+                    </div>
+                    <div class="split-2">
+                        <div>
+                            <label style="color:var(--purple);">Col (3) Adj. Total Turnover</label>
+                            <input type="number" id="rfd-adj-turnover" placeholder="Auto from Sales" min="0" step="0.01" oninput="runRfd01Calculation()">
+                        </div>
+                        <div>
+                            <label style="color:var(--success);">Input Services ITC (Rule 89(5))</label>
+                            <input type="number" id="rfd-services-itc" placeholder="0.00 (Optional)" min="0" step="0.01" oninput="runRfd01Calculation()">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. RFD-01 KPI Summary -->
+            <div id="rfd01-kpi-container" class="gstr9-kpi-grid"></div>
+
+            <!-- 3. RFD-01 Table 1, Table 2/3 & GSTR-2B vs Statement 1A Recon -->
+            <div class="gstr9-section-grid">
+                <div class="gstr9-panel">
+                    <h3>RFD-01 Table-1: Rule 89(5) Computation (Statement 1)</h3>
+                    <table class="gstr9-mini-table">
+                        <thead><tr><th>RFD-01 Column Description</th><th>IGST (&#8377;)</th><th>CGST (&#8377;)</th><th>SGST (&#8377;)</th><th>Consolidated (&#8377;)</th></tr></thead>
+                        <tbody id="rfd01-t1-tbody"></tbody>
+                    </table>
+                </div>
+                <div class="gstr9-panel">
+                    <h3>Table-2 &amp; Table-3: Circular 125/44/2019 Ledger Capping</h3>
+                    <table class="gstr9-mini-table">
+                        <thead><tr><th>Ledger / Refund Parameter</th><th>IGST (&#8377;)</th><th>CGST (&#8377;)</th><th>SGST (&#8377;)</th><th>Total (&#8377;)</th></tr></thead>
+                        <tbody id="rfd01-t3-tbody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="gstr9-panel">
+                <h3>GSTR-2B vs. Statement 1A &amp; Annexure B Summary Reconciliation</h3>
+                <table class="gstr9-mini-table">
+                    <thead>
+                        <tr>
+                            <th>Reconciliation Particulars (Circular 135/05/2020 &amp; Rule 89(5))</th>
+                            <th>Invoice Count</th><th>Taxable Value (&#8377;)</th><th>IGST (&#8377;)</th><th>CGST (&#8377;)</th><th>SGST (&#8377;)</th><th>Total ITC (&#8377;)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="rfd01-recon-tbody"></tbody>
+                </table>
+            </div>
+
+            <!-- 4. Preview of Paired Statement 1A & Annexure B Invoices -->
+            <div class="gstr9-section-grid">
+                <div class="gstr9-panel" style="max-height:260px; overflow-y:auto;">
+                    <h3>Eligible Inverted Inward Inputs (&gt;5% Rate — Statement 1A &amp; Annexure B)</h3>
+                    <table class="gstr9-mini-table">
+                        <thead><tr><th>S.No</th><th>Supplier GSTIN</th><th>Inv No (Exact)</th><th>Date</th><th>2B Period</th><th>Rate</th><th>Taxable</th><th>IGST</th><th>CGST</th><th>SGST</th></tr></thead>
+                        <tbody id="rfd01-inward-tbody"></tbody>
+                    </table>
+                </div>
+                <div class="gstr9-panel" style="max-height:260px; overflow-y:auto;">
+                    <h3>Eligible Inverted Outward Supplies (&lt;18% Rate — Statement 1A)</h3>
+                    <table class="gstr9-mini-table">
+                        <thead><tr><th>#</th><th>Type</th><th>Inv No (Exact)</th><th>Date</th><th>Rate</th><th>Taxable (oval)</th><th>IGST</th><th>CGST</th><th>SGST</th></tr></thead>
+                        <tbody id="rfd01-outward-tbody"></tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
@@ -873,10 +1155,7 @@
             <thead>
                 <tr>
                     <th style="text-align:left;">Particulars (Head-Wise Rule 88A &amp; Cash Shortfall Computation)</th>
-                    <th>IGST (&#8377;)</th>
-                    <th>CGST (&#8377;)</th>
-                    <th>SGST (&#8377;)</th>
-                    <th>Total (&#8377;)</th>
+                    <th>IGST (&#8377;)</th><th>CGST (&#8377;)</th><th>SGST (&#8377;)</th><th>Total (&#8377;)</th>
                 </tr>
             </thead>
             <tbody id="print-table-body"></tbody>
@@ -896,6 +1175,9 @@
 
     <!-- PRINT AREA 3: CONSOLIDATED MULTI-MONTH FEE PASSBOOK INVOICE PDF -->
     <div id="print-fee-area"></div>
+
+    <!-- PRINT AREA 4: RFD-01 INVITC RECONCILIATION & WORKING DOSSIER PDF -->
+    <div id="print-rfd01-area"></div>
     <script>
         var GOOGLE_CLIENT_ID = "1090891293641-vr4iba4fi7sooc58g5rgn69ek6sd9odl.apps.googleusercontent.com";
 
@@ -924,6 +1206,15 @@
         var revealedPasswords = {};
         var activeGstr9ClientId = null;
         var activeFeeClientId = null;
+        var active2BClientId = null;
+        var selectedClientIds = {};
+
+        // RFD-01 INVITC State Store
+        var rfdState = {
+            inwardRaw: [],
+            outwardRaw: [],
+            lastResult: null
+        };
 
         var GST_STATE_MAP = {
             "01": "Jammu & Kashmir", "02": "Himachal Pradesh", "03": "Punjab", "04": "Chandigarh",
@@ -970,6 +1261,10 @@
             return n.toLocaleString('en-IN', { maximumFractionDigits: 2 });
         }
 
+        function round2(val) {
+            return Math.round((Number(val) || 0) * 100) / 100;
+        }
+
         function showToast(msg) {
             var t = document.getElementById('toast-banner');
             if (!t) return;
@@ -977,6 +1272,32 @@
             t.classList.add('show');
             setTimeout(function() { t.classList.remove('show'); }, 2600);
         }
+
+        // --- FEATURE 3: SMART TURNOVER-TO-TAX AUTO-CALCULATOR ---
+        window.applyTurnoverTaxRate = function(ratePercent) {
+            var rawVal = parseFloat(document.getElementById('calc-turnover-val').value) || 0;
+            if (rawVal <= 0) return showToast("Enter a Turnover amount first");
+            var mode = document.getElementById('calc-turnover-mode').value;
+            var supplyType = document.getElementById('calc-supply-type').value;
+
+            var taxableVal = rawVal;
+            if (mode === 'INCLUSIVE') {
+                taxableVal = rawVal / (1 + (ratePercent / 100));
+            }
+            var totalTax = taxableVal * (ratePercent / 100);
+
+            if (supplyType === 'INTER') {
+                document.getElementById('out-igst').value = round2(totalTax).toFixed(2);
+                document.getElementById('out-cgst').value = "0.00";
+                document.getElementById('out-sgst').value = "0.00";
+            } else {
+                var halfTax = round2(totalTax / 2);
+                document.getElementById('out-igst').value = "0.00";
+                document.getElementById('out-cgst').value = halfTax.toFixed(2);
+                document.getElementById('out-sgst').value = halfTax.toFixed(2);
+            }
+            showToast("Applied " + ratePercent + "% on Taxable Rs. " + fmtINR(round2(taxableVal)));
+        };
 
         // --- SETTINGS & PIN LOCK ---
         window.openSettingsModal = function() {
@@ -1249,9 +1570,11 @@
             var select = document.getElementById('global-fy-select');
             var g9Select = document.getElementById('gstr9-fy-select');
             var feeSelect = document.getElementById('fee-fy-select');
+            var anaSelect = document.getElementById('analytics-fy-select');
             select.innerHTML = '';
             if (g9Select) g9Select.innerHTML = '';
             if (feeSelect) feeSelect.innerHTML = '';
+            if (anaSelect) anaSelect.innerHTML = '';
 
             for (var y = 2017; y <= currentYearInt + 15; y++) {
                 var labelTxt = "FY " + y + "-" + String(y + 1).substring(2) + " (Apr " + y + " - Mar " + (y + 1) + ")";
@@ -1263,17 +1586,21 @@
 
                 if (g9Select) {
                     var opt2 = document.createElement('option');
-                    opt2.value = y;
-                    opt2.textContent = labelTxt;
+                    opt2.value = y; opt2.textContent = labelTxt;
                     if (y === currentFyStartYear) opt2.selected = true;
                     g9Select.appendChild(opt2);
                 }
                 if (feeSelect) {
                     var opt3 = document.createElement('option');
-                    opt3.value = y;
-                    opt3.textContent = labelTxt;
+                    opt3.value = y; opt3.textContent = labelTxt;
                     if (y === currentFyStartYear) opt3.selected = true;
                     feeSelect.appendChild(opt3);
+                }
+                if (anaSelect) {
+                    var opt4 = document.createElement('option');
+                    opt4.value = y; opt4.textContent = labelTxt;
+                    if (y === currentFyStartYear) opt4.selected = true;
+                    anaSelect.appendChild(opt4);
                 }
             }
         }
@@ -1316,8 +1643,10 @@
             activeTargetPeriod = selectedYr + "-04";
             var g9Select = document.getElementById('gstr9-fy-select');
             var feeSelect = document.getElementById('fee-fy-select');
+            var anaSelect = document.getElementById('analytics-fy-select');
             if (g9Select) g9Select.value = selectedYr;
             if (feeSelect) feeSelect.value = selectedYr;
+            if (anaSelect) anaSelect.value = selectedYr;
             renderFinancialYearCalendar();
             renderMasterDashboard();
             clearForm();
@@ -1406,6 +1735,83 @@
             }
         };
 
+        // --- FEATURE 2 HELPER: EXTRACT INVOICE-LEVEL B2B & CDNR FROM GSTR-2B JSON ---
+        function extract2BInvoiceListFromJson(root) {
+            var list = [];
+            var rtnprd = root.rtnprd || "";
+            var period2BFormatted = "";
+            if (rtnprd && String(rtnprd).length === 6) {
+                period2BFormatted = String(rtnprd).substring(0, 2) + "-" + String(rtnprd).substring(2, 6);
+            }
+            if (!root.docdata) return list;
+
+            if (Array.isArray(root.docdata.b2b)) {
+                root.docdata.b2b.forEach(function(sup) {
+                    var stin = String(sup.ctin || "").trim();
+                    var sname = String(sup.trdnm || "").trim();
+                    (sup.inv || []).forEach(function(inv) {
+                        var inum = String(inv.inum !== undefined ? inv.inum : "").trim();
+                        var idt = String(inv.dt || "").trim();
+                        var itcAvl = String(inv.itcavl || "Y").trim();
+                        var rev = String(inv.rev || "N").trim();
+                        var txval = 0, igst = 0, cgst = 0, sgst = 0, rt = 0;
+
+                        if (Array.isArray(inv.items) && inv.items.length > 0) {
+                            inv.items.forEach(function(it) {
+                                txval += Number(it.txval || 0);
+                                igst += Number(it.igst || 0);
+                                cgst += Number(it.cgst || 0);
+                                sgst += Number(it.sgst || 0);
+                                if (it.rt) rt = Number(it.rt);
+                            });
+                        } else {
+                            txval = Number(inv.txval || inv.val || 0);
+                            igst = Number(inv.igst || 0);
+                            cgst = Number(inv.cgst || 0);
+                            sgst = Number(inv.sgst || 0);
+                        }
+                        if (!rt && txval > 0) {
+                            rt = Math.round(((igst + cgst + sgst) / txval) * 100);
+                        }
+                        list.push({
+                            stin: stin, sname: sname, docType: rev === 'Y' ? 'B2B (RCM)' : 'B2B',
+                            inum: inum, idt: idt, rt: rt,
+                            txval: round2(txval), igst: round2(igst), cgst: round2(cgst), sgst: round2(sgst),
+                            itcAvl: itcAvl, returnPeriod2B: period2BFormatted, goodsType: 'Inputs'
+                        });
+                    });
+                });
+            }
+
+            if (Array.isArray(root.docdata.cdnr)) {
+                root.docdata.cdnr.forEach(function(sup) {
+                    var stin = String(sup.ctin || "").trim();
+                    var sname = String(sup.trdnm || "").trim();
+                    (sup.nt || []).forEach(function(nt) {
+                        var ntnum = String(nt.ntnum !== undefined ? nt.ntnum : "").trim();
+                        var ntdt = String(nt.dt || "").trim();
+                        var nttyp = String(nt.typ || "C").trim();
+                        var sign = (nttyp === 'C') ? -1 : 1;
+                        var txval = 0, igst = 0, cgst = 0, sgst = 0, rt = 0;
+                        (nt.items || []).forEach(function(it) {
+                            txval += Number(it.txval || 0);
+                            igst += Number(it.igst || 0);
+                            cgst += Number(it.cgst || 0);
+                            sgst += Number(it.sgst || 0);
+                            if (it.rt) rt = Number(it.rt);
+                        });
+                        list.push({
+                            stin: stin, sname: sname, docType: nttyp === 'C' ? 'Credit Note' : 'Debit Note',
+                            inum: ntnum, idt: ntdt, rt: rt,
+                            txval: round2(sign * txval), igst: round2(sign * igst), cgst: round2(sign * cgst), sgst: round2(sign * sgst),
+                            itcAvl: String(nt.itcavl || "Y"), returnPeriod2B: period2BFormatted, goodsType: 'Inputs'
+                        });
+                    });
+                });
+            }
+            return list;
+        }
+
         // --- UNIFIED GST PORTAL IMPORTER (2B JSON + 3B PDF + R1 PDF + PMT-06 CHALLAN PDF) ---
         function parsePortalDateToISO(dStr) {
             if (!dStr) return "";
@@ -1485,7 +1891,6 @@
             var clientName = nameMatch ? nameMatch[1].trim() : "";
             var periodKey = detectPeriodFromPdfText(text);
 
-            // Check if PDF is a Form GST PMT-06 Tax Challan / NEFT Mandate
             var cpinMatch = text.match(/CPIN\s*[:\-]?\s*(\d{14})\b/i);
             var isPmt06 = /PMT[\s\-]*06/i.test(text) || /Challan\s+Expiry\s+Date/i.test(text) || Boolean(cpinMatch);
 
@@ -1574,6 +1979,7 @@
                     cgst2b = Math.max(0, cgst2b - (avl.othersup.cgst || 0));
                     sgst2b = Math.max(0, sgst2b - (avl.othersup.sgst || 0));
                 }
+                var invList = extract2BInvoiceListFromJson(root);
                 return {
                     docType: '2B_JSON', gstin: gstin, periodKey: periodKey,
                     itc2bIgst: Number(igst2b.toFixed(2)),
@@ -1581,7 +1987,8 @@
                     itc2bSgst: Number(sgst2b.toFixed(2)),
                     rcmIgst: Number(rcmI.toFixed(2)),
                     rcmCgst: Number(rcmC.toFixed(2)),
-                    rcmSgst: Number(rcmS.toFixed(2))
+                    rcmSgst: Number(rcmS.toFixed(2)),
+                    inv2bList: invList
                 };
             }
 
@@ -1657,6 +2064,9 @@
                     if (rec.rcmIgst + rec.rcmCgst + rec.rcmSgst > 0) {
                         h.rcmIgst = rec.rcmIgst; h.rcmCgst = rec.rcmCgst; h.rcmSgst = rec.rcmSgst;
                     }
+                    if (rec.inv2bList && rec.inv2bList.length > 0) {
+                        h.inv2bList = rec.inv2bList;
+                    }
                 } else if (rec.docType === 'PMT06') {
                     h.challanStatus = (h.r3b === 'Filed') ? 'Paid' : 'Pending';
                     if (rec.cpin) h.challanCpin = rec.cpin;
@@ -1670,7 +2080,6 @@
                         h.r3b = 'Filed';
                         if (rec.filingDate) h.r3bDate = rec.filingDate;
                         if (rec.arn) h.r3bArn = rec.arn;
-                        // Auto-sync challan status to Paid when 3B is filed
                         if (h.challanStatus === 'Pending' || h.challanStatus === 'UTR_Sent' || h.challanCpin) {
                             h.challanStatus = 'Paid';
                         }
@@ -1795,7 +2204,7 @@
                 'out-igst','out-cgst','out-sgst','rcm-igst','rcm-cgst','rcm-sgst','itc-igst','itc-cgst','itc-sgst',
                 'itc-2b-igst','itc-2b-cgst','itc-2b-sgst','month-notes','client-fee','client-logo',
                 'client-logo-base64','client-tags','client-notice','init-itc-igst','init-itc-cgst','init-itc-sgst',
-                'cash-ledger-bal','challan-cpin','challan-date','challan-utr'
+                'cash-ledger-bal','challan-cpin','challan-date','challan-utr','calc-turnover-val'
             ];
             ids.forEach(function(id) {
                 var el = document.getElementById(id);
@@ -1835,7 +2244,8 @@
                     challanMode: "NEFT/RTGS",
                     challanCpin: "",
                     challanDate: "",
-                    challanUtr: ""
+                    challanUtr: "",
+                    inv2bList: []
                 };
             } else {
                 var h = target.history[periodKey];
@@ -1854,6 +2264,7 @@
                 if (h.challanCpin === undefined) h.challanCpin = "";
                 if (h.challanDate === undefined) h.challanDate = "";
                 if (h.challanUtr === undefined) h.challanUtr = "";
+                if (h.inv2bList === undefined) h.inv2bList = [];
             }
         }
 
@@ -1899,7 +2310,8 @@
                 challanUtr: document.getElementById('challan-utr').value.trim(),
                 r1: "Pending", r1Date: "", r1Arn: "",
                 r3b: "Pending", r3bDate: "", r3bArn: "",
-                waived: false
+                waived: false,
+                inv2bList: []
             };
 
             var initItc = {
@@ -1928,6 +2340,7 @@
                     payload.r1 = existing.r1; payload.r1Date = existing.r1Date; payload.r1Arn = existing.r1Arn || "";
                     payload.r3b = existing.r3b; payload.r3bDate = existing.r3bDate; payload.r3bArn = existing.r3bArn || "";
                     payload.waived = existing.waived || false;
+                    payload.inv2bList = existing.inv2bList || [];
 
                     if (payload.r3b === 'Filed' && (payload.challanStatus === 'Pending' || payload.challanStatus === 'UTR_Sent')) {
                         payload.challanStatus = 'Paid';
@@ -2138,7 +2551,6 @@
             var cashLedgerBal = data.cashLedgerBal || 0;
             var cashShortfall = Math.max(0, grossChallan - cashLedgerBal);
 
-            // 15-Day CPIN Expiry Countdown
             var cpinDaysLeft = null;
             if (data.challanDate && (data.challanStatus === 'Pending' || data.challanStatus === 'UTR_Sent')) {
                 var genDate = new Date(data.challanDate);
@@ -2218,7 +2630,6 @@
                 h[type + 'Date'] = '';
             }
 
-            // AUTO-SYNC RULE: When GSTR-3B / PMT-06 is marked Filed, automatically mark Challan as Paid
             if (type === 'r3b') {
                 if (!isFiled) {
                     if (h.challanStatus === 'Pending' || h.challanStatus === 'UTR_Sent' || h.challanCpin) {
@@ -2319,6 +2730,7 @@
             var target = db.find(function(c) { return c.id === id; });
             if (target && confirm("Delete " + target.name + " permanently?")) {
                 db = db.filter(function(c) { return c.id !== id; });
+                delete selectedClientIds[id];
                 saveDatabase();
                 renderFinancialYearCalendar();
                 renderMasterDashboard();
@@ -2359,6 +2771,90 @@
             }
             renderMasterDashboard();
         };
+
+        // --- FEATURE 4: MULTI-CLIENT BATCH ACTIONS ---
+        function updateBatchBarVisibility() {
+            var ids = Object.keys(selectedClientIds).filter(function(k) { return selectedClientIds[k]; });
+            var bar = document.getElementById('batch-action-bar');
+            var countSpan = document.getElementById('batch-selected-count');
+            if (!bar) return;
+            if (ids.length > 0) {
+                bar.style.display = 'flex';
+                countSpan.textContent = ids.length;
+            } else {
+                bar.style.display = 'none';
+                var selAll = document.getElementById('select-all-checkbox');
+                if (selAll) selAll.checked = false;
+            }
+        }
+
+        window.toggleClientBatchSelect = function(id, isChecked) {
+            if (isChecked) selectedClientIds[id] = true;
+            else delete selectedClientIds[id];
+            updateBatchBarVisibility();
+        };
+
+        window.toggleSelectAllClients = function(isChecked) {
+            var boxes = document.querySelectorAll('.client-row-cb');
+            for (var i = 0; i < boxes.length; i++) {
+                boxes[i].checked = isChecked;
+                var cid = boxes[i].getAttribute('data-cid');
+                if (isChecked) selectedClientIds[cid] = true;
+                else delete selectedClientIds[cid];
+            }
+            updateBatchBarVisibility();
+        };
+
+        window.clearBatchSelection = function() {
+            selectedClientIds = {};
+            var boxes = document.querySelectorAll('.client-row-cb');
+            for (var i = 0; i < boxes.length; i++) boxes[i].checked = false;
+            updateBatchBarVisibility();
+        };
+
+        window.executeBatchAction = function(actionType) {
+            var ids = Object.keys(selectedClientIds).filter(function(k) { return selectedClientIds[k]; });
+            if (ids.length === 0) return;
+
+            var today = new Date();
+            var todayStr = today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0') + '-' + String(today.getDate()).padStart(2, '0');
+            var count = 0;
+
+            ids.forEach(function(id) {
+                var c = db.find(function(item) { return item.id === id; });
+                if (!c) return;
+                ensureMonthStructureInitialized(c, activeTargetPeriod);
+                var h = c.history[activeTargetPeriod];
+
+                if (actionType === 'NIL_FILED') {
+                    h.outIgst = 0; h.outCgst = 0; h.outSgst = 0;
+                    h.rcmIgst = 0; h.rcmCgst = 0; h.rcmSgst = 0;
+                    h.r1 = 'Filed'; if (!h.r1Date) h.r1Date = todayStr;
+                    h.r3b = 'Filed'; if (!h.r3bDate) h.r3bDate = todayStr;
+                    h.challanStatus = 'None';
+                    count++;
+                } else if (actionType === 'CLONE_FEE') {
+                    var periods = Object.keys(c.history || {}).sort();
+                    var idx = periods.indexOf(activeTargetPeriod);
+                    if (idx > 0 && c.history[periods[idx - 1]].feeAmount > 0) {
+                        h.feeAmount = c.history[periods[idx - 1]].feeAmount;
+                        count++;
+                    } else if (c.defaultFee > 0) {
+                        h.feeAmount = c.defaultFee;
+                        count++;
+                    }
+                } else if (actionType === 'FEE_PAID') {
+                    h.feeStatus = 'Paid';
+                    count++;
+                }
+            });
+
+            saveDatabase();
+            clearBatchSelection();
+            renderFinancialYearCalendar();
+            renderMasterDashboard();
+            showToast("Batch Action Applied to " + count + " Client(s)!");
+        };
         // --- MASTER DASHBOARD RENDERER ---
         window.renderMasterDashboard = function() {
             var search = document.getElementById('search-bar').value.toLowerCase().trim();
@@ -2381,7 +2877,6 @@
                 var dueInfo = getClientDueDates(client, activeTargetPeriod);
                 var net = computeTaxEngine(data, dueInfo.r3bDueDate, openingBal, client.scheme);
 
-                // Ensure auto-paid sync if 3B is already Filed
                 if (data.r3b === 'Filed' && (data.challanStatus === 'Pending' || data.challanStatus === 'UTR_Sent')) {
                     data.challanStatus = 'Paid';
                 }
@@ -2442,6 +2937,7 @@
                 var dueMonthName = getMonthNameByStr(dueInfo.dueMo);
                 var stCode = (client.gstin || '').substring(0, 2);
                 var stLabel = GST_STATE_MAP[stCode] || stCode;
+                var isChecked = Boolean(selectedClientIds[client.id]);
 
                 var reconHtml = "";
                 if (client.scheme === 'Composition') {
@@ -2485,7 +2981,6 @@
                     r3bSubHtml = "<div style='font-size:0.67rem; color:var(--warning); margin-top:2px;'>Due " + dueInfo.r3bDueDay + " " + dueMonthName + "</div>";
                 }
 
-                // Smart NEFT / PMT-06 Challan Tracker Widget
                 var cStat = data.challanStatus || 'None';
                 var challanBadgeClass = "badge-challan-none";
                 var challanBadgeText = "Challan: None";
@@ -2549,11 +3044,17 @@
                                     "<br><span style='font-size:0.66rem; color:var(--text-muted);'>I:&#8377;" + fmtINR(net.closingItc.igst) + " | C:&#8377;" + fmtINR(net.closingItc.cgst) + " | S:&#8377;" + fmtINR(net.closingItc.sgst) + "</span>";
                 }
 
+                var twoBCount = (data.inv2bList && data.inv2bList.length) ? data.inv2bList.length : 0;
+                var twoBInvoicesBtn = "<button type='button' class='btn-inline' style='border-color:var(--cyan); color:#67e8f9;' onclick=\"open2BInspectorModal('" + client.id + "')\" title='Inspect GSTR-2B Party-Wise Invoices'>&#128269; 2B" + (twoBCount > 0 ? " (" + twoBCount + ")" : "") + "</button>";
+
                 var row = document.createElement('tr');
                 row.innerHTML =
                     "<td>" +
                         "<div style='display:flex; align-items:center; justify-content:space-between; gap:6px;'>" +
-                            "<strong style='color:#fff; font-size:0.94rem;'>" + client.name + "</strong>" +
+                            "<div>" +
+                                "<input type='checkbox' class='row-checkbox client-row-cb' data-cid='" + client.id + "' " + (isChecked ? "checked" : "") + " onchange=\"toggleClientBatchSelect('" + client.id + "', this.checked)\">" +
+                                "<strong style='color:#fff; font-size:0.94rem;'>" + client.name + "</strong>" +
+                            "</div>" +
                             "<span style='font-size:0.68rem; background:rgba(59,130,246,0.15); padding:2px 7px; border-radius:4px; color:#93c5fd; font-weight:700;'>" + (client.scheme || 'Monthly') + "</span>" +
                         "</div>" +
                         "<div style='margin-top:3px;'><span class='gstin-mono'>" + client.gstin + "</span><span class='state-pill'>" + stLabel + "</span></div>" +
@@ -2607,7 +3108,9 @@
                         "</div>" +
                         "<div class='action-row'>" +
                             "<button type='button' class='btn-inline' onclick=\"triggerInlineEdit('" + client.id + "')\">Edit</button>" +
+                            twoBInvoicesBtn +
                             "<button type='button' class='btn-inline btn-gstr9' onclick=\"openGstr9Modal('" + client.id + "')\">GSTR-9</button>" +
+                            "<button type='button' class='btn-inline btn-rfd01' onclick=\"openRfd01Modal('" + client.id + "')\">RFD-01</button>" +
                             "<button type='button' class='btn-inline btn-fee-passbook' onclick=\"openFeePassbookModal('" + client.id + "')\">&#128188; Fee</button>" +
                             "<button type='button' class='btn-inline btn-print' onclick=\"printChallan('" + client.id + "')\">PDF</button>" +
                             "<button type='button' class='btn-inline btn-whatsapp' onclick=\"openWhatsAppModal('" + client.id + "')\">WA</button>" +
@@ -2624,6 +3127,207 @@
             document.getElementById('stat-recon').textContent = reconMismatchCount;
             document.getElementById('stat-cash').innerHTML = '&#8377;' + fmtINR(aggregateShortfallNeeded);
             document.getElementById('stat-fees').innerHTML = '&#8377;' + fmtINR(aggregateUncollectedFees);
+        };
+
+        // --- FEATURE 2 MODAL: GSTR-2B PARTY-WISE & INVOICE-WISE INSPECTOR ---
+        window.open2BInspectorModal = function(clientId) {
+            active2BClientId = clientId;
+            document.getElementById('gstr2b-search-input').value = '';
+            render2BInspectorTable();
+            document.getElementById('gstr2b-inspector-modal').style.display = 'flex';
+        };
+
+        window.render2BInspectorTable = function() {
+            if (!active2BClientId) return;
+            var client = db.find(function(c) { return c.id === active2BClientId; });
+            if (!client) return;
+            ensureMonthStructureInitialized(client, activeTargetPeriod);
+            var data = client.history[activeTargetPeriod];
+            var list = data.inv2bList || [];
+
+            var query = document.getElementById('gstr2b-search-input').value.toLowerCase().trim();
+            var filtered = list.filter(function(item) {
+                if (!query) return true;
+                return (item.stin || "").toLowerCase().indexOf(query) !== -1 ||
+                       (item.sname || "").toLowerCase().indexOf(query) !== -1 ||
+                       (item.inum || "").toLowerCase().indexOf(query) !== -1;
+            });
+
+            var totTxval = 0, totIgst = 0, totCgst = 0, totSgst = 0;
+            filtered.forEach(function(it) {
+                totTxval += (it.txval || 0);
+                totIgst += (it.igst || 0);
+                totCgst += (it.cgst || 0);
+                totSgst += (it.sgst || 0);
+            });
+
+            document.getElementById('gstr2b-modal-title').textContent = "GSTR-2B Party-Wise Inspector - " + client.name;
+            document.getElementById('gstr2b-modal-subtitle').textContent = "Period: " + activeTargetPeriod + " | Total Invoices Parsed: " + list.length + " (Showing " + filtered.length + ")";
+
+            document.getElementById('gstr2b-kpi-row').innerHTML =
+                "<div class='gstr9-kpi-box'>" +
+                    "<div class='summary-label'>Filtered Taxable Value</div>" +
+                    "<div style='font-size:1.15rem; font-weight:800; color:var(--primary); margin-top:3px;'>&#8377;" + fmtINR(totTxval) + "</div>" +
+                "</div>" +
+                "<div class='gstr9-kpi-box'>" +
+                    "<div class='summary-label'>Total IGST Available</div>" +
+                    "<div style='font-size:1.15rem; font-weight:800; color:var(--cyan); margin-top:3px;'>&#8377;" + fmtINR(totIgst) + "</div>" +
+                "</div>" +
+                "<div class='gstr9-kpi-box'>" +
+                    "<div class='summary-label'>Total CGST + SGST Available</div>" +
+                    "<div style='font-size:1.15rem; font-weight:800; color:var(--success); margin-top:3px;'>&#8377;" + fmtINR(totCgst + totSgst) + "</div>" +
+                "</div>" +
+                "<div class='gstr9-kpi-box'>" +
+                    "<div class='summary-label'>Total ITC (IGST+CGST+SGST)</div>" +
+                    "<div style='font-size:1.15rem; font-weight:800; color:var(--warning); margin-top:3px;'>&#8377;" + fmtINR(totIgst + totCgst + totSgst) + "</div>" +
+                "</div>";
+
+            var tbody = document.getElementById('gstr2b-inspector-tbody');
+            tbody.innerHTML = '';
+            if (filtered.length === 0) {
+                tbody.innerHTML = "<tr><td colspan='12' style='text-align:center; color:var(--text-muted); padding:20px;'>No invoice-level GSTR-2B records stored for this period. Import the client's GSTR-2B JSON file to inspect party-wise bills.</td></tr>";
+                return;
+            }
+
+            filtered.forEach(function(it, idx) {
+                var tr = document.createElement('tr');
+                tr.innerHTML =
+                    "<td>" + (idx + 1) + "</td>" +
+                    "<td><span class='gstin-mono'>" + it.stin + "</span></td>" +
+                    "<td><strong>" + (it.sname || 'Registered Supplier') + "</strong></td>" +
+                    "<td><span class='segment-tag'>" + it.docType + "</span></td>" +
+                    "<td style='font-family:monospace; font-weight:700;'>" + it.inum + "</td>" +
+                    "<td>" + it.idt + "</td>" +
+                    "<td>" + (it.rt ? it.rt + "%" : "--") + "</td>" +
+                    "<td>&#8377;" + fmtINR(it.txval) + "</td>" +
+                    "<td>&#8377;" + fmtINR(it.igst) + "</td>" +
+                    "<td>&#8377;" + fmtINR(it.cgst) + "</td>" +
+                    "<td>&#8377;" + fmtINR(it.sgst) + "</td>" +
+                    "<td style='color:" + (it.itcAvl === 'Y' ? 'var(--success)' : 'var(--danger)') + "; font-weight:700;'>" + (it.itcAvl || 'Y') + "</td>";
+                tbody.appendChild(tr);
+            });
+        };
+
+        window.export2BInvoicesCsv = function() {
+            if (!active2BClientId) return;
+            var client = db.find(function(c) { return c.id === active2BClientId; });
+            if (!client) return;
+            ensureMonthStructureInitialized(client, activeTargetPeriod);
+            var list = client.history[activeTargetPeriod].inv2bList || [];
+            if (list.length === 0) return alert("No 2B invoices to export for this period.");
+
+            var headers = ["Supplier GSTIN","Supplier Name","Doc Type","Invoice No","Invoice Date","Rate","Taxable Val","IGST","CGST","SGST","ITC Eligible","2B Period"];
+            var rows = [headers.join(",")];
+            list.forEach(function(it) {
+                rows.push([
+                    '"' + it.stin + '"', '"' + (it.sname || '') + '"', '"' + it.docType + '"',
+                    '"' + it.inum + '"', '"' + it.idt + '"', it.rt,
+                    it.txval, it.igst, it.cgst, it.sgst, '"' + it.itcAvl + '"', '"' + it.returnPeriod2B + '"'
+                ].join(","));
+            });
+
+            var link = document.createElement("a");
+            link.href = URL.createObjectURL(new Blob([rows.join("\n")], { type: 'text/csv;charset=utf-8;' }));
+            link.setAttribute("download", "GSTR2B_Invoices_" + client.gstin + "_" + activeTargetPeriod + ".csv");
+            document.body.appendChild(link); link.click(); link.remove();
+            showToast("GSTR-2B Invoices CSV Downloaded");
+        };
+
+        // --- FEATURE 5 MODAL: FIRM REVENUE & DEBTOR AGING ANALYTICS ---
+        window.openFirmAnalyticsModal = function() {
+            var mainFy = document.getElementById('global-fy-select').value;
+            var anaSelect = document.getElementById('analytics-fy-select');
+            if (anaSelect) anaSelect.value = mainFy;
+            renderFirmAnalyticsModal();
+            document.getElementById('firm-analytics-modal').style.display = 'flex';
+        };
+
+        window.renderFirmAnalyticsModal = function() {
+            var startYear = parseInt(document.getElementById('analytics-fy-select').value || document.getElementById('global-fy-select').value, 10);
+            var fyLabel = "FY " + startYear + "-" + String(startYear + 1).substring(2);
+
+            var totalBilled = 0, totalCollected = 0, totalPending = 0;
+            var clientDebtors = [];
+
+            db.forEach(function(client) {
+                var cBilled = 0, cCollected = 0, unpaidMonthsCount = 0;
+                FY_MONTHS.forEach(function(m) {
+                    var yr = startYear + m.offset;
+                    var pKey = yr + "-" + m.monthStr;
+                    ensureMonthStructureInitialized(client, pKey);
+                    var d = client.history[pKey];
+                    var fAmt = d.feeAmount || 0;
+                    cBilled += fAmt;
+                    if (d.feeStatus === 'Paid') {
+                        cCollected += fAmt;
+                    } else if (fAmt > 0) {
+                        unpaidMonthsCount++;
+                    }
+                });
+                var cPending = cBilled - cCollected;
+                totalBilled += cBilled;
+                totalCollected += cCollected;
+                totalPending += cPending;
+
+                clientDebtors.push({ client: client, billed: cBilled, collected: cCollected, pending: cPending, unpaidMonths: unpaidMonthsCount });
+            });
+
+            clientDebtors.sort(function(a, b) { return b.pending - a.pending; });
+            var collectionRate = totalBilled > 0 ? Math.round((totalCollected / totalBilled) * 100) : 100;
+
+            document.getElementById('analytics-subtitle').textContent = "Consolidated Firm Billing Across All 12 Months (" + fyLabel + ")";
+            document.getElementById('analytics-kpi-grid').innerHTML =
+                "<div class='gstr9-kpi-box'>" +
+                    "<div class='summary-label'>Total FY Revenue Billed</div>" +
+                    "<div style='font-size:1.18rem; font-weight:800; color:var(--primary); margin-top:3px;'>&#8377;" + fmtINR(totalBilled) + "</div>" +
+                "</div>" +
+                "<div class='gstr9-kpi-box'>" +
+                    "<div class='summary-label'>Total Retainer Collected</div>" +
+                    "<div style='font-size:1.18rem; font-weight:800; color:var(--success); margin-top:3px;'>&#8377;" + fmtINR(totalCollected) + "</div>" +
+                "</div>" +
+                "<div class='gstr9-kpi-box'>" +
+                    "<div class='summary-label'>Total Outstanding Dues</div>" +
+                    "<div style='font-size:1.18rem; font-weight:800; color:var(--danger); margin-top:3px;'>&#8377;" + fmtINR(totalPending) + "</div>" +
+                "</div>" +
+                "<div class='gstr9-kpi-box'>" +
+                    "<div class='summary-label'>Collection Efficiency</div>" +
+                    "<div style='font-size:1.18rem; font-weight:800; color:var(--cyan); margin-top:3px;'>" + collectionRate + "%</div>" +
+                "</div>";
+
+            var tbody = document.getElementById('analytics-aging-tbody');
+            tbody.innerHTML = '';
+            if (clientDebtors.length === 0) {
+                tbody.innerHTML = "<tr><td colspan='7' style='text-align:center; color:var(--text-muted); padding:20px;'>No clients registered in database.</td></tr>";
+                return;
+            }
+
+            clientDebtors.forEach(function(item) {
+                var c = item.client;
+                var tr = document.createElement('tr');
+                tr.innerHTML =
+                    "<td><strong>" + c.name + "</strong></td>" +
+                    "<td><span class='gstin-mono'>" + c.gstin + "</span></td>" +
+                    "<td style='color:" + (item.unpaidMonths > 0 ? 'var(--warning)' : 'var(--success)') + "; font-weight:700;'>" + item.unpaidMonths + " Month(s) Due</td>" +
+                    "<td>&#8377;" + fmtINR(item.billed) + "</td>" +
+                    "<td style='color:var(--success);'>&#8377;" + fmtINR(item.collected) + "</td>" +
+                    "<td style='color:" + (item.pending > 0 ? 'var(--danger)' : 'var(--success)') + "; font-weight:800;'>&#8377;" + fmtINR(item.pending) + "</td>" +
+                    "<td>" +
+                        "<button type='button' class='btn-inline btn-whatsapp' onclick=\"sendFirmFeeReminderWa('" + c.id + "', " + item.pending + ")\">&#128241; WA Dues</button> " +
+                        "<button type='button' class='btn-inline btn-fee-passbook' onclick=\"openFeePassbookModal('" + c.id + "')\">Passbook</button>" +
+                    "</td>";
+                tbody.appendChild(tr);
+            });
+        };
+
+        window.sendFirmFeeReminderWa = function(clientId, pendingAmt) {
+            var client = db.find(function(c) { return c.id === clientId; });
+            if (!client || pendingAmt <= 0) return showToast("No outstanding dues for this client");
+            var firm = practiceConfig.firmName || "Tax Compliance Desk";
+            var text = "Dear *" + client.name + "*,\n\nGentle reminder from *" + firm + "* that your accumulated professional retainer dues total *Rs. " + fmtINR(pendingAmt) + "*.\n\n" +
+                       (practiceConfig.upiId ? "You can pay via UPI: *" + practiceConfig.upiId + "*\n\n" : "") +
+                       "Please clear the pending backlog at your earliest convenience. Thank you!\n\nRegards,\n*" + firm + "*";
+            var phoneParam = (client.phone && client.phone.length === 10) ? ("phone=91" + client.phone + "&") : "";
+            window.open("https://api.whatsapp.com/send?" + phoneParam + "text=" + encodeURIComponent(text), '_blank');
         };
 
         // --- DETAILED GSTR-9 ENGINE (TABLES 4, 6, 8, 9 & 12-MONTH BREAKDOWN) ---
@@ -2967,6 +3671,7 @@
                 "</table>";
 
             document.body.classList.remove('print-mode-fee');
+            document.body.classList.remove('print-mode-rfd01');
             document.body.classList.add('print-mode-gstr9');
             setTimeout(function() {
                 window.print();
@@ -3118,6 +3823,7 @@
                 "</div>";
 
             document.body.classList.remove('print-mode-gstr9');
+            document.body.classList.remove('print-mode-rfd01');
             document.body.classList.add('print-mode-fee');
 
             var qrImg = document.getElementById('dynamic-fee-qr-img');
@@ -3138,6 +3844,948 @@
             } else {
                 launchPrint();
             }
+        };
+                // --- MODAL 8: RFD-01 INVERTED DUTY STRUCTURE (INVITC) REFUND ARCHITECT ---
+        function formatDateDDMMYYYY(raw) {
+            if (!raw) return "";
+            var s = String(raw).trim();
+            if (!s) return "";
+            var monthNames = {
+                jan: "01", feb: "02", mar: "03", apr: "04", may: "05", jun: "06",
+                jul: "07", aug: "08", sep: "09", oct: "10", nov: "11", dec: "12"
+            };
+            var alphaMatch = s.match(/^(\d{1,2})[\s\-\/\.]+([A-Za-z]{3,})[\s\-\/\.,]+(\d{2,4})$/);
+            if (alphaMatch) {
+                var dd = String(alphaMatch[1]).padStart(2, '0');
+                var mKey = alphaMatch[2].substring(0, 3).toLowerCase();
+                var mm = monthNames[mKey] || "01";
+                var yy = String(alphaMatch[3]);
+                if (yy.length === 2) yy = "20" + yy;
+                return dd + "-" + mm + "-" + yy;
+            }
+            var clean = s.replace(/[\/\.]/g, '-');
+            var parts = clean.split('-');
+            if (parts.length === 3) {
+                if (parts[0].length === 4) {
+                    return parts[2].substring(0, 2).padStart(2, '0') + "-" + parts[1].padStart(2, '0') + "-" + parts[0];
+                }
+                var yr = parts[2].substring(0, 4);
+                if (yr.length === 2) yr = "20" + yr;
+                return parts[0].padStart(2, '0') + "-" + parts[1].padStart(2, '0') + "-" + yr;
+            }
+            return clean;
+        }
+
+        function formatReturnPeriod2B(raw) {
+            if (!raw) return "06-2025";
+            var s = String(raw).trim();
+            var mMap = {
+                jan: "01", feb: "02", mar: "03", apr: "04", may: "05", jun: "06",
+                jul: "07", aug: "08", sep: "09", oct: "10", nov: "11", dec: "12"
+            };
+            if (/^\d{2}-\d{4}$/.test(s)) return s;
+            if (/^\d{6}$/.test(s)) {
+                var first2 = parseInt(s.substring(0, 2), 10);
+                if (first2 >= 1 && first2 <= 12) return s.substring(0, 2) + "-" + s.substring(2, 6);
+                return s.substring(4, 6) + "-" + s.substring(0, 4);
+            }
+            if (/^\d{4}-\d{2}$/.test(s)) {
+                return s.substring(5, 7) + "-" + s.substring(0, 4);
+            }
+            var mMatch = s.match(/([A-Za-z]{3})[a-z]*[\s\'\-\/]*(\d{2,4})/);
+            if (mMatch) {
+                var mCode = mMap[mMatch[1].toLowerCase()] || "06";
+                var yCode = mMatch[2].length === 2 ? ("20" + mMatch[2]) : mMatch[2];
+                return mCode + "-" + yCode;
+            }
+            return s;
+        }
+
+        function parseCsvPreservingStrings(csvText) {
+            var rows = [];
+            var lines = csvText.replace(/\r\n/g, '\n').replace(/\r/g, '\n').split('\n');
+            for (var i = 0; i < lines.length; i++) {
+                var line = lines[i];
+                if (!line || !line.trim()) continue;
+                var row = [];
+                var cur = "";
+                var inQuotes = false;
+                for (var j = 0; j < line.length; j++) {
+                    var ch = line[j];
+                    if (ch === '"') {
+                        if (inQuotes && line[j + 1] === '"') {
+                            cur += '"'; j++;
+                        } else {
+                            inQuotes = !inQuotes;
+                        }
+                    } else if (ch === ',' && !inQuotes) {
+                        row.push(cur.trim());
+                        cur = "";
+                    } else {
+                        cur += ch;
+                    }
+                }
+                row.push(cur.trim());
+                rows.push(row);
+            }
+            return rows;
+        }
+
+        async function extractRowsFromTabularFile(file) {
+            var fName = file.name.toLowerCase();
+            if (fName.endsWith('.csv')) {
+                var txt = await file.text();
+                return parseCsvPreservingStrings(txt);
+            }
+            if ((fName.endsWith('.xlsx') || fName.endsWith('.xls')) && window.XLSX) {
+                var buf = await file.arrayBuffer();
+                var wb = window.XLSX.read(buf, { type: 'array', raw: false });
+                var allRows = [];
+                wb.SheetNames.forEach(function(sName) {
+                    var ws = wb.Sheets[sName];
+                    var sheetRows = window.XLSX.utils.sheet_to_json(ws, { header: 1, raw: false, defval: "" });
+                    if (sheetRows && sheetRows.length > 0) {
+                        allRows = allRows.concat(sheetRows);
+                    }
+                });
+                return allRows;
+            }
+            return [];
+        }
+
+        function parseInwardRowsFromTable(rows) {
+            var list = [];
+            var hIdx = -1;
+            var colMap = {};
+
+            for (var i = 0; i < Math.min(rows.length, 25); i++) {
+                var rStr = (rows[i] || []).join(" ").toLowerCase();
+                if (rStr.indexOf("gstin") !== -1 && (rStr.indexOf("invoice") !== -1 || rStr.indexOf("taxable") !== -1)) {
+                    hIdx = i;
+                    (rows[i] || []).forEach(function(cell, cIdx) {
+                        var h = String(cell || "").toLowerCase().trim();
+                        if (h.indexOf("gstin") !== -1 && colMap.stin === undefined) colMap.stin = cIdx;
+                        else if ((h.indexOf("trade") !== -1 || h.indexOf("legal") !== -1 || h.indexOf("supplier") !== -1) && colMap.sname === undefined) colMap.sname = cIdx;
+                        else if ((h.indexOf("invoice no") !== -1 || h.indexOf("invoice number") !== -1 || h === "inum" || h.indexOf("note no") !== -1) && colMap.inum === undefined) colMap.inum = cIdx;
+                        else if ((h.indexOf("invoice date") !== -1 || h === "idt" || h.indexOf("note date") !== -1) && colMap.idt === undefined) colMap.idt = cIdx;
+                        else if (h.indexOf("taxable") !== -1 && colMap.txval === undefined) colMap.txval = cIdx;
+                        else if ((h.indexOf("integrated") !== -1 || h === "igst") && colMap.igst === undefined) colMap.igst = cIdx;
+                        else if ((h.indexOf("central") !== -1 || h === "cgst") && colMap.cgst === undefined) colMap.cgst = cIdx;
+                        else if ((h.indexOf("state") !== -1 || h.indexOf("ut tax") !== -1 || h === "sgst") && colMap.sgst === undefined) colMap.sgst = cIdx;
+                        else if (h.indexOf("rate") !== -1 && colMap.rt === undefined) colMap.rt = cIdx;
+                        else if ((h.indexOf("period") !== -1 || h.indexOf("filing") !== -1) && colMap.prd === undefined) colMap.prd = cIdx;
+                        else if ((h.indexOf("availability") !== -1 || h.indexOf("eligible") !== -1) && colMap.itcAvl === undefined) colMap.itcAvl = cIdx;
+                        else if ((h.indexOf("supply type") !== -1 || h.indexOf("category") !== -1 || h.indexOf("goods") !== -1 || h.indexOf("invoice type") !== -1) && colMap.gType === undefined) colMap.gType = cIdx;
+                    });
+                    break;
+                }
+            }
+
+            if (hIdx === -1) return list;
+
+            for (var r = hIdx + 1; r < rows.length; r++) {
+                var row = rows[r];
+                if (!row || row.length < 4) continue;
+                var stin = String(row[colMap.stin] !== undefined ? row[colMap.stin] : "").trim().toUpperCase();
+                if (!/^[0-9]{2}[A-Z0-9]{13}$/.test(stin)) continue;
+
+                var inumRaw = String(row[colMap.inum] !== undefined ? row[colMap.inum] : "").trim();
+                if (!inumRaw) continue;
+                var inum = inumRaw.replace(/^'/, '');
+
+                var idt = formatDateDDMMYYYY(row[colMap.idt]);
+                var txval = parseFloat(String(row[colMap.txval] || "0").replace(/,/g, '')) || 0;
+                var igst = parseFloat(String(row[colMap.igst] || "0").replace(/,/g, '')) || 0;
+                var cgst = parseFloat(String(row[colMap.cgst] || "0").replace(/,/g, '')) || 0;
+                var sgst = parseFloat(String(row[colMap.sgst] || "0").replace(/,/g, '')) || 0;
+                if (txval <= 0 && (igst + cgst + sgst) <= 0) continue;
+
+                var rt = colMap.rt !== undefined ? (parseFloat(String(row[colMap.rt] || "0").replace(/[^0-9.]/g, '')) || 0) : 0;
+                if (!rt && txval > 0) {
+                    rt = round2(((igst + cgst + sgst) / txval) * 100);
+                }
+
+                var rawAvl = colMap.itcAvl !== undefined ? String(row[colMap.itcAvl] || "Y").trim().toLowerCase() : "y";
+                var itcAvl = (rawAvl === "n" || rawAvl === "no" || rawAvl.indexOf("not") !== -1 || rawAvl.indexOf("ineligible") !== -1) ? "N" : "Y";
+
+                var rawGType = colMap.gType !== undefined ? String(row[colMap.gType] || "Inputs").trim() : "Inputs";
+                var goodsType = "Inputs";
+                if (/service/i.test(rawGType)) goodsType = "Input Services";
+                else if (/capital/i.test(rawGType)) goodsType = "Capital Goods";
+
+                var prd2B = colMap.prd !== undefined ? formatReturnPeriod2B(row[colMap.prd]) : "06-2025";
+                var sname = colMap.sname !== undefined ? String(row[colMap.sname] || "").trim() : "";
+
+                list.push({
+                    stin: stin, sname: sname, docType: "Invoice/Bill of Entry",
+                    inum: inum, idt: idt, rt: rt,
+                    txval: round2(txval), igst: round2(igst), cgst: round2(cgst), sgst: round2(sgst),
+                    itcAvl: itcAvl, returnPeriod2B: prd2B, goodsType: goodsType
+                });
+            }
+            return list;
+        }
+
+        function parseOutwardRowsFromTable(rows) {
+            var list = [];
+            var hIdx = -1;
+            var colMap = {};
+
+            for (var i = 0; i < Math.min(rows.length, 25); i++) {
+                var rStr = (rows[i] || []).join(" ").toLowerCase();
+                if ((rStr.indexOf("invoice") !== -1 || rStr.indexOf("oinum") !== -1) && rStr.indexOf("taxable") !== -1) {
+                    hIdx = i;
+                    (rows[i] || []).forEach(function(cell, cIdx) {
+                        var h = String(cell || "").toLowerCase().trim();
+                        if ((h.indexOf("invoice no") !== -1 || h.indexOf("invoice number") !== -1 || h === "oinum" || h === "inum") && colMap.inum === undefined) colMap.inum = cIdx;
+                        else if ((h.indexOf("invoice date") !== -1 || h === "oidt" || h === "idt" || h === "date") && colMap.idt === undefined) colMap.idt = cIdx;
+                        else if (h.indexOf("taxable") !== -1 && colMap.txval === undefined) colMap.txval = cIdx;
+                        else if (h.indexOf("rate") !== -1 && colMap.rt === undefined) colMap.rt = cIdx;
+                        else if ((h.indexOf("integrated") !== -1 || h === "igst" || h === "oiamt") && colMap.igst === undefined) colMap.igst = cIdx;
+                        else if ((h.indexOf("central") !== -1 || h === "cgst" || h === "ocamt") && colMap.cgst === undefined) colMap.cgst = cIdx;
+                        else if ((h.indexOf("state") !== -1 || h.indexOf("ut tax") !== -1 || h === "sgst" || h === "osamt") && colMap.sgst === undefined) colMap.sgst = cIdx;
+                        else if ((h.indexOf("recipient") !== -1 || h.indexOf("gstin") !== -1) && colMap.ctin === undefined) colMap.ctin = cIdx;
+                    });
+                    break;
+                }
+            }
+
+            if (hIdx === -1) return list;
+
+            for (var r = hIdx + 1; r < rows.length; r++) {
+                var row = rows[r];
+                if (!row || row.length < 3) continue;
+                var inumRaw = String(row[colMap.inum] !== undefined ? row[colMap.inum] : "").trim();
+                if (!inumRaw || inumRaw.toLowerCase().indexOf("total") !== -1) continue;
+                var inum = inumRaw.replace(/^'/, '');
+
+                var idt = formatDateDDMMYYYY(row[colMap.idt]);
+                var txval = parseFloat(String(row[colMap.txval] || "0").replace(/,/g, '')) || 0;
+                var igst = colMap.igst !== undefined ? (parseFloat(String(row[colMap.igst] || "0").replace(/,/g, '')) || 0) : 0;
+                var cgst = colMap.cgst !== undefined ? (parseFloat(String(row[colMap.cgst] || "0").replace(/,/g, '')) || 0) : 0;
+                var sgst = colMap.sgst !== undefined ? (parseFloat(String(row[colMap.sgst] || "0").replace(/,/g, '')) || 0) : 0;
+                var rt = colMap.rt !== undefined ? (parseFloat(String(row[colMap.rt] || "0").replace(/[^0-9.]/g, '')) || 0) : 0;
+
+                if (txval <= 0) continue;
+                if (!rt && txval > 0) {
+                    rt = round2(((igst + cgst + sgst) / txval) * 100);
+                }
+                if ((igst + cgst + sgst) === 0 && rt > 0) {
+                    var calcTax = txval * (rt / 100);
+                    cgst = round2(calcTax / 2);
+                    sgst = round2(calcTax / 2);
+                }
+
+                list.push({
+                    ostype: "B2B",
+                    odtype: "Invoice/Bill of Entry",
+                    inum: inum,
+                    idt: idt,
+                    rt: rt,
+                    txval: round2(txval),
+                    oval: round2(txval),
+                    igst: round2(igst),
+                    cgst: round2(cgst),
+                    sgst: round2(sgst)
+                });
+            }
+            return list;
+        }
+
+        window.openRfd01Modal = function(clientId) {
+            var sel = document.getElementById('rfd-client-select');
+            sel.innerHTML = '<option value="">-- Select Client from Database --</option>';
+            db.forEach(function(c) {
+                var opt = document.createElement('option');
+                opt.value = c.id;
+                opt.textContent = c.name + " (" + c.gstin + ")";
+                if (clientId && c.id === clientId) opt.selected = true;
+                sel.appendChild(opt);
+            });
+            document.getElementById('rfd01-modal').style.display = 'flex';
+            if (clientId) {
+                loadClientIntoRfd01();
+            } else if (rfdState.inwardRaw.length === 0 && rfdState.outwardRaw.length === 0) {
+                loadSampleRfd01Data(true);
+            } else {
+                runRfd01Calculation();
+            }
+        };
+
+        window.loadSampleRfd01Data = function(silent) {
+            document.getElementById('rfd-gstin').value = "09HVSPS7502B1Z4";
+            document.getElementById('rfd-legal-name').value = "Sample Packaging Industries";
+            document.getElementById('rfd-name').value = "Apex Corrugated & Packaging Works";
+            document.getElementById('rfd-from-fp').value = "052025";
+            document.getElementById('rfd-to-fp').value = "032026";
+            document.getElementById('rfd-hsn').value = "4819";
+
+            rfdState.inwardRaw = [
+                { stin: "09BFKPS8022J1ZX", sname: "Kraft Paper Mills", docType: "B2B", inum: "26", idt: "02-06-2025", rt: 12, txval: 23465.75, igst: 0, cgst: 1407.95, sgst: 1407.95, itcAvl: "Y", returnPeriod2B: "06-2025", goodsType: "Inputs" },
+                { stin: "09AAACP4512M1Z2", sname: "Bharat Polymers Ltd", docType: "B2B", inum: "08", idt: "14-07-2025", rt: 18, txval: 185400.00, igst: 0, cgst: 16686.00, sgst: 16686.00, itcAvl: "Y", returnPeriod2B: "07-2025", goodsType: "Inputs" },
+                { stin: "07BBLPM1120K1Z9", sname: "Delhi Adhesives Co", docType: "B2B", inum: "0045", idt: "21-08-2025", rt: 18, txval: 92000.00, igst: 16560.00, cgst: 0, sgst: 0, itcAvl: "Y", returnPeriod2B: "08-2025", goodsType: "Inputs" },
+                { stin: "09CCDPP9011A1Z5", sname: "Local Traders (5% Excluded)", docType: "B2B", inum: "112", idt: "10-09-2025", rt: 5, txval: 45000.00, igst: 0, cgst: 1125.00, sgst: 1125.00, itcAvl: "Y", returnPeriod2B: "09-2025", goodsType: "Inputs" },
+                { stin: "09FFGPP2233E1Z1", sname: "Freight & Audit Services", docType: "B2B", inum: "SRV-09", idt: "19-10-2025", rt: 18, txval: 15000.00, igst: 0, cgst: 1350.00, sgst: 1350.00, itcAvl: "Y", returnPeriod2B: "10-2025", goodsType: "Input Services" }
+            ];
+
+            rfdState.outwardRaw = [
+                { ostype: "B2B", odtype: "Invoice/Bill of Entry", inum: "01", idt: "17-06-2025", rt: 12, txval: 4530.00, oval: 4530.00, igst: 0, cgst: 271.80, sgst: 271.80 },
+                { ostype: "B2B", odtype: "Invoice/Bill of Entry", inum: "02", idt: "19-07-2025", rt: 5, txval: 245000.00, oval: 245000.00, igst: 0, cgst: 6125.00, sgst: 6125.00 },
+                { ostype: "B2B", odtype: "Invoice/Bill of Entry", inum: "09", idt: "12-08-2025", rt: 5, txval: 242703.50, oval: 242703.50, igst: 0, cgst: 6067.59, sgst: 6067.59 },
+                { ostype: "B2B", odtype: "Invoice/Bill of Entry", inum: "22", idt: "20-09-2025", rt: 12, txval: 200.00, oval: 200.00, igst: 0, cgst: 12.00, sgst: 12.00 },
+                { ostype: "B2B", odtype: "Invoice/Bill of Entry", inum: "32", idt: "17-11-2025", rt: 18, txval: 58000.00, oval: 58000.00, igst: 0, cgst: 5220.00, sgst: 5220.00 }
+            ];
+
+            document.getElementById('rfd-ecl-end-i').value = "16560.00";
+            document.getElementById('rfd-ecl-end-c').value = "15000.00";
+            document.getElementById('rfd-ecl-end-s').value = "15000.00";
+
+            document.getElementById('rfd-ecl-fil-i').value = "16560.00";
+            document.getElementById('rfd-ecl-fil-c').value = "14200.00";
+            document.getElementById('rfd-ecl-fil-s').value = "14200.00";
+
+            document.getElementById('rfd-adj-turnover').value = "";
+            document.getElementById('rfd-services-itc').value = "2700.00";
+
+            runRfd01Calculation();
+            if (!silent) showToast("Sample INVITC Dataset Loaded (Leading Zeros & Filters Active)");
+        };
+
+        window.loadClientIntoRfd01 = function() {
+            var cid = document.getElementById('rfd-client-select').value;
+            if (!cid) return;
+            var client = db.find(function(c) { return c.id === cid; });
+            if (!client) return;
+
+            document.getElementById('rfd-gstin').value = client.gstin || '';
+            document.getElementById('rfd-legal-name').value = client.name || '';
+            document.getElementById('rfd-name').value = client.name || '';
+
+            var combined2b = [];
+            var periods = Object.keys(client.history || {}).sort();
+            periods.forEach(function(pk) {
+                var h = client.history[pk];
+                if (Array.isArray(h.inv2bList) && h.inv2bList.length > 0) {
+                    combined2b = combined2b.concat(h.inv2bList);
+                }
+            });
+
+            if (periods.length > 0) {
+                var lastPeriod = periods[periods.length - 1];
+                var due = getClientDueDates(client, lastPeriod);
+                var op = calculateCumulativeITC(client, lastPeriod);
+                var net = computeTaxEngine(client.history[lastPeriod], due.r3bDueDate, op, client.scheme);
+                document.getElementById('rfd-ecl-end-i').value = round2(net.closingItc.igst).toFixed(2);
+                document.getElementById('rfd-ecl-end-c').value = round2(net.closingItc.cgst).toFixed(2);
+                document.getElementById('rfd-ecl-end-s').value = round2(net.closingItc.sgst).toFixed(2);
+                document.getElementById('rfd-ecl-fil-i').value = round2(net.closingItc.igst).toFixed(2);
+                document.getElementById('rfd-ecl-fil-c').value = round2(net.closingItc.cgst).toFixed(2);
+                document.getElementById('rfd-ecl-fil-s').value = round2(net.closingItc.sgst).toFixed(2);
+            }
+
+            if (combined2b.length > 0) {
+                rfdState.inwardRaw = combined2b;
+                showToast("Loaded " + combined2b.length + " 2B invoices from client history!");
+            } else {
+                showToast("Loaded " + client.name + " metadata. Upload 2B & R1 files to compute.");
+            }
+            runRfd01Calculation();
+        };
+
+        window.handleRfd01InwardUpload = async function(event) {
+            var files = event.target.files;
+            if (!files || files.length === 0) return;
+            var parsedList = [];
+
+            for (var i = 0; i < files.length; i++) {
+                var file = files[i];
+                var fName = file.name.toLowerCase();
+                try {
+                    if (fName.endsWith('.json') || file.type === 'application/json') {
+                        var txt = await file.text();
+                        var j = JSON.parse(txt);
+                        var root = j.data || j;
+                        var arr = extract2BInvoiceListFromJson(root);
+                        parsedList = parsedList.concat(arr);
+                    } else {
+                        var tableRows = await extractRowsFromTabularFile(file);
+                        var csvArr = parseInwardRowsFromTable(tableRows);
+                        parsedList = parsedList.concat(csvArr);
+                    }
+                } catch (e) {
+                    console.error("RFD-01 inward file error:", file.name, e);
+                }
+            }
+            if (parsedList.length > 0) {
+                rfdState.inwardRaw = parsedList;
+                showToast("RFD-01: Ingested " + parsedList.length + " GSTR-2B inward records!");
+                runRfd01Calculation();
+            } else {
+                alert("Could not parse inward GSTR-2B file(s). Ensure columns include Supplier GSTIN, Invoice No, Date, Taxable Value, and IGST/CGST/SGST.");
+            }
+            event.target.value = '';
+        };
+
+        window.handleRfd01OutwardUpload = async function(event) {
+            var files = event.target.files;
+            if (!files || files.length === 0) return;
+            var parsedList = [];
+
+            for (var i = 0; i < files.length; i++) {
+                var file = files[i];
+                var fName = file.name.toLowerCase();
+                try {
+                    if (fName.endsWith('.json') || file.type === 'application/json') {
+                        var txt = await file.text();
+                        var j = JSON.parse(txt);
+                        var root = j.data || j;
+                        (root.b2b || []).forEach(function(sup) {
+                            (sup.inv || []).forEach(function(inv) {
+                                var inum = String(inv.inum !== undefined ? inv.inum : "").trim();
+                                var idt = formatDateDDMMYYYY(inv.dt || "");
+                                (inv.itms || []).forEach(function(it) {
+                                    var d = it.itm_det || {};
+                                    var tx = round2(d.txval || 0);
+                                    if (tx <= 0) return;
+                                    parsedList.push({
+                                        ostype: "B2B",
+                                        odtype: "Invoice/Bill of Entry",
+                                        inum: inum,
+                                        idt: idt,
+                                        rt: Number(d.rt || 0),
+                                        txval: tx,
+                                        oval: tx,
+                                        igst: round2(d.iamt || 0),
+                                        cgst: round2(d.camt || 0),
+                                        sgst: round2(d.samt || 0)
+                                    });
+                                });
+                            });
+                        });
+                    } else {
+                        var tableRows = await extractRowsFromTabularFile(file);
+                        var outArr = parseOutwardRowsFromTable(tableRows);
+                        parsedList = parsedList.concat(outArr);
+                    }
+                } catch (e) {
+                    console.error("RFD-01 outward file error:", file.name, e);
+                }
+            }
+            if (parsedList.length > 0) {
+                rfdState.outwardRaw = parsedList;
+                showToast("RFD-01: Ingested " + parsedList.length + " GSTR-1 outward records!");
+                runRfd01Calculation();
+            } else {
+                alert("Could not parse GSTR-1 outward file(s). Ensure columns include Invoice No, Date, Rate, and Taxable Value.");
+            }
+            event.target.value = '';
+        };
+
+        window.runRfd01Calculation = function() {
+            var gstin = document.getElementById('rfd-gstin').value.trim().toUpperCase();
+            var legalName = document.getElementById('rfd-legal-name').value.trim();
+            var tradeName = document.getElementById('rfd-name').value.trim();
+            var fromFp = document.getElementById('rfd-from-fp').value.trim();
+            var toFp = document.getElementById('rfd-to-fp').value.trim();
+            var hsnCode = document.getElementById('rfd-hsn').value.trim() || "4819";
+
+            var adjTurnoverOverride = parseFloat(document.getElementById('rfd-adj-turnover').value) || 0;
+            var manualServicesItc = parseFloat(document.getElementById('rfd-services-itc').value) || 0;
+
+            // 1. INWARD FILTERING (Rule 89(5) & Circular 135/05/2020-GST)
+            var raw2BTot = { count: 0, val: 0, iamt: 0, camt: 0, samt: 0 };
+            var rowBLowerRate = { count: 0, val: 0, iamt: 0, camt: 0, samt: 0 };
+            var rowCServicesCap = { count: 0, val: 0, iamt: 0, camt: 0, samt: 0 };
+            var eligibleInward = [];
+
+            rfdState.inwardRaw.forEach(function(it) {
+                var tx = round2(it.txval || 0);
+                var ig = round2(it.igst || 0);
+                var cg = round2(it.cgst || 0);
+                var sg = round2(it.sgst || 0);
+                var rate = Number(it.rt || 0);
+                if (!rate && tx > 0) rate = round2(((ig + cg + sg) / tx) * 100);
+
+                raw2BTot.count++;
+                raw2BTot.val = round2(raw2BTot.val + tx);
+                raw2BTot.iamt = round2(raw2BTot.iamt + ig);
+                raw2BTot.camt = round2(raw2BTot.camt + cg);
+                raw2BTot.samt = round2(raw2BTot.samt + sg);
+
+                var isInputsOnly = (it.goodsType === 'Inputs' || !it.goodsType) && (it.itcAvl !== 'N');
+                if (!isInputsOnly) {
+                    rowCServicesCap.count++;
+                    rowCServicesCap.val = round2(rowCServicesCap.val + tx);
+                    rowCServicesCap.iamt = round2(rowCServicesCap.iamt + ig);
+                    rowCServicesCap.camt = round2(rowCServicesCap.camt + cg);
+                    rowCServicesCap.samt = round2(rowCServicesCap.samt + sg);
+                } else if (rate <= 5.5) {
+                    rowBLowerRate.count++;
+                    rowBLowerRate.val = round2(rowBLowerRate.val + tx);
+                    rowBLowerRate.iamt = round2(rowBLowerRate.iamt + ig);
+                    rowBLowerRate.camt = round2(rowBLowerRate.camt + cg);
+                    rowBLowerRate.samt = round2(rowBLowerRate.samt + sg);
+                } else {
+                    eligibleInward.push({
+                        _src: it,
+                        stin: it.stin,
+                        sname: it.sname || "",
+                        inum: String(it.inum),
+                        idt: formatDateDDMMYYYY(it.idt),
+                        returnPeriod2B: formatReturnPeriod2B(it.returnPeriod2B),
+                        rt: rate,
+                        txval: tx,
+                        igst: ig,
+                        cgst: cg,
+                        sgst: sg
+                    });
+                }
+            });
+
+            // 2. OUTWARD FILTERING (Section 54(3)(ii): Exclude >= 18% non-inverted sales from Statement 1A & Col 1/2)
+            var eligibleOutward = [];
+            var excludedOutward = { count: 0, val: 0, iamt: 0, camt: 0, samt: 0 };
+            var totalGstr1Turnover = 0;
+
+            rfdState.outwardRaw.forEach(function(ot) {
+                var tx = round2(ot.oval !== undefined ? ot.oval : (ot.txval || 0));
+                var ig = round2(ot.igst || 0);
+                var cg = round2(ot.cgst || 0);
+                var sg = round2(ot.sgst || 0);
+                var rt = Number(ot.rt || 0);
+                if (!rt && tx > 0) rt = round2(((ig + cg + sg) / tx) * 100);
+
+                totalGstr1Turnover = round2(totalGstr1Turnover + tx);
+
+                if (rt > 0 && rt < 18) {
+                    eligibleOutward.push({
+                        _src: ot,
+                        ostype: "B2B",
+                        odtype: "Invoice/Bill of Entry",
+                        inum: String(ot.inum),
+                        idt: formatDateDDMMYYYY(ot.idt),
+                        rt: rt,
+                        oval: tx,
+                        txval: tx,
+                        igst: ig,
+                        cgst: cg,
+                        sgst: sg
+                    });
+                } else {
+                    excludedOutward.count++;
+                    excludedOutward.val = round2(excludedOutward.val + tx);
+                    excludedOutward.iamt = round2(excludedOutward.iamt + ig);
+                    excludedOutward.camt = round2(excludedOutward.camt + cg);
+                    excludedOutward.samt = round2(excludedOutward.samt + sg);
+                }
+            });
+
+            // 3. STATEMENT 1A TOTALS & RFD-01 TABLE-1 COMPUTATION
+            var stmt1AInwardTot = { val: 0, iamt: 0, camt: 0, samt: 0 };
+            eligibleInward.forEach(function(it) {
+                stmt1AInwardTot.val = round2(stmt1AInwardTot.val + it.txval);
+                stmt1AInwardTot.iamt = round2(stmt1AInwardTot.iamt + it.igst);
+                stmt1AInwardTot.camt = round2(stmt1AInwardTot.camt + it.cgst);
+                stmt1AInwardTot.samt = round2(stmt1AInwardTot.samt + it.sgst);
+            });
+
+            var stmt1AOutwardTot = { oval: 0, iamt: 0, camt: 0, samt: 0 };
+            eligibleOutward.forEach(function(ot) {
+                stmt1AOutwardTot.oval = round2(stmt1AOutwardTot.oval + ot.oval);
+                stmt1AOutwardTot.iamt = round2(stmt1AOutwardTot.iamt + ot.igst);
+                stmt1AOutwardTot.camt = round2(stmt1AOutwardTot.camt + ot.cgst);
+                stmt1AOutwardTot.samt = round2(stmt1AOutwardTot.samt + ot.sgst);
+            });
+
+            // Portal Ceiling Rule: Col (1) MUST NOT exceed Statement 1A outward taxable sum by even Rs. 0.01
+            var col1Turnover = round2(stmt1AOutwardTot.oval);
+            var col3AdjTurnover = adjTurnoverOverride > 0
+                ? round2(adjTurnoverOverride)
+                : (totalGstr1Turnover >= col1Turnover && totalGstr1Turnover > 0 ? round2(totalGstr1Turnover) : col1Turnover);
+
+            var col4NetItcI = round2(stmt1AInwardTot.iamt);
+            var col4NetItcC = round2(stmt1AInwardTot.camt);
+            var col4NetItcS = round2(stmt1AInwardTot.samt);
+            var col4NetItcTot = round2(col4NetItcI + col4NetItcC + col4NetItcS);
+
+            // Rule 89(5) Ratio for Col (2): Net ITC on Inputs / Total ITC on Inputs & Input Services
+            var detectedServicesItc = round2(rowCServicesCap.iamt + rowCServicesCap.camt + rowCServicesCap.samt);
+            var servicesItcUsed = manualServicesItc > 0 ? manualServicesItc : detectedServicesItc;
+            var totalInputsAndServicesItc = round2(col4NetItcTot + servicesItcUsed);
+            var rule895TaxRatio = totalInputsAndServicesItc > 0 ? (col4NetItcTot / totalInputsAndServicesItc) : 1;
+
+            var col2TaxPayableI = round2(stmt1AOutwardTot.iamt * rule895TaxRatio);
+            var col2TaxPayableC = round2(stmt1AOutwardTot.camt * rule895TaxRatio);
+            var col2TaxPayableS = round2(stmt1AOutwardTot.samt * rule895TaxRatio);
+            var col2TaxPayableTot = round2(col2TaxPayableI + col2TaxPayableC + col2TaxPayableS);
+
+            var turnoverRatio = col3AdjTurnover > 0 ? (col1Turnover / col3AdjTurnover) : 0;
+            var maxRefundI = Math.max(0, round2((col4NetItcI * turnoverRatio) - col2TaxPayableI));
+            var maxRefundC = Math.max(0, round2((col4NetItcC * turnoverRatio) - col2TaxPayableC));
+            var maxRefundS = Math.max(0, round2((col4NetItcS * turnoverRatio) - col2TaxPayableS));
+            var maxRefundTot = round2(maxRefundI + maxRefundC + maxRefundS);
+
+            // TABLE-2 & TABLE-3: CIRCULAR 125/44/2019-GST LEDGER CAPPING
+            var rawEndI = document.getElementById('rfd-ecl-end-i').value;
+            var rawEndC = document.getElementById('rfd-ecl-end-c').value;
+            var rawEndS = document.getElementById('rfd-ecl-end-s').value;
+            var rawFilI = document.getElementById('rfd-ecl-fil-i').value;
+            var rawFilC = document.getElementById('rfd-ecl-fil-c').value;
+            var rawFilS = document.getElementById('rfd-ecl-fil-s').value;
+
+            var eclEndI = rawEndI !== "" ? (parseFloat(rawEndI) || 0) : maxRefundI;
+            var eclEndC = rawEndC !== "" ? (parseFloat(rawEndC) || 0) : maxRefundC;
+            var eclEndS = rawEndS !== "" ? (parseFloat(rawEndS) || 0) : maxRefundS;
+
+            var eclFilI = rawFilI !== "" ? (parseFloat(rawFilI) || 0) : maxRefundI;
+            var eclFilC = rawFilC !== "" ? (parseFloat(rawFilC) || 0) : maxRefundC;
+            var eclFilS = rawFilS !== "" ? (parseFloat(rawFilS) || 0) : maxRefundS;
+
+            var eEndTot = round2(eclEndI + eclEndC + eclEndS);
+            var eFilTot = round2(eclFilI + eclFilC + eclFilS);
+
+            var eligRefundI = round2(Math.min(eclEndI, eclFilI, maxRefundI));
+            var eligRefundC = round2(Math.min(eclEndC, eclFilC, maxRefundC));
+            var eligRefundS = round2(Math.min(eclEndS, eclFilS, maxRefundS));
+            var eligRefundTot = round2(eligRefundI + eligRefundC + eligRefundS);
+
+            rfdState.lastResult = {
+                gstin: gstin, legalName: legalName, name: tradeName,
+                fromFp: fromFp, toFp: toFp, hsnCode: hsnCode,
+                raw2BTot: raw2BTot, rowBLowerRate: rowBLowerRate, rowCServicesCap: rowCServicesCap,
+                stmt1AInwardTot: stmt1AInwardTot, stmt1AOutwardTot: stmt1AOutwardTot,
+                excludedOutward: excludedOutward,
+                eligibleInward: eligibleInward, eligibleOutward: eligibleOutward,
+                col1Turnover: col1Turnover,
+                col2TaxPayable: { i: col2TaxPayableI, c: col2TaxPayableC, s: col2TaxPayableS, tot: col2TaxPayableTot },
+                col3AdjTurnover: col3AdjTurnover,
+                col4NetItc: { i: col4NetItcI, c: col4NetItcC, s: col4NetItcS, tot: col4NetItcTot },
+                maxRefund: { i: maxRefundI, c: maxRefundC, s: maxRefundS, tot: maxRefundTot },
+                eligRefund: { i: eligRefundI, c: eligRefundC, s: eligRefundS, tot: eligRefundTot },
+                eclEnd: { i: eclEndI, c: eclEndC, s: eclEndS, tot: eEndTot },
+                eclFil: { i: eclFilI, c: eclFilC, s: eclFilS, tot: eFilTot }
+            };
+
+            document.getElementById('rfd01-kpi-container').innerHTML =
+                "<div class='gstr9-kpi-box'>" +
+                    "<div class='summary-label'>Col (1) Inverted Turnover (Ceiling)</div>" +
+                    "<div style='font-size:1.15rem; font-weight:800; color:var(--primary); margin-top:3px;'>&#8377;" + fmtINR(col1Turnover) + "</div>" +
+                    "<div style='font-size:0.68rem; color:var(--text-muted);'>" + eligibleOutward.length + " Inv (&lt;18%) | Excl 18%: &#8377;" + fmtINR(excludedOutward.val) + "</div>" +
+                "</div>" +
+                "<div class='gstr9-kpi-box'>" +
+                    "<div class='summary-label'>Col (4) Net Eligible Input ITC</div>" +
+                    "<div style='font-size:1.15rem; font-weight:800; color:var(--success); margin-top:3px;'>&#8377;" + fmtINR(col4NetItcTot) + "</div>" +
+                    "<div style='font-size:0.68rem; color:var(--text-muted);'>" + eligibleInward.length + " Eligible Bills (&gt;5% Inputs)</div>" +
+                "</div>" +
+                "<div class='gstr9-kpi-box'>" +
+                    "<div class='summary-label'>Table-1 Col (5) Max Refund</div>" +
+                    "<div style='font-size:1.15rem; font-weight:800; color:var(--warning); margin-top:3px;'>&#8377;" + fmtINR(maxRefundTot) + "</div>" +
+                    "<div style='font-size:0.68rem; color:var(--text-muted);'>I:&#8377;" + fmtINR(maxRefundI) + " | C:&#8377;" + fmtINR(maxRefundC) + " | S:&#8377;" + fmtINR(maxRefundS) + "</div>" +
+                "</div>" +
+                "<div class='gstr9-kpi-box'>" +
+                    "<div class='summary-label'>Table-3 Eligible Refund Payout</div>" +
+                    "<div style='font-size:1.15rem; font-weight:800; color:var(--rose); margin-top:3px;'>&#8377;" + fmtINR(eligRefundTot) + "</div>" +
+                    "<div style='font-size:0.68rem; color:#fda4af;'>Capped per Circular 125/44/2019</div>" +
+                "</div>";
+
+            document.getElementById('rfd01-t1-tbody').innerHTML =
+                "<tr><td>Col (1): Turnover of inverted rated supply (Exact Statement 1A Ceiling)</td><td colspan='3'></td><td><strong>&#8377;" + col1Turnover.toFixed(2) + "</strong></td></tr>" +
+                "<tr><td>Col (2): Tax payable on inverted supply &times; (Net ITC / Total ITC)</td><td>&#8377;" + fmtINR(col2TaxPayableI) + "</td><td>&#8377;" + fmtINR(col2TaxPayableC) + "</td><td>&#8377;" + fmtINR(col2TaxPayableS) + "</td><td>&#8377;" + fmtINR(col2TaxPayableTot) + "</td></tr>" +
+                "<tr><td>Col (3): Adjusted Total Turnover (Total Turnover for Period)</td><td colspan='3'></td><td><strong>&#8377;" + col3AdjTurnover.toFixed(2) + "</strong></td></tr>" +
+                "<tr><td>Col (4): Net Input Tax Credit (Eligible Inverted Inputs Only)</td><td>&#8377;" + fmtINR(col4NetItcI) + "</td><td>&#8377;" + fmtINR(col4NetItcC) + "</td><td>&#8377;" + fmtINR(col4NetItcS) + "</td><td>&#8377;" + fmtINR(col4NetItcTot) + "</td></tr>" +
+                "<tr style='background:rgba(59,130,246,0.14); font-weight:700;'><td>Col (5): Maximum Refund = [(Col 1 &times; Col 4 / Col 3) &minus; Col 2]</td><td>&#8377;" + fmtINR(maxRefundI) + "</td><td>&#8377;" + fmtINR(maxRefundC) + "</td><td>&#8377;" + fmtINR(maxRefundS) + "</td><td><strong>&#8377;" + fmtINR(maxRefundTot) + "</strong></td></tr>";
+
+            document.getElementById('rfd01-t3-tbody').innerHTML =
+                "<tr><td>1. Balance in Electronic Credit Ledger at End of Period (ECL_End)</td><td>&#8377;" + fmtINR(eclEndI) + "</td><td>&#8377;" + fmtINR(eclEndC) + "</td><td>&#8377;" + fmtINR(eclEndS) + "</td><td>&#8377;" + fmtINR(eEndTot) + "</td></tr>" +
+                "<tr><td>2. Balance in Electronic Credit Ledger at Time of Filing (ECL_Filing)</td><td>&#8377;" + fmtINR(eclFilI) + "</td><td>&#8377;" + fmtINR(eclFilC) + "</td><td>&#8377;" + fmtINR(eclFilS) + "</td><td>&#8377;" + fmtINR(eFilTot) + "</td></tr>" +
+                "<tr><td>3. Maximum Refund Amount Computed in Table-1 Col (5)</td><td>&#8377;" + fmtINR(maxRefundI) + "</td><td>&#8377;" + fmtINR(maxRefundC) + "</td><td>&#8377;" + fmtINR(maxRefundS) + "</td><td>&#8377;" + fmtINR(maxRefundTot) + "</td></tr>" +
+                "<tr style='background:rgba(244,63,94,0.16); font-weight:800; color:#fda4af;'><td>Table-3 Eligible Refund Payout = min(ECL_End, ECL_Filing, Max_Refund)</td><td>&#8377;" + fmtINR(eligRefundI) + "</td><td>&#8377;" + fmtINR(eligRefundC) + "</td><td>&#8377;" + fmtINR(eligRefundS) + "</td><td><strong>&#8377;" + fmtINR(eligRefundTot) + "</strong></td></tr>";
+
+            var rawItcSum = round2(raw2BTot.iamt + raw2BTot.camt + raw2BTot.samt);
+            var rowBItcSum = round2(rowBLowerRate.iamt + rowBLowerRate.camt + rowBLowerRate.samt);
+            var rowCItcSum = round2(rowCServicesCap.iamt + rowCServicesCap.camt + rowCServicesCap.samt);
+
+            document.getElementById('rfd01-recon-tbody').innerHTML =
+                "<tr><td><strong>Row A:</strong> Total Inward Supplies as per Raw GSTR-2B</td><td>" + raw2BTot.count + "</td><td>&#8377;" + fmtINR(raw2BTot.val) + "</td><td>&#8377;" + fmtINR(raw2BTot.iamt) + "</td><td>&#8377;" + fmtINR(raw2BTot.camt) + "</td><td>&#8377;" + fmtINR(raw2BTot.samt) + "</td><td><strong>&#8377;" + fmtINR(rawItcSum) + "</strong></td></tr>" +
+                "<tr style='color:var(--warning);'><td><strong>Row B:</strong> Less: Equal / Lower Rate (&le;5%) Purchases Excluded (Circular 135/05/2020)</td><td>" + rowBLowerRate.count + "</td><td>&#8377;" + fmtINR(rowBLowerRate.val) + "</td><td>&#8377;" + fmtINR(rowBLowerRate.iamt) + "</td><td>&#8377;" + fmtINR(rowBLowerRate.camt) + "</td><td>&#8377;" + fmtINR(rowBLowerRate.samt) + "</td><td>&#8377;" + fmtINR(rowBItcSum) + "</td></tr>" +
+                "<tr style='color:#fca5a5;'><td><strong>Row C:</strong> Less: Input Services, Capital Goods &amp; Ineligible ITC Excluded (Rule 89(5))</td><td>" + rowCServicesCap.count + "</td><td>&#8377;" + fmtINR(rowCServicesCap.val) + "</td><td>&#8377;" + fmtINR(rowCServicesCap.iamt) + "</td><td>&#8377;" + fmtINR(rowCServicesCap.camt) + "</td><td>&#8377;" + fmtINR(rowCServicesCap.samt) + "</td><td>&#8377;" + fmtINR(rowCItcSum) + "</td></tr>" +
+                "<tr style='background:rgba(16,185,129,0.14); font-weight:800; color:#6ee7b7;'><td><strong>Row D:</strong> Net Eligible Inverted Inputs (Statement 1A &amp; Annexure B = A &minus; B &minus; C)</td><td>" + eligibleInward.length + "</td><td>&#8377;" + fmtINR(stmt1AInwardTot.val) + "</td><td>&#8377;" + fmtINR(stmt1AInwardTot.iamt) + "</td><td>&#8377;" + fmtINR(stmt1AInwardTot.camt) + "</td><td>&#8377;" + fmtINR(stmt1AInwardTot.samt) + "</td><td><strong>&#8377;" + fmtINR(col4NetItcTot) + "</strong></td></tr>";
+
+            var inTbody = document.getElementById('rfd01-inward-tbody');
+            inTbody.innerHTML = '';
+            eligibleInward.forEach(function(it, idx) {
+                var tr = document.createElement('tr');
+                tr.innerHTML =
+                    "<td>" + (idx + 1) + "</td>" +
+                    "<td><span class='gstin-mono'>" + it.stin + "</span></td>" +
+                    "<td><input type='text' class='arn-edit' style='width:86px; margin:0; font-weight:700;' value='" + it.inum + "' title='Click to edit exact Inward Invoice No' onchange=\"updateRfdInvoiceNum('IN', " + idx + ", this.value)\"></td>" +
+                    "<td>" + it.idt + "</td>" +
+                    "<td>" + it.returnPeriod2B + "</td>" +
+                    "<td>" + it.rt + "%</td>" +
+                    "<td>&#8377;" + fmtINR(it.txval) + "</td>" +
+                    "<td>&#8377;" + fmtINR(it.igst) + "</td>" +
+                    "<td>&#8377;" + fmtINR(it.cgst) + "</td>" +
+                    "<td>&#8377;" + fmtINR(it.sgst) + "</td>";
+                inTbody.appendChild(tr);
+            });
+
+            var outTbody = document.getElementById('rfd01-outward-tbody');
+            outTbody.innerHTML = '';
+            eligibleOutward.forEach(function(ot, idx) {
+                var tr = document.createElement('tr');
+                tr.innerHTML =
+                    "<td>" + (idx + 1) + "</td>" +
+                    "<td>B2B</td>" +
+                    "<td><input type='text' class='arn-edit' style='width:86px; margin:0; font-weight:700;' value='" + ot.inum + "' title='Click to edit exact GSTR-1 Outward Invoice No' onchange=\"updateRfdInvoiceNum('OUT', " + idx + ", this.value)\"></td>" +
+                    "<td>" + ot.idt + "</td>" +
+                    "<td>" + ot.rt + "%</td>" +
+                    "<td>&#8377;" + fmtINR(ot.oval) + "</td>" +
+                    "<td>&#8377;" + fmtINR(ot.igst) + "</td>" +
+                    "<td>&#8377;" + fmtINR(ot.cgst) + "</td>" +
+                    "<td>&#8377;" + fmtINR(ot.sgst) + "</td>";
+                outTbody.appendChild(tr);
+            });
+        };
+
+        window.updateRfdInvoiceNum = function(direction, idx, newVal) {
+            if (!rfdState.lastResult) return;
+            var cleanStr = String(newVal || "").trim();
+            if (direction === 'IN' && rfdState.lastResult.eligibleInward[idx]) {
+                var inRec = rfdState.lastResult.eligibleInward[idx];
+                inRec.inum = cleanStr;
+                if (inRec._src) inRec._src.inum = cleanStr;
+                showToast("Updated Inward Inv #" + (idx + 1) + " to \"" + cleanStr + "\"");
+            } else if (direction === 'OUT' && rfdState.lastResult.eligibleOutward[idx]) {
+                var outRec = rfdState.lastResult.eligibleOutward[idx];
+                outRec.inum = cleanStr;
+                if (outRec._src) outRec._src.inum = cleanStr;
+                showToast("Updated Outward Inv #" + (idx + 1) + " to \"" + cleanStr + "\"");
+            }
+        };
+
+        // --- DELIVERABLE 1: EXPORT STATEMENT 1A.JSON (OFFLINE UTILITY v2.0 PAIRED SCHEMA) ---
+        window.exportRfd01Statement1AJson = function() {
+            if (!rfdState.lastResult) runRfd01Calculation();
+            var res = rfdState.lastResult;
+            var stmtArray = [];
+            var inLen = res.eligibleInward.length;
+            var outLen = res.eligibleOutward.length;
+            var maxLen = Math.max(inLen, outLen);
+
+            for (var i = 0; i < maxLen; i++) {
+                var inv = (i < inLen) ? res.eligibleInward[i] : null;
+                var out = (i < outLen) ? res.eligibleOutward[i] : null;
+                var obj = {};
+
+                if (inv) {
+                    obj.sno = i + 1;
+                    obj.istype = "Inward Supply from Registered Person";
+                    obj.stin = String(inv.stin);
+                    obj.idtype = "Invoice/Bill of Entry";
+                    obj.inum = String(inv.inum);
+                    obj.idt = formatDateDDMMYYYY(inv.idt);
+                    obj.portcd = "";
+                    obj.val = round2(inv.txval);
+                    obj.iamt = round2(inv.igst);
+                    obj.camt = round2(inv.cgst);
+                    obj.samt = round2(inv.sgst);
+                }
+
+                if (out) {
+                    obj.ostype = "B2B";
+                    obj.odtype = "Invoice/Bill of Entry";
+                    obj.oinum = String(out.inum);
+                    obj.oidt = formatDateDDMMYYYY(out.idt);
+                    obj.oval = round2(out.oval);
+                    obj.oiamt = round2(out.igst);
+                    obj.ocamt = round2(out.cgst);
+                    obj.osamt = round2(out.sgst);
+                }
+                stmtArray.push(obj);
+            }
+
+            var payload = {
+                gstin: res.gstin || "09HVSPS7502B1Z4",
+                fromFp: res.fromFp || "052025",
+                toFp: res.toFp || "032026",
+                refundRsn: "INVITC",
+                version: "2.0",
+                stmt01A: stmtArray
+            };
+
+            var a = document.createElement('a');
+            a.href = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(payload, null, 2));
+            a.download = "Statement 1A.json";
+            document.body.appendChild(a); a.click(); a.remove();
+            showToast("Statement 1A.json (v2.0 Paired Schema) Downloaded!");
+        };
+
+        // --- DELIVERABLE 2: EXPORT ANNEXURE B.JSON (OFFLINE UTILITY v1.0 PER ADVISORY 660) ---
+        window.exportRfd01AnnexureBJson = function() {
+            if (!rfdState.lastResult) runRfd01Calculation();
+            var res = rfdState.lastResult;
+            var bArray = [];
+
+            res.eligibleInward.forEach(function(it, idx) {
+                bArray.push({
+                    sno: idx + 1,
+                    gstinOfSupplier: String(it.stin),
+                    tradeName: String(it.sname || ""),
+                    invoiceNumber: String(it.inum),
+                    invoiceDate: formatDateDDMMYYYY(it.idt),
+                    returnPeriod2B: formatReturnPeriod2B(it.returnPeriod2B),
+                    supplyType: "Inputs",
+                    hsnCode: String(res.hsnCode || "4819"),
+                    taxableValue: round2(it.txval),
+                    igst: round2(it.igst),
+                    cgst: round2(it.cgst),
+                    sgst: round2(it.sgst),
+                    cess: 0
+                });
+            });
+
+            var payload = {
+                gstin: res.gstin || "09HVSPS7502B1Z4",
+                fromFp: res.fromFp || "052025",
+                toFp: res.toFp || "032026",
+                version: "1.0",
+                annexureB: bArray
+            };
+
+            var a = document.createElement('a');
+            a.href = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(payload, null, 2));
+            a.download = "Annexure B.json";
+            document.body.appendChild(a); a.click(); a.remove();
+            showToast("Annexure B.json (v1.0 Advisory 660) Downloaded!");
+        };
+
+        // --- DELIVERABLE 3A: EXPORT RECONCILIATION & STATEMENT 1A CSV ---
+        window.exportRfd01ReconCsv = function() {
+            if (!rfdState.lastResult) runRfd01Calculation();
+            var res = rfdState.lastResult;
+            var rows = [
+                "GSTR-2B VS STATEMENT 1A RECONCILIATION & RFD-01 WORKING STATEMENT",
+                "GSTIN," + res.gstin + ",Period," + res.fromFp + " to " + res.toFp + ",HSN," + res.hsnCode,
+                "",
+                "SUMMARY RECONCILIATION,Invoice Count,Taxable Value,IGST,CGST,SGST,Total ITC",
+                "Row A: Total GSTR-2B Inward," + res.raw2BTot.count + "," + res.raw2BTot.val + "," + res.raw2BTot.iamt + "," + res.raw2BTot.camt + "," + res.raw2BTot.samt + "," + round2(res.raw2BTot.iamt + res.raw2BTot.camt + res.raw2BTot.samt),
+                "Row B: Less <=5% Excluded (Circular 135)," + res.rowBLowerRate.count + "," + res.rowBLowerRate.val + "," + res.rowBLowerRate.iamt + "," + res.rowBLowerRate.camt + "," + res.rowBLowerRate.samt + "," + round2(res.rowBLowerRate.iamt + res.rowBLowerRate.camt + res.rowBLowerRate.samt),
+                "Row C: Less Services/CapGoods/Ineligible," + res.rowCServicesCap.count + "," + res.rowCServicesCap.val + "," + res.rowCServicesCap.iamt + "," + res.rowCServicesCap.camt + "," + res.rowCServicesCap.samt + "," + round2(res.rowCServicesCap.iamt + res.rowCServicesCap.camt + res.rowCServicesCap.samt),
+                "Row D: Eligible Statement 1A & Annexure B," + res.eligibleInward.length + "," + res.stmt1AInwardTot.val + "," + res.stmt1AInwardTot.iamt + "," + res.stmt1AInwardTot.camt + "," + res.stmt1AInwardTot.samt + "," + res.col4NetItc.tot,
+                "",
+                "ELIGIBLE INWARD INVOICES (STATEMENT 1A & ANNEXURE B)",
+                "S.No,Supplier GSTIN,Supplier Name,Invoice No (Exact),Invoice Date,2B Period,HSN,Rate %,Taxable Value,IGST,CGST,SGST"
+            ];
+
+            res.eligibleInward.forEach(function(it, idx) {
+                rows.push([
+                    idx + 1,
+                    '"' + it.stin + '"',
+                    '"' + (it.sname || '') + '"',
+                    '"\t' + it.inum + '"',
+                    '"' + it.idt + '"',
+                    '"' + it.returnPeriod2B + '"',
+                    '"' + res.hsnCode + '"',
+                    it.rt, it.txval, it.igst, it.cgst, it.sgst
+                ].join(","));
+            });
+
+            var a = document.createElement('a');
+            a.href = "data:text/csv;charset=utf-8," + encodeURIComponent(rows.join("\n"));
+            a.download = "RFD01_Reconciliation_" + res.gstin + ".csv";
+            document.body.appendChild(a); a.click(); a.remove();
+            showToast("RFD-01 Reconciliation CSV Downloaded!");
+        };
+
+        // --- DELIVERABLE 3B: PRINTABLE GSTR-2B VS STATEMENT 1A RECONCILIATION PDF ---
+        window.printRfd01ReconDossier = function() {
+            if (!rfdState.lastResult) runRfd01Calculation();
+            var res = rfdState.lastResult;
+
+            var inwardRowsHtml = "";
+            res.eligibleInward.forEach(function(it, idx) {
+                inwardRowsHtml +=
+                    "<tr>" +
+                        "<td style='text-align:center;'>" + (idx + 1) + "</td>" +
+                        "<td style='text-align:left;'>" + it.stin + (it.sname ? " - " + it.sname : "") + "</td>" +
+                        "<td style='text-align:center; font-family:monospace; font-weight:bold;'>" + it.inum + "</td>" +
+                        "<td style='text-align:center;'>" + it.idt + "</td>" +
+                        "<td style='text-align:center;'>" + it.returnPeriod2B + "</td>" +
+                        "<td style='text-align:center;'>" + res.hsnCode + "</td>" +
+                        "<td>" + fmtINR(it.txval) + "</td>" +
+                        "<td>" + fmtINR(it.igst) + "</td>" +
+                        "<td>" + fmtINR(it.cgst) + "</td>" +
+                        "<td>" + fmtINR(it.sgst) + "</td>" +
+                    "</tr>";
+            });
+
+            var rawItcSum = round2(res.raw2BTot.iamt + res.raw2BTot.camt + res.raw2BTot.samt);
+            var rowBItcSum = round2(res.rowBLowerRate.iamt + res.rowBLowerRate.camt + res.rowBLowerRate.samt);
+            var rowCItcSum = round2(res.rowCServicesCap.iamt + res.rowCServicesCap.camt + res.rowCServicesCap.samt);
+
+            var container = document.getElementById('print-rfd01-area');
+            container.innerHTML =
+                "<div class='print-header'>" +
+                    "<div><div style='font-weight:900; font-size:17px;'>" + practiceConfig.firmName + "</div></div>" +
+                    "<div style='text-align:right;'>" +
+                        "<h1>Form GST RFD-01 &mdash; GSTR-2B vs. Statement 1A Reconciliation &amp; Working Dossier</h1>" +
+                        "<p style='font-size:11px; color:#475569;'>Section 54(3)(ii) &bull; Rule 89(5) &bull; Circular 135/05/2020-GST &amp; 125/44/2019-GST &bull; Date: " + new Date().toLocaleDateString('en-IN') + "</p>" +
+                    "</div>" +
+                "</div>" +
+                "<div class='print-details'>" +
+                    "<div>" +
+                        "<strong>Taxpayer GSTIN:</strong> " + res.gstin + "<br>" +
+                        "<strong>Legal / Trade Name:</strong> " + (res.legalName || res.name || 'N/A') + "<br>" +
+                        "<strong>Principal HSN Code:</strong> " + res.hsnCode + " (Inputs)" +
+                    "</div>" +
+                    "<div style='text-align:right;'>" +
+                        "<strong>Refund Period (fromFp &ndash; toFp):</strong> " + res.fromFp + " to " + res.toFp + "<br>" +
+                        "<strong>Statement 1A Invoices:</strong> " + res.eligibleInward.length + " Inward / " + res.eligibleOutward.length + " Outward<br>" +
+                        "<strong>Table-3 Net Eligible Refund Payout:</strong> &#8377;" + fmtINR(res.eligRefund.tot) +
+                    "</div>" +
+                "</div>" +
+
+                "<div class='print-section-title'>Part 1: GSTR-2B vs. Statement 1A &amp; Annexure B Summary Reconciliation Statement</div>" +
+                "<table class='print-table'>" +
+                    "<thead><tr><th>Reconciliation Particulars (Circular No. 135/05/2020-GST &amp; Rule 89(5))</th><th>Invoices</th><th>Taxable Val (&#8377;)</th><th>IGST (&#8377;)</th><th>CGST (&#8377;)</th><th>SGST (&#8377;)</th><th>Total ITC (&#8377;)</th></tr></thead>" +
+                    "<tbody>" +
+                        "<tr><td><strong>Row A:</strong> Total Inward Supplies auto-populated in GSTR-2B</td><td style='text-align:center;'>" + res.raw2BTot.count + "</td><td>" + fmtINR(res.raw2BTot.val) + "</td><td>" + fmtINR(res.raw2BTot.iamt) + "</td><td>" + fmtINR(res.raw2BTot.camt) + "</td><td>" + fmtINR(res.raw2BTot.samt) + "</td><td><strong>" + fmtINR(rawItcSum) + "</strong></td></tr>" +
+                        "<tr><td><strong>Row B:</strong> Less: Equal / Lower Rate (&le;5%) Inward Inputs Excluded</td><td style='text-align:center;'>" + res.rowBLowerRate.count + "</td><td>" + fmtINR(res.rowBLowerRate.val) + "</td><td>" + fmtINR(res.rowBLowerRate.iamt) + "</td><td>" + fmtINR(res.rowBLowerRate.camt) + "</td><td>" + fmtINR(res.rowBLowerRate.samt) + "</td><td>" + fmtINR(rowBItcSum) + "</td></tr>" +
+                        "<tr><td><strong>Row C:</strong> Less: Input Services, Capital Goods &amp; Ineligible ITC Excluded</td><td style='text-align:center;'>" + res.rowCServicesCap.count + "</td><td>" + fmtINR(res.rowCServicesCap.val) + "</td><td>" + fmtINR(res.rowCServicesCap.iamt) + "</td><td>" + fmtINR(res.rowCServicesCap.camt) + "</td><td>" + fmtINR(res.rowCServicesCap.samt) + "</td><td>" + fmtINR(rowCItcSum) + "</td></tr>" +
+                        "<tr class='print-total'><td><strong>Row D:</strong> Net Eligible Inverted Inputs Claimed in Statement 1A &amp; Annexure B (A &minus; B &minus; C)</td><td style='text-align:center;'>" + res.eligibleInward.length + "</td><td>&#8377;" + fmtINR(res.stmt1AInwardTot.val) + "</td><td>&#8377;" + fmtINR(res.stmt1AInwardTot.iamt) + "</td><td>&#8377;" + fmtINR(res.stmt1AInwardTot.camt) + "</td><td>&#8377;" + fmtINR(res.stmt1AInwardTot.samt) + "</td><td><strong>&#8377;" + fmtINR(res.col4NetItc.tot) + "</strong></td></tr>" +
+                    "</tbody>" +
+                "</table>" +
+
+                "<div class='print-section-title'>Part 2: Form GST RFD-01 Table-1 (Rule 89(5) Computation) &amp; Table-2/3 Ledger Capping</div>" +
+                "<table class='print-table'>" +
+                    "<thead><tr><th>Form GST RFD-01 Computation Particulars</th><th>IGST (&#8377;)</th><th>CGST (&#8377;)</th><th>SGST (&#8377;)</th><th>Total / Consolidated (&#8377;)</th></tr></thead>" +
+                    "<tbody>" +
+                        "<tr><td>Col (1): Turnover of inverted rated supply of goods and services</td><td colspan='3'></td><td><strong>&#8377;" + res.col1Turnover.toFixed(2) + "</strong></td></tr>" +
+                        "<tr><td>Col (2): Tax payable on such inverted rated supply &times; (Net ITC / Total ITC)</td><td>" + fmtINR(res.col2TaxPayable.i) + "</td><td>" + fmtINR(res.col2TaxPayable.c) + "</td><td>" + fmtINR(res.col2TaxPayable.s) + "</td><td>" + fmtINR(res.col2TaxPayable.tot) + "</td></tr>" +
+                        "<tr><td>Col (3): Adjusted Total Turnover</td><td colspan='3'></td><td><strong>&#8377;" + res.col3AdjTurnover.toFixed(2) + "</strong></td></tr>" +
+                        "<tr><td>Col (4): Net Input Tax Credit (Inputs Only)</td><td>" + fmtINR(res.col4NetItc.i) + "</td><td>" + fmtINR(res.col4NetItc.c) + "</td><td>" + fmtINR(res.col4NetItc.s) + "</td><td>" + fmtINR(res.col4NetItc.tot) + "</td></tr>" +
+                        "<tr class='print-total'><td>Col (5): Maximum Refund Amount = [(Col 1 &times; Col 4 / Col 3) &minus; Col 2]</td><td>&#8377;" + fmtINR(res.maxRefund.i) + "</td><td>&#8377;" + fmtINR(res.maxRefund.c) + "</td><td>&#8377;" + fmtINR(res.maxRefund.s) + "</td><td><strong>&#8377;" + fmtINR(res.maxRefund.tot) + "</strong></td></tr>" +
+                        "<tr><td>Table-2A: Electronic Credit Ledger Balance at End of Period (ECL_End)</td><td>" + fmtINR(res.eclEnd.i) + "</td><td>" + fmtINR(res.eclEnd.c) + "</td><td>" + fmtINR(res.eclEnd.s) + "</td><td>" + fmtINR(res.eclEnd.tot) + "</td></tr>" +
+                        "<tr><td>Table-2B: Electronic Credit Ledger Balance at Time of Filing (ECL_Filing)</td><td>" + fmtINR(res.eclFil.i) + "</td><td>" + fmtINR(res.eclFil.c) + "</td><td>" + fmtINR(res.eclFil.s) + "</td><td>" + fmtINR(res.eclFil.tot) + "</td></tr>" +
+                        "<tr class='print-total' style='background:#bae6fd !important;'><td>Table-3: Final Eligible Refund Payout = min(ECL_End, ECL_Filing, Max_Refund)</td><td>&#8377;" + fmtINR(res.eligRefund.i) + "</td><td>&#8377;" + fmtINR(res.eligRefund.c) + "</td><td>&#8377;" + fmtINR(res.eligRefund.s) + "</td><td><strong>&#8377;" + fmtINR(res.eligRefund.tot) + "</strong></td></tr>" +
+                    "</tbody>" +
+                "</table>" +
+
+                "<div class='print-section-title'>Part 3: Schedule of Eligible Inverted Inward Invoices (Statement 1A &amp; Annexure B)</div>" +
+                "<table class='print-table'>" +
+                    "<thead><tr><th>#</th><th>Supplier GSTIN &amp; Name</th><th>Invoice No</th><th>Date</th><th>2B Prd</th><th>HSN</th><th>Taxable (&#8377;)</th><th>IGST</th><th>CGST</th><th>SGST</th></tr></thead>" +
+                    "<tbody>" + inwardRowsHtml + "</tbody>" +
+                "</table>";
+
+            document.body.classList.remove('print-mode-gstr9');
+            document.body.classList.remove('print-mode-fee');
+            document.body.classList.add('print-mode-rfd01');
+            setTimeout(function() {
+                window.print();
+                setTimeout(function() {
+                    document.body.classList.remove('print-mode-rfd01');
+                }, 600);
+            }, 200);
         };
 
         // --- MODAL 2: 4-TEMPLATE WHATSAPP DISPATCHER (WITH NEFT MANDATE) ---
@@ -3262,12 +4910,13 @@
             closeModal('wa-modal');
         };
 
-        // --- FIXED MONTHLY CHALLAN PDF (WITH CASH LEDGER SHORTFALL, PAID FEE DEDUCTION & QR PRELOADER) ---
+        // --- MONTHLY CHALLAN PDF (WITH CASH LEDGER SHORTFALL, PAID CHALLAN/FEE DEDUCTION & QR PRELOADER) ---
         window.printChallan = function(id) {
             var client = db.find(function(c) { return c.id === id; });
             if (!client) return;
             document.body.classList.remove('print-mode-gstr9');
             document.body.classList.remove('print-mode-fee');
+            document.body.classList.remove('print-mode-rfd01');
 
             ensureMonthStructureInitialized(client, activeTargetPeriod);
             var data = client.history[activeTargetPeriod];
@@ -3295,17 +4944,20 @@
             document.getElementById('print-period').textContent = getMonthNameByStr(parts[1]) + " " + parts[0];
             document.getElementById('print-date').textContent = new Date().toLocaleDateString('en-IN');
 
-                        var feeBilled = data.feeAmount || 0;
+            var feeBilled = data.feeAmount || 0;
             var isFeePaid = (data.feeStatus === 'Paid');
             var unpaidFee = isFeePaid ? 0 : feeBilled;
             var isChallanPaid = (data.challanStatus === 'Paid' || data.r3b === 'Filed');
             var unpaidChallanShortfall = isChallanPaid ? 0 : net.cashShortfall;
             var grandTotal = unpaidChallanShortfall + unpaidFee;
 
-
             var feeRowLabel = isFeePaid
                 ? "10. Professional Compliance Retainer (&#8377;" + fmtINR(feeBilled) + " &mdash; <strong>PAID / DEDUCTED</strong>)"
                 : "10. Professional Compliance Retainer (Status: <strong>PAYMENT DUE</strong>)";
+
+            var challanStatusNote = isChallanPaid && net.cashShortfall > 0
+                ? "Challan Settled (&#8377;" + fmtINR(net.cashShortfall) + " PAID)"
+                : ("Challan Shortfall Due: &#8377;" + fmtINR(unpaidChallanShortfall));
 
             var tbody = document.getElementById('print-table-body');
             tbody.innerHTML =
@@ -3319,7 +4971,7 @@
                 "<tr><td style='text-align:left;'>8. Late Fee (Sec 47 Capped) &amp; Interest (18% p.a.) " + (data.waived ? "(WAIVED)" : "") + "</td><td colspan='3' style='text-align:right;'>Gross Challan (Tax + Penalty): &#8377;" + fmtINR(net.grossChallan) + "</td><td>&#8377;" + fmtINR(net.lateFee + net.interest) + "</td></tr>" +
                 "<tr><td style='text-align:left;'>9. Less: Existing Electronic Cash Ledger Balance Available</td><td colspan='3' style='text-align:right;'><strong>Net NEFT / PMT-06 Challan Shortfall: &#8377;" + fmtINR(net.cashShortfall) + "</strong></td><td>-&#8377;" + fmtINR(net.cashLedgerBal) + "</td></tr>" +
                 "<tr><td style='text-align:left;'>" + feeRowLabel + "</td><td colspan='3' style='text-align:right;'>" + (isFeePaid ? "Already Paid (&#8377;" + fmtINR(feeBilled) + ") - Minus from Total" : "Unpaid Retainer") + "</td><td>&#8377;" + fmtINR(unpaidFee) + "</td></tr>" +
-                "<tr class='print-total' style='font-size:1.18em; background:#bae6fd !important;'><td style='text-align:left;'>11. NET BALANCE PAYABLE (CHALLAN SHORTFALL + UNPAID FEE)</td><td colspan='3' style='text-align:right;'>Challan Shortfall: &#8377;" + fmtINR(net.cashShortfall) + " + Fee Due: &#8377;" + fmtINR(unpaidFee) + "</td><td>&#8377;" + fmtINR(grandTotal) + "</td></tr>";
+                "<tr class='print-total' style='font-size:1.18em; background:#bae6fd !important;'><td style='text-align:left;'>11. NET BALANCE PAYABLE (UNPAID CHALLAN + UNPAID FEE)</td><td colspan='3' style='text-align:right;'>" + challanStatusNote + " + Fee Due: &#8377;" + fmtINR(unpaidFee) + "</td><td>&#8377;" + fmtINR(grandTotal) + "</td></tr>";
 
             var qrBox = document.getElementById('print-upi-qr-box');
             var payAmt = (practiceConfig.qrMode === 'FEE_ONLY') ? unpaidFee : grandTotal;
@@ -3459,3 +5111,4 @@
     </script>
 </body>
 </html>
+

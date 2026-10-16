@@ -1,5 +1,5 @@
 var APP_PREFIX = 'gst_beast_pro_';
-var VERSION = 'v6.0';
+var VERSION = 'v7.0';
 var CACHE_NAME = APP_PREFIX + VERSION;
 
 var CORE_ASSETS = [

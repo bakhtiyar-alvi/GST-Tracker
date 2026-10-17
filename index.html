@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GST Beast Pro — Enterprise Compliance, GSTR-9 &amp; RFD-01 Suite</title>
+    <title>GST Beast Pro — Enterprise Compliance, Ledger Recon, GSTR-9, RFD-01 &amp; DRC-03 Suite</title>
     <link rel="manifest" href="manifest.json">
     <link rel="icon" type="image/png" href="./Logo.png">
     <link rel="apple-touch-icon" href="./Logo.png">
@@ -134,14 +134,12 @@
         }
         .btn-chip:hover { background: var(--primary); color: #fff; }
 
-        /* Feature 3: Turnover-to-Tax Quick Rate Buttons */
         .rate-btn {
             padding: 5px 4px; font-size: 0.69rem; font-weight: 700; border-radius: 5px;
             background: rgba(6, 182, 212, 0.14); color: #67e8f9; border: 1px solid rgba(6, 182, 212, 0.35);
         }
         .rate-btn:hover { background: var(--cyan); color: #041f14; transform: translateY(-1px); }
 
-        /* 60-Min Cloud Timer Badge */
         .cloud-timer-pill {
             font-family: monospace; font-size: 0.72rem; font-weight: 700;
             padding: 2px 8px; border-radius: 12px; border: 1px solid var(--border);
@@ -199,7 +197,6 @@
         .pill:hover { border-color: var(--text-muted); color: #fff; }
         .pill.active { background: var(--primary); color: #fff; border-color: var(--primary); box-shadow: 0 2px 10px var(--primary-glow); }
 
-        /* Feature 4: Floating Batch Action Bar */
         #batch-action-bar {
             display: none; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap;
             background: linear-gradient(135deg, rgba(30, 58, 138, 0.9), rgba(15, 23, 42, 0.96));
@@ -271,6 +268,8 @@
         .btn-gstr9 { border-color: var(--purple); color: #c4b5fd; }
         .btn-fee-passbook { border-color: var(--cyan); color: #67e8f9; }
         .btn-rfd01 { border-color: var(--rose); color: #fda4af; }
+        .btn-drc03 { border-color: var(--warning); color: #fcd34d; }
+        .btn-ledger-passbook { border-color: #10b981; color: #6ee7b7; }
         .btn-waiver { border-color: var(--warning); color: var(--warning); font-size: 0.67rem; padding: 2px 6px; margin-top: 4px; }
 
         .date-edit, .arn-edit {
@@ -301,7 +300,7 @@
         .gstr9-kpi-box { background: var(--surface-input); border: 1px solid var(--border); border-radius: 10px; padding: 11px 13px; }
         .gstr9-section-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin-bottom: 14px; }
         .gstr9-panel { background: var(--surface-input); border: 1px solid var(--border); border-radius: 10px; padding: 12px; overflow-x: auto; margin-bottom: 12px; }
-        .gstr9-panel h3 { font-size: 0.82rem; color: #93c5fd; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.4px; display: flex; justify-content: space-between; align-items: center; }
+        .gstr9-panel h3 { font-size: 0.82rem; color: #93c5fd; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.4px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px; }
         .gstr9-mini-table { width: 100%; min-width: 440px; border-collapse: collapse; font-size: 0.77rem; }
         .gstr9-mini-table th, .gstr9-mini-table td { padding: 7px 8px; border-bottom: 1px solid var(--border); text-align: right; position: static; }
         .gstr9-mini-table th:first-child, .gstr9-mini-table td:first-child { text-align: left; }
@@ -344,16 +343,17 @@
             .split-5, .split-4, .split-3, .split-2, .gstr9-kpi-grid { grid-template-columns: 1fr; }
         }
 
-        /* QUADRUPLE PRINT ENGINE (Challan PDF vs GSTR-9 PDF vs Consolidated Fee PDF vs RFD-01 Recon PDF) */
-        #print-area, #print-gstr9-area, #print-fee-area, #print-rfd01-area { display: none; }
+        /* QUINTUPLE PRINT ENGINE (Challan PDF vs GSTR-9 PDF vs Consolidated Fee PDF vs RFD-01 PDF vs DRC-03/CMP-08 PDF) */
+        #print-area, #print-gstr9-area, #print-fee-area, #print-rfd01-area, #print-drc03-area { display: none; }
         @media print {
             body { background: white !important; background-image: none !important; color: black !important; padding: 0 !important; margin: 0 !important; }
             .workspace-grid, .modal-backdrop, #toast-banner, #pin-lock-overlay { display: none !important; }
 
-            body:not(.print-mode-gstr9):not(.print-mode-fee):not(.print-mode-rfd01) #print-area { display: block !important; padding: 24px; font-family: Arial, sans-serif; color: #111; }
+            body:not(.print-mode-gstr9):not(.print-mode-fee):not(.print-mode-rfd01):not(.print-mode-drc03) #print-area { display: block !important; padding: 24px; font-family: Arial, sans-serif; color: #111; }
             body.print-mode-gstr9 #print-gstr9-area { display: block !important; padding: 20px; font-family: Arial, sans-serif; color: #111; }
             body.print-mode-fee #print-fee-area { display: block !important; padding: 24px; font-family: Arial, sans-serif; color: #111; }
             body.print-mode-rfd01 #print-rfd01-area { display: block !important; padding: 20px; font-family: Arial, sans-serif; color: #111; }
+            body.print-mode-drc03 #print-drc03-area { display: block !important; padding: 20px; font-family: Arial, sans-serif; color: #111; }
 
             .print-header { border-bottom: 2px solid #0f172a; padding-bottom: 12px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; }
             .print-header h1 { margin: 0; font-size: 18px; text-transform: uppercase; color: #0f172a; }
@@ -408,14 +408,17 @@
                     </svg>
                     <div>
                         <div style="font-size: 1.08rem; font-weight: 800;">GST Beast Pro</div>
-                        <div style="font-size: 0.68rem; color: var(--success); font-weight: 700;">RFD-01 &bull; 2B Inspector &bull; GSTR-9</div>
+                        <div style="font-size: 0.66rem; color: var(--success); font-weight: 700;">Ledger CSV &bull; RFD-01 &bull; DRC-03 &bull; GSTR-9</div>
                     </div>
                 </div>
-                <div style="display:flex; gap:4px; flex-wrap:wrap;">
+                                <div style="display:flex; gap:4px; flex-wrap:wrap;">
+                    <button type="button" class="btn-inline btn-ledger-passbook" onclick="openPortalLedgerModal()">&#128210; Ledgers</button>
+                    <button type="button" class="btn-inline btn-drc03" onclick="openDrc03Modal()">&#9878; DRC-03</button>
                     <button type="button" class="btn-inline btn-rfd01" onclick="openRfd01Modal()">&#127963; RFD-01</button>
                     <button type="button" class="btn-inline" style="border-color:var(--purple); color:#c4b5fd;" onclick="openFirmAnalyticsModal()">&#128200; Firm</button>
                     <button type="button" class="btn-inline" onclick="openSettingsModal()">&#9881;</button>
                 </div>
+
             </div>
 
             <div class="panel-card">
@@ -432,9 +435,9 @@
             <div class="panel-card">
                 <h2>
                     <span id="form-title">Client &amp; Return Entry</span>
-                    <button type="button" class="btn-chip" onclick="document.getElementById('portal-json-input').click()">&#128194; Import 2B / 3B / R1 / PMT-06</button>
+                    <button type="button" class="btn-chip" onclick="document.getElementById('portal-json-input').click()" title="Import Electronic Credit/Cash Ledger CSV, 2B JSON, 3B/R1/PMT-06 PDF">&#128194; Import Ledger CSV / 2B / 3B / R1</button>
                 </h2>
-                <input type="file" id="portal-json-input" accept=".json,.pdf,application/json,application/pdf" multiple style="display:none;" onchange="handlePortalFileImport(event)">
+                <input type="file" id="portal-json-input" accept=".json,.pdf,.csv,.xlsx,.xls,application/json,application/pdf,text/csv" multiple style="display:none;" onchange="handlePortalFileImport(event)">
                 <input type="hidden" id="editing-client-id" value="">
 
                 <div class="split-2">
@@ -467,7 +470,7 @@
                     </div>
                 </div>
 
-                <!-- FEATURE 3: SMART TURNOVER-TO-TAX AUTO-CALCULATOR + OUTPUT LIABILITY -->
+                <!-- SMART TURNOVER-TO-TAX AUTO-CALCULATOR + OUTPUT LIABILITY -->
                 <div class="form-group" style="border: 1px dashed var(--border-light); padding: 9px; border-radius: 8px;">
                     <label style="color:var(--cyan);">
                         <span>&#9889; Quick Turnover-to-Tax Calculator</span>
@@ -555,8 +558,8 @@
                             </select>
                         </div>
                         <div>
-                            <label style="font-size:0.66rem;">14-Digit CPIN</label>
-                            <input type="text" id="challan-cpin" placeholder="CPIN Number" maxlength="14">
+                            <label style="font-size:0.66rem;">14-Digit CPIN / Ref</label>
+                            <input type="text" id="challan-cpin" placeholder="CPIN / Deposit Ref" maxlength="22">
                         </div>
                         <div>
                             <label style="font-size:0.66rem;">Challan Date / UTR</label>
@@ -598,9 +601,9 @@
                     <div class="form-group">
                         <label style="color:var(--cyan);">Initial Credit Ledger Opening Balance (One-Time Seed)</label>
                         <div class="split-3">
-                            <input type="number" id="init-itc-igst" placeholder="Op. IGST" min="0">
-                            <input type="number" id="init-itc-cgst" placeholder="Op. CGST" min="0">
-                            <input type="number" id="init-itc-sgst" placeholder="Op. SGST" min="0">
+                            <input type="number" id="init-itc-igst" placeholder="Op. IGST" min="0" step="0.01">
+                            <input type="number" id="init-itc-cgst" placeholder="Op. CGST" min="0" step="0.01">
+                            <input type="number" id="init-itc-sgst" placeholder="Op. SGST" min="0" step="0.01">
                         </div>
                     </div>
                     <div class="split-2">
@@ -702,9 +705,11 @@
                             <option value="PENDING_FIRST">Sort: Pending Filings First</option>
                         </select>
                     </div>
-                    <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
-                        <button type="button" class="btn-inline btn-rfd01" style="padding:7px 12px; font-weight:700;" onclick="openRfd01Modal()">&#127963; RFD-01 INVITC Refund</button>
-                        <button type="button" class="btn-inline" style="padding:7px 12px; border-color:var(--purple); color:#c4b5fd; font-weight:700;" onclick="openFirmAnalyticsModal()">&#128200; Firm Analytics</button>
+                    <div style="display:flex; gap:6px; align-items:center; flex-wrap:wrap;">
+                        <button type="button" class="btn-inline btn-ledger-passbook" style="padding:7px 11px; font-weight:700;" onclick="openPortalLedgerModal()">&#128210; Portal Ledgers</button>
+                        <button type="button" class="btn-inline btn-drc03" style="padding:7px 11px; font-weight:700;" onclick="openDrc03Modal()">&#9878; DRC-03 &amp; CMP-08</button>
+                        <button type="button" class="btn-inline btn-rfd01" style="padding:7px 11px; font-weight:700;" onclick="openRfd01Modal()">&#127963; RFD-01 Refund</button>
+                        <button type="button" class="btn-inline" style="padding:7px 11px; border-color:var(--purple); color:#c4b5fd; font-weight:700;" onclick="openFirmAnalyticsModal()">&#128200; Firm Analytics</button>
                         <div style="font-size: 0.84rem; font-weight: 700; background: var(--surface-input); padding: 7px 12px; border-radius: 6px; border: 1px solid var(--border); white-space: nowrap;">
                             Period: <span id="current-view-badge" style="color: var(--primary);">--</span>
                         </div>
@@ -723,7 +728,7 @@
                 </div>
             </div>
 
-            <!-- FEATURE 4: MULTI-CLIENT BATCH ACTIONS BAR -->
+            <!-- MULTI-CLIENT BATCH ACTIONS BAR -->
             <div id="batch-action-bar">
                 <div style="font-size:0.84rem; font-weight:700; color:#fff;">
                     &#9889; <span id="batch-selected-count">0</span> Client(s) Selected
@@ -755,7 +760,6 @@
             </div>
         </div>
     </div>
-
     <!-- MODAL 1: DETAILED GSTR-9 WORKING DOSSIER -->
     <div class="modal-backdrop" id="gstr9-modal">
         <div class="modal-card">
@@ -922,7 +926,7 @@
         </div>
     </div>
 
-    <!-- MODAL 6 (FEATURE 2): GSTR-2B PARTY-WISE & INVOICE-WISE INSPECTOR -->
+    <!-- MODAL 6: GSTR-2B PARTY-WISE & INVOICE-WISE INSPECTOR -->
     <div class="modal-backdrop" id="gstr2b-inspector-modal">
         <div class="modal-card" style="max-width: 1140px;">
             <div class="modal-header">
@@ -952,7 +956,7 @@
         </div>
     </div>
 
-    <!-- MODAL 7 (FEATURE 5): PRACTICE REVENUE & DEBTOR AGING ANALYTICS -->
+    <!-- MODAL 7: PRACTICE REVENUE & DEBTOR AGING ANALYTICS -->
     <div class="modal-backdrop" id="firm-analytics-modal">
         <div class="modal-card" style="max-width: 1060px;">
             <div class="modal-header">
@@ -998,7 +1002,6 @@
                 </div>
             </div>
 
-            <!-- 1. Taxpayer Metadata & Refund Period -->
             <div class="gstr9-panel">
                 <h3>
                     <span>1. Taxpayer Metadata, Refund Period &amp; Multi-Format Ingestion (Excel / CSV / JSON)</span>
@@ -1045,7 +1048,6 @@
                     </div>
                 </div>
 
-                <!-- Electronic Credit Ledger Balances & Turnover Override -->
                 <div class="split-3" style="border-top:1px dashed var(--border); padding-top:8px;">
                     <div>
                         <label style="color:var(--cyan);">ECL Balance at End of Refund Period (&#8377;)</label>
@@ -1076,10 +1078,8 @@
                 </div>
             </div>
 
-            <!-- 2. RFD-01 KPI Summary -->
             <div id="rfd01-kpi-container" class="gstr9-kpi-grid"></div>
 
-            <!-- 3. RFD-01 Table 1, Table 2/3 & GSTR-2B vs Statement 1A Recon -->
             <div class="gstr9-section-grid">
                 <div class="gstr9-panel">
                     <h3>RFD-01 Table-1: Rule 89(5) Computation (Statement 1)</h3>
@@ -1110,7 +1110,6 @@
                 </table>
             </div>
 
-            <!-- 4. Preview of Paired Statement 1A & Annexure B Invoices -->
             <div class="gstr9-section-grid">
                 <div class="gstr9-panel" style="max-height:260px; overflow-y:auto;">
                     <h3>Eligible Inverted Inward Inputs (&gt;5% Rate — Statement 1A &amp; Annexure B)</h3>
@@ -1124,6 +1123,178 @@
                     <table class="gstr9-mini-table">
                         <thead><tr><th>#</th><th>Type</th><th>Inv No (Exact)</th><th>Date</th><th>Rate</th><th>Taxable (oval)</th><th>IGST</th><th>CGST</th><th>SGST</th></tr></thead>
                         <tbody id="rfd01-outward-tbody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 9: PORTAL ELECTRONIC CREDIT & CASH LEDGER PASSBOOK + AUTO-RECONSTRUCTOR -->
+    <div class="modal-backdrop" id="portal-ledger-modal">
+        <div class="modal-card" style="max-width: 1280px;">
+                        <div class="modal-header">
+                <div>
+                    <h2 id="portal-ledger-title" style="margin-bottom:2px; color:#6ee7b7;">&#128210; Portal Electronic Credit &amp; Cash Ledger Passbook</h2>
+                    <div id="portal-ledger-subtitle" style="font-size:0.76rem; color:var(--text-muted);">Import Official GST Portal Credit &amp; Cash Ledger CSVs to Auto-Set Opening Balance, Monthly ITC, ARNs &amp; Reconstructed Output Tax</div>
+                </div>
+                <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+                    <select id="ledger-client-select" onchange="renderPortalLedgerModal()" style="width:auto; padding:6px 10px; font-size:0.8rem;"></select>
+                    <button type="button" class="btn-success" style="width:auto; padding:7px 12px;" onclick="document.getElementById('ledger-csv-upload').click()">&#128194; Upload Credit / Cash CSVs</button>
+                    <input type="file" id="ledger-csv-upload" accept=".csv,text/csv" multiple style="display:none;" onchange="handlePortalFileImport(event)">
+                    <button type="button" class="modal-close" onclick="closeModal('portal-ledger-modal')">Close</button>
+                </div>
+            </div>
+
+
+            <div id="portal-ledger-kpi-grid" class="gstr9-kpi-grid"></div>
+
+            <div class="gstr9-panel">
+                <h3>
+                    <span>Reconstructed Monthly GSTR-3B Summary (ITC Utilized + Cash Debited = Reconstructed Output Liability)</span>
+                    <button type="button" class="btn-chip" onclick="exportPortalLedgerReconCsv()">&#128202; Export Reconstructed Ledger CSV</button>
+                </h3>
+                <div style="overflow-x:auto;">
+                    <table style="min-width:1050px; font-size:0.78rem;">
+                        <thead>
+                            <tr>
+                                <th>Period</th><th>Filing Date</th><th>3B ARN (Ref No)</th>
+                                <th>3B ITC Accrued (I / C / S)</th><th>ITC Debited (Utilized)</th>
+                                <th>Cash Deposited (Ref No)</th><th>Cash Tax Debited (I / C / S)</th>
+                                <th>Reconstructed Output Tax (I / C / S)</th><th>Closing ITC Bal</th>
+                            </tr>
+                        </thead>
+                        <tbody id="portal-ledger-recon-tbody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="gstr9-section-grid">
+                <div class="gstr9-panel" style="max-height:310px; overflow-y:auto;">
+                    <h3>Chronological Electronic Credit Ledger Passbook</h3>
+                    <table class="gstr9-mini-table">
+                        <thead><tr><th>Date</th><th>Period</th><th>Ref No / ARN</th><th>Description</th><th>Type</th><th>IGST</th><th>CGST</th><th>SGST</th><th>Bal Tot</th></tr></thead>
+                        <tbody id="portal-credit-raw-tbody"></tbody>
+                    </table>
+                </div>
+                <div class="gstr9-panel" style="max-height:310px; overflow-y:auto;">
+                    <h3>Chronological Electronic Cash Ledger Passbook</h3>
+                    <table class="gstr9-mini-table">
+                        <thead><tr><th>Date</th><th>Period</th><th>Ref / CPIN</th><th>Description</th><th>Type</th><th>IGST</th><th>CGST</th><th>SGST</th><th>Bal Tot</th></tr></thead>
+                        <tbody id="portal-cash-raw-tbody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 10: FORM GST DRC-03 VOLUNTARY PAYMENT, NOTICE REGISTER & CMP-08 WORKING SUITE -->
+    <div class="modal-backdrop" id="drc03-modal">
+        <div class="modal-card" style="max-width: 1200px;">
+            <div class="modal-header">
+                <div>
+                    <h2 style="margin-bottom:2px; color:#fcd34d;">&#9878; Form GST DRC-03 Voluntary Payment, Notice Register &amp; Quarterly CMP-08 Suite</h2>
+                    <div style="font-size:0.76rem; color:var(--text-muted);">Sec 73(5) / 74(5) Intimation of Voluntary Tax Payment &bull; Sec 50 Interest (18% p.a.) &bull; Composition CMP-08 Quarterly Working</div>
+                </div>
+                <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+                    <select id="drc-client-select" onchange="loadClientIntoDrc03()" style="width:auto; padding:6px 10px; font-size:0.8rem;"></select>
+                    <button type="button" class="btn-primary" style="width:auto; padding:7px 14px;" onclick="printDrc03OrCmp08Dossier()">&#128424; Print DRC-03 &amp; CMP-08 PDF</button>
+                    <button type="button" class="modal-close" onclick="closeModal('drc03-modal')">Close</button>
+                </div>
+            </div>
+
+            <div class="gstr9-panel">
+                <h3>
+                    <span>1. Create Form GST DRC-03 Voluntary Payment / Notice Reply Working</span>
+                    <div style="display:flex; gap:6px;">
+                        <button type="button" class="btn-chip" onclick="autoPull2BExcessIntoDrc03()">Pull Active Month 2B Excess</button>
+                        <button type="button" class="btn-chip" onclick="autoPullAnnualGstr9DiffIntoDrc03()">Pull Annual GSTR-9 8D Variance</button>
+                    </div>
+                </h3>
+                <div class="split-4" style="margin-bottom:8px;">
+                    <div>
+                        <label>Cause of Payment (Item 3)</label>
+                        <select id="drc-cause">
+                            <option value="Voluntary" selected>Voluntary Payment (Sec 73(5)/74(5))</option>
+                            <option value="ITC_Reversal">Excess ITC Reversal (2B vs 3B)</option>
+                            <option value="GSTR9_Recon">Annual Return (GSTR-9 / 9C) Recon</option>
+                            <option value="SCN_Demand">Against Notice (DRC-01 / ASMT-10)</option>
+                            <option value="Liability_Mismatch">R1 vs 3B Liability Mismatch (DRC-01B)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label>Section Invoked</label>
+                        <select id="drc-section">
+                            <option value="73(5)" selected>Sec 73(5) (Non-Fraud / Normal)</option>
+                            <option value="74(5)">Sec 74(5) (With 15% Penalty)</option>
+                            <option value="50(1)">Sec 50(1) / Rule 88B (Interest Only)</option>
+                            <option value="122">General Penalty / Others</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label>Financial Year / Period</label>
+                        <input type="text" id="drc-period" placeholder="FY 2026-27 / Aug-26">
+                    </div>
+                    <div>
+                        <label>SCN / Notice Ref No. &amp; ARN</label>
+                        <input type="text" id="drc-ref-arn" placeholder="Notice Ref or DRC-03 ARN">
+                    </div>
+                </div>
+
+                <div class="split-4" style="margin-bottom:8px;">
+                    <div>
+                        <label style="color:var(--primary);">Basic Tax Payable (I / C / S)</label>
+                        <div class="split-3">
+                            <input type="number" id="drc-tax-i" placeholder="IGST" min="0" step="0.01" oninput="recalcDrc03Preview()">
+                            <input type="number" id="drc-tax-c" placeholder="CGST" min="0" step="0.01" oninput="recalcDrc03Preview()">
+                            <input type="number" id="drc-tax-s" placeholder="SGST" min="0" step="0.01" oninput="recalcDrc03Preview()">
+                        </div>
+                    </div>
+                    <div>
+                        <label style="color:var(--warning);">Delay Days (Auto 18% Int)</label>
+                        <div class="split-2">
+                            <input type="number" id="drc-delay-days" placeholder="Days" min="0" oninput="autoCalcDrc03Interest()">
+                            <input type="number" id="drc-interest-tot" placeholder="Interest (₹)" min="0" step="0.01" oninput="recalcDrc03Preview()">
+                        </div>
+                    </div>
+                    <div>
+                        <label style="color:var(--danger);">Penalty / Fee &amp; Mode</label>
+                        <div class="split-2">
+                            <input type="number" id="drc-penalty-tot" placeholder="Penalty (₹)" min="0" step="0.01" oninput="recalcDrc03Preview()">
+                            <select id="drc-pay-mode">
+                                <option value="ITC">Set-Off via ITC</option>
+                                <option value="CASH" selected>Pay via Cash Ledger</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div>
+                        <label style="color:var(--success);">Action</label>
+                        <button type="button" class="btn-warning" onclick="saveDrc03Entry()">+ Log DRC-03 Record</button>
+                    </div>
+                </div>
+                <input type="text" id="drc-remarks" placeholder="Grounds / Reasons for Voluntary Payment or Reply Summary (e.g., Inadvertent excess ITC claimed in May-26 reversed with Sec 50 interest)" style="font-size:0.78rem;">
+            </div>
+
+            <div class="gstr9-section-grid">
+                <div class="gstr9-panel">
+                    <h3>2. Client Form GST DRC-03 &amp; Notice Register</h3>
+                    <table class="gstr9-mini-table">
+                        <thead>
+                            <tr>
+                                <th>Period &amp; Cause</th><th>Sec</th><th>Tax (&#8377;)</th><th>Int (&#8377;)</th><th>Pen (&#8377;)</th><th>Total (&#8377;)</th><th>Mode / ARN</th><th>Del</th>
+                            </tr>
+                        </thead>
+                        <tbody id="drc03-history-tbody"></tbody>
+                    </table>
+                </div>
+                <div class="gstr9-panel">
+                    <h3>3. Quarterly Form GST CMP-08 Summary (Composition / 4-Quarter View)</h3>
+                    <table class="gstr9-mini-table">
+                        <thead>
+                            <tr>
+                                <th>Quarter</th><th>Months Covered</th><th>Outward Tax (1%)</th><th>RCM Tax (Cash)</th><th>Total CMP-08 Payable</th><th>Filing Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="cmp08-summary-tbody"></tbody>
                     </table>
                 </div>
             </div>
@@ -1178,6 +1349,9 @@
 
     <!-- PRINT AREA 4: RFD-01 INVITC RECONCILIATION & WORKING DOSSIER PDF -->
     <div id="print-rfd01-area"></div>
+
+    <!-- PRINT AREA 5: DRC-03 VOLUNTARY PAYMENT & CMP-08 QUARTERLY WORKING DOSSIER PDF -->
+    <div id="print-drc03-area"></div>
     <script>
         var GOOGLE_CLIENT_ID = "1090891293641-vr4iba4fi7sooc58g5rgn69ek6sd9odl.apps.googleusercontent.com";
 
@@ -1207,9 +1381,10 @@
         var activeGstr9ClientId = null;
         var activeFeeClientId = null;
         var active2BClientId = null;
+        var activePortalLedgerClientId = null;
+        var activeDrc03ClientId = null;
         var selectedClientIds = {};
 
-        // RFD-01 INVITC State Store
         var rfdState = {
             inwardRaw: [],
             outwardRaw: [],
@@ -1270,10 +1445,10 @@
             if (!t) return;
             t.textContent = msg;
             t.classList.add('show');
-            setTimeout(function() { t.classList.remove('show'); }, 2600);
+            setTimeout(function() { t.classList.remove('show'); }, 2800);
         }
 
-        // --- FEATURE 3: SMART TURNOVER-TO-TAX AUTO-CALCULATOR ---
+        // --- SMART TURNOVER-TO-TAX AUTO-CALCULATOR ---
         window.applyTurnoverTaxRate = function(ratePercent) {
             var rawVal = parseFloat(document.getElementById('calc-turnover-val').value) || 0;
             if (rawVal <= 0) return showToast("Enter a Turnover amount first");
@@ -1382,7 +1557,7 @@
             document.getElementById('remove-logo-btn').style.display = 'none';
         };
 
-        // --- GOOGLE DRIVE CLOUD SYNC & 60-MIN COUNTDOWN + <5 MIN POP-UP ---
+        // --- GOOGLE DRIVE CLOUD SYNC & 60-MIN COUNTDOWN ---
         window.initializeGoogleAuth = function() {
             try {
                 var tokenClient = google.accounts.oauth2.initTokenClient({
@@ -1447,10 +1622,7 @@
             var secs = remainingSec % 60;
             var formattedTime = String(mins).padStart(2, '0') + ":" + String(secs).padStart(2, '0');
             badge.textContent = formattedTime;
-
-            if (modalCountdown) {
-                modalCountdown.textContent = formattedTime;
-            }
+            if (modalCountdown) modalCountdown.textContent = formattedTime;
 
             if (remainingSec <= 300) {
                 badge.className = "cloud-timer-pill timer-warn";
@@ -1735,7 +1907,7 @@
             }
         };
 
-        // --- FEATURE 2 HELPER: EXTRACT INVOICE-LEVEL B2B & CDNR FROM GSTR-2B JSON ---
+        // --- EXTRACT INVOICE-LEVEL B2B & CDNR FROM GSTR-2B JSON ---
         function extract2BInvoiceListFromJson(root) {
             var list = [];
             var rtnprd = root.rtnprd || "";
@@ -1812,10 +1984,37 @@
             return list;
         }
 
-        // --- UNIFIED GST PORTAL IMPORTER (2B JSON + 3B PDF + R1 PDF + PMT-06 CHALLAN PDF) ---
+        // --- NEW: ELECTRONIC CREDIT & CASH LEDGER CSV PARSER & OUTPUT TAX AUTO-RECONSTRUCTOR ---
+        function parsePortalPeriodTagToISO(pStr) {
+            if (!pStr) return null;
+            var clean = String(pStr).replace(/["']/g, '').trim();
+            if (!clean || clean === '-') return null;
+            var mMap = {
+                jan: "01", feb: "02", mar: "03", apr: "04", may: "05", jun: "06",
+                jul: "07", aug: "08", sep: "09", oct: "10", nov: "11", dec: "12"
+            };
+            var m = clean.match(/^([A-Za-z]{3})[a-z]*[\s\-\/]+(\d{2,4})$/i);
+            if (m) {
+                var mo = mMap[m[1].toLowerCase()];
+                var yr = m[2].length === 2 ? ("20" + m[2]) : m[2];
+                if (mo) return yr + "-" + mo;
+            }
+            if (/^\d{4}-\d{2}$/.test(clean)) return clean;
+            if (/^\d{6}$/.test(clean)) return clean.substring(2, 6) + "-" + clean.substring(0, 2);
+            return null;
+        }
+
+        function parseNumClean(val) {
+            if (val === undefined || val === null) return 0;
+            var s = String(val).replace(/["',\s]/g, '').trim();
+            if (!s || s === '-') return 0;
+            return round2(parseFloat(s) || 0);
+        }
+
         function parsePortalDateToISO(dStr) {
             if (!dStr) return "";
-            var clean = dStr.trim().replace(/\./g, '/').replace(/-/g, '/');
+            var clean = String(dStr).replace(/["']/g, '').trim().replace(/\./g, '/').replace(/-/g, '/');
+            if (!clean || clean === '/') return "";
             var parts = clean.split('/');
             if (parts.length === 3) {
                 if (parts[0].length === 4) return parts[0] + "-" + parts[1].padStart(2, '0') + "-" + parts[2].padStart(2, '0');
@@ -1824,6 +2023,360 @@
             return "";
         }
 
+        function parseGstPortalLedgerCsv(csvText) {
+            // Fix GST Portal Cash Ledger quirk where Date column starts with ""16/04/2026
+            var sanitizedText = csvText.replace(/,""/g, ',"');
+            var rows = parseCsvPreservingStrings(sanitizedText);
+            if (!rows || rows.length < 5) return { docType: 'UNKNOWN' };
+
+            var topText = rows.slice(0, 8).map(function(r) { return r.join(" "); }).join(" ");
+            var isCreditLedger = /Electronic\s+Credit\s+Ledger/i.test(topText);
+            var isCashLedger = /Electronic\s+Cash\s+Ledger/i.test(topText);
+            if (!isCreditLedger && !isCashLedger) return { docType: 'UNKNOWN' };
+
+            var gstin = "";
+            var legalName = "";
+            var fromDate = "";
+            var toDate = "";
+
+            for (var i = 0; i < Math.min(rows.length, 10); i++) {
+                var r = rows[i];
+                for (var j = 0; j < r.length; j++) {
+                    var cell = String(r[j] || "").trim();
+                    if (/^GSTIN$/i.test(cell) && r[j + 1]) gstin = String(r[j + 1]).trim().toUpperCase();
+                    if (/^(Legal\s*Name|Name\(Legal\))$/i.test(cell) && r[j + 1]) legalName = String(r[j + 1]).trim();
+                    if (/^From$/i.test(cell) && r[j + 1]) fromDate = String(r[j + 1]).replace(/["']/g, '').trim();
+                    if (/^To$/i.test(cell) && r[j + 1]) toDate = String(r[j + 1]).replace(/["']/g, '').trim();
+                }
+            }
+
+            if (isCreditLedger) {
+                var crOpening = { igst: 0, cgst: 0, sgst: 0, total: 0 };
+                var crClosing = { igst: 0, cgst: 0, sgst: 0, total: 0 };
+                var crTxList = [];
+
+                for (var rIdx = 6; rIdx < rows.length; rIdx++) {
+                    var row = rows[rIdx];
+                    if (!row || row.length < 12) continue;
+                    var desc = String(row[4] || "").replace(/["']/g, '').trim();
+                    var txType = String(row[5] || "").replace(/["']/g, '').trim();
+                    if (!desc || /Description/i.test(desc)) continue;
+
+                    if (/Opening\s+Balance/i.test(desc)) {
+                        crOpening = {
+                            igst: parseNumClean(row[11]),
+                            cgst: parseNumClean(row[12]),
+                            sgst: parseNumClean(row[13]),
+                            total: parseNumClean(row[15])
+                        };
+                    } else if (/Closing\s+Balance/i.test(desc)) {
+                        crClosing = {
+                            igst: parseNumClean(row[11]),
+                            cgst: parseNumClean(row[12]),
+                            sgst: parseNumClean(row[13]),
+                            total: parseNumClean(row[15])
+                        };
+                    } else if (/^(Credit|Debit)$/i.test(txType)) {
+                        var rawDt = String(row[1] || "").replace(/["']/g, '').trim();
+                        var refNo = String(row[2] || "").replace(/["']/g, '').trim();
+                        var rawPrd = String(row[3] || "").replace(/["']/g, '').trim();
+                        crTxList.push({
+                            date: rawDt,
+                            isoDate: parsePortalDateToISO(rawDt),
+                            refNo: refNo,
+                            rawPeriod: rawPrd,
+                            periodKey: parsePortalPeriodTagToISO(rawPrd),
+                            desc: desc,
+                            txType: /Credit/i.test(txType) ? 'Credit' : 'Debit',
+                            igst: parseNumClean(row[6]),
+                            cgst: parseNumClean(row[7]),
+                            sgst: parseNumClean(row[8]),
+                            total: parseNumClean(row[10]),
+                            balIgst: parseNumClean(row[11]),
+                            balCgst: parseNumClean(row[12]),
+                            balSgst: parseNumClean(row[13]),
+                            balTotal: parseNumClean(row[15])
+                        });
+                    }
+                }
+                return {
+                    docType: 'CREDIT_LEDGER_CSV',
+                    gstin: gstin, name: legalName, fromDate: fromDate, toDate: toDate,
+                    opening: crOpening, closing: crClosing, transactions: crTxList
+                };
+            }
+
+            if (isCashLedger) {
+                var caOpening = { igst: 0, cgst: 0, sgst: 0, total: 0 };
+                var caClosing = { igst: 0, cgst: 0, sgst: 0, total: 0 };
+                var caTxList = [];
+
+                for (var kIdx = 6; kIdx < rows.length; kIdx++) {
+                    var cRow = rows[kIdx];
+                    if (!cRow || cRow.length < 30) continue;
+                    var cDesc = String(cRow[6] || "").replace(/["']/g, '').trim();
+                    var cTxType = String(cRow[7] || "").replace(/["']/g, '').trim();
+                    if (!cDesc || /Description/i.test(cDesc)) continue;
+
+                    if (/Opening\s+Balance/i.test(cDesc)) {
+                        var opI = parseNumClean(cRow[37]);
+                        var opC = parseNumClean(cRow[43]);
+                        var opS = parseNumClean(cRow[49]);
+                        caOpening = { igst: opI, cgst: opC, sgst: opS, total: round2(opI + opC + opS) };
+                    } else if (/Closing\s+Balance/i.test(cDesc)) {
+                        var clI = parseNumClean(cRow[37]);
+                        var clC = parseNumClean(cRow[43]);
+                        var clS = parseNumClean(cRow[49]);
+                        caClosing = { igst: clI, cgst: clC, sgst: clS, total: round2(clI + clC + clS) };
+                    } else if (/^(Credit|Debit)$/i.test(cTxType)) {
+                        var cRawDt = String(cRow[1] || "").replace(/["']/g, '').trim();
+                        var cRefNo = String(cRow[4] || "").replace(/["']/g, '').trim();
+                        var cRawPrd = String(cRow[5] || "").replace(/["']/g, '').trim();
+
+                        var igstTax = parseNumClean(cRow[8]);
+                        var igstInt = parseNumClean(cRow[9]);
+                        var igstFee = parseNumClean(cRow[11]);
+                        var igstTot = parseNumClean(cRow[13]);
+
+                        var cgstTax = parseNumClean(cRow[14]);
+                        var cgstInt = parseNumClean(cRow[15]);
+                        var cgstFee = parseNumClean(cRow[17]);
+                        var cgstTot = parseNumClean(cRow[19]);
+
+                        var sgstTax = parseNumClean(cRow[20]);
+                        var sgstInt = parseNumClean(cRow[21]);
+                        var sgstFee = parseNumClean(cRow[23]);
+                        var sgstTot = parseNumClean(cRow[25]);
+
+                        var bI = parseNumClean(cRow[37]);
+                        var bC = parseNumClean(cRow[43]);
+                        var bS = parseNumClean(cRow[49]);
+
+                        caTxList.push({
+                            date: cRawDt,
+                            isoDate: parsePortalDateToISO(cRawDt),
+                            refNo: cRefNo,
+                            rawPeriod: cRawPrd,
+                            periodKey: parsePortalPeriodTagToISO(cRawPrd),
+                            desc: cDesc,
+                            txType: /Credit/i.test(cTxType) ? 'Credit' : 'Debit',
+                            igstTax: igstTax, cgstTax: cgstTax, sgstTax: sgstTax,
+                            igstTot: igstTot, cgstTot: cgstTot, sgstTot: sgstTot,
+                            interest: round2(igstInt + cgstInt + sgstInt),
+                            lateFee: round2(igstFee + cgstFee + sgstFee),
+                            total: round2(igstTot + cgstTot + sgstTot),
+                            balIgst: bI, balCgst: bC, balSgst: bS,
+                            balTotal: round2(bI + bC + bS)
+                        });
+                    }
+                }
+                return {
+                    docType: 'CASH_LEDGER_CSV',
+                    gstin: gstin, name: legalName, fromDate: fromDate, toDate: toDate,
+                    opening: caOpening, closing: caClosing, transactions: caTxList
+                };
+            }
+            return { docType: 'UNKNOWN' };
+        }
+
+        // Synchronizes & Reconstructs Monthly History from Portal Credit & Cash Ledgers
+        function syncClientPortalLedgers(client) {
+            if (!client.portalLedgers) return;
+            var cr = client.portalLedgers.credit;
+            var ca = client.portalLedgers.cash;
+
+            var periodMap = {};
+            function getBucket(pk) {
+                if (!periodMap[pk]) {
+                    periodMap[pk] = {
+                        hasCreditRows: false,
+                        hasCashRows: false,
+                        itcAccrued: { i: 0, c: 0, s: 0 },
+                        itcDebited: { i: 0, c: 0, s: 0 },
+                        cashOutDebited: { i: 0, c: 0, s: 0 },
+                        cashRcmDebited: { i: 0, c: 0, s: 0 },
+                        cashLateFee: 0,
+                        cashInterest: 0,
+                        cashDeposited: 0,
+                        depositRefs: [],
+                        depositDates: [],
+                        arn3b: "",
+                        filingDate: "",
+                        closingItc: { i: 0, c: 0, s: 0 }
+                    };
+                }
+                return periodMap[pk];
+            }
+
+            if (cr && Array.isArray(cr.transactions)) {
+                cr.transactions.forEach(function(tx) {
+                    if (!tx.periodKey) return;
+                    var b = getBucket(tx.periodKey);
+                    b.hasCreditRows = true;
+                    if (tx.txType === 'Credit') {
+                        b.itcAccrued.i = round2(b.itcAccrued.i + tx.igst);
+                        b.itcAccrued.c = round2(b.itcAccrued.c + tx.cgst);
+                        b.itcAccrued.s = round2(b.itcAccrued.s + tx.sgst);
+                        if (tx.refNo && !b.arn3b) b.arn3b = tx.refNo;
+                        if (tx.isoDate && !b.filingDate) b.filingDate = tx.isoDate;
+                    } else if (tx.txType === 'Debit') {
+                        b.itcDebited.i = round2(b.itcDebited.i + tx.igst);
+                        b.itcDebited.c = round2(b.itcDebited.c + tx.cgst);
+                        b.itcDebited.s = round2(b.itcDebited.s + tx.sgst);
+                        if (tx.isoDate && !b.filingDate) b.filingDate = tx.isoDate;
+                    }
+                    b.closingItc = { i: tx.balIgst, c: tx.balCgst, s: tx.balSgst };
+                });
+            }
+
+            var pendingDepositQueue = [];
+            if (ca && Array.isArray(ca.transactions)) {
+                ca.transactions.forEach(function(tx) {
+                    if (tx.txType === 'Credit') {
+                        if (tx.periodKey) {
+                            var bp = getBucket(tx.periodKey);
+                            bp.hasCashRows = true;
+                            bp.cashDeposited = round2(bp.cashDeposited + tx.total);
+                            if (tx.refNo) bp.depositRefs.push(tx.refNo);
+                            if (tx.isoDate) bp.depositDates.push(tx.isoDate);
+                        } else {
+                            pendingDepositQueue.push(tx);
+                        }
+                    } else if (tx.txType === 'Debit' && tx.periodKey) {
+                        var b = getBucket(tx.periodKey);
+                        b.hasCashRows = true;
+                        var isRcmDebit = /reverse\s+charge/i.test(tx.desc) && !(/other\s+than\s+reverse\s+charge/i.test(tx.desc));
+                        if (isRcmDebit) {
+                            b.cashRcmDebited.i = round2(b.cashRcmDebited.i + tx.igstTax);
+                            b.cashRcmDebited.c = round2(b.cashRcmDebited.c + tx.cgstTax);
+                            b.cashRcmDebited.s = round2(b.cashRcmDebited.s + tx.sgstTax);
+                        } else {
+                            b.cashOutDebited.i = round2(b.cashOutDebited.i + tx.igstTax);
+                            b.cashOutDebited.c = round2(b.cashOutDebited.c + tx.cgstTax);
+                            b.cashOutDebited.s = round2(b.cashOutDebited.s + tx.sgstTax);
+                        }
+                        b.cashLateFee = round2(b.cashLateFee + (tx.lateFee || 0));
+                        b.cashInterest = round2(b.cashInterest + (tx.interest || 0));
+                        if (tx.isoDate && !b.filingDate) b.filingDate = tx.isoDate;
+
+                        while (pendingDepositQueue.length > 0) {
+                            var dep = pendingDepositQueue.shift();
+                            b.cashDeposited = round2(b.cashDeposited + dep.total);
+                            if (dep.refNo) b.depositRefs.push(dep.refNo);
+                            if (dep.isoDate) b.depositDates.push(dep.isoDate);
+                        }
+                    }
+                });
+            }
+
+            if (cr && cr.opening) {
+                client.initItc = {
+                    igst: round2(cr.opening.igst || 0),
+                    cgst: round2(cr.opening.cgst || 0),
+                    sgst: round2(cr.opening.sgst || 0)
+                };
+            }
+
+            var sortedPeriods = Object.keys(periodMap).sort();
+            sortedPeriods.forEach(function(pk) {
+                ensureMonthStructureInitialized(client, pk);
+                var h = client.history[pk];
+                var b = periodMap[pk];
+
+                if (b.hasCreditRows) {
+                    h.itcIgst = b.itcAccrued.i;
+                    h.itcCgst = b.itcAccrued.c;
+                    h.itcSgst = b.itcAccrued.s;
+                }
+
+                if (b.cashRcmDebited.i + b.cashRcmDebited.c + b.cashRcmDebited.s > 0) {
+                    h.rcmIgst = b.cashRcmDebited.i;
+                    h.rcmCgst = b.cashRcmDebited.c;
+                    h.rcmSgst = b.cashRcmDebited.s;
+                }
+
+                // Use Credit Ledger Debits if uploaded; otherwise fallback to existing month 3B ITC when reconstructing from Cash Ledger alone
+                var effItcDebI = b.hasCreditRows ? b.itcDebited.i : (h.itcIgst || 0);
+                var effItcDebC = b.hasCreditRows ? b.itcDebited.c : (h.itcCgst || 0);
+                var effItcDebS = b.hasCreditRows ? b.itcDebited.s : (h.itcSgst || 0);
+
+                var totDebitI = round2(effItcDebI + b.cashOutDebited.i);
+                var totDebitC = round2(effItcDebC + b.cashOutDebited.c);
+                var totDebitS = round2(effItcDebS + b.cashOutDebited.s);
+
+                if (b.cashOutDebited.i > 0 && b.cashOutDebited.c === 0 && b.cashOutDebited.s === 0 && effItcDebI === 0 && (effItcDebC > 0 || effItcDebS > 0)) {
+                    h.outIgst = round2(b.cashOutDebited.i + effItcDebC + effItcDebS);
+                    h.outCgst = 0;
+                    h.outSgst = 0;
+                } else if (totDebitI + totDebitC + totDebitS > 0 || b.hasCreditRows) {
+                    h.outIgst = totDebitI;
+                    h.outCgst = totDebitC;
+                    h.outSgst = totDebitS;
+                }
+
+                if (b.arn3b || b.filingDate || (totDebitI + totDebitC + totDebitS > 0)) {
+                    h.r3b = "Filed";
+                    if (b.filingDate) h.r3bDate = b.filingDate;
+                    if (b.arn3b) h.r3bArn = b.arn3b;
+                    h.r1 = "Filed";
+                    if (b.filingDate && !h.r1Date) h.r1Date = b.filingDate;
+                    h.waived = (b.cashLateFee + b.cashInterest === 0);
+                }
+
+                if (b.depositRefs.length > 0 || (b.cashOutDebited.i + b.cashOutDebited.c + b.cashOutDebited.s + b.cashRcmDebited.i + b.cashRcmDebited.c + b.cashRcmDebited.s > 0)) {
+                    h.challanStatus = "Paid";
+                    if (b.depositRefs.length > 0) h.challanCpin = b.depositRefs[b.depositRefs.length - 1];
+                    if (b.depositDates.length > 0) h.challanDate = b.depositDates[b.depositDates.length - 1];
+                }
+            });
+
+                        if (pendingDepositQueue.length > 0) {
+                var lastDep = pendingDepositQueue[pendingDepositQueue.length - 1];
+                var pendPk = activeTargetPeriod;
+                if (lastDep.isoDate && lastDep.isoDate.length >= 7) {
+                    var dYr = parseInt(lastDep.isoDate.substring(0, 4), 10);
+                    var dMo = parseInt(lastDep.isoDate.substring(5, 7), 10);
+                    var prevMo = dMo - 1;
+                    var prevYr = dYr;
+                    if (prevMo === 0) { prevMo = 12; prevYr -= 1; }
+                    var candidatePk = prevYr + "-" + String(prevMo).padStart(2, '0');
+                    if (client.history[candidatePk] && client.history[candidatePk].r3b === 'Filed') {
+                        pendPk = dYr + "-" + String(dMo).padStart(2, '0');
+                    } else {
+                        pendPk = candidatePk;
+                    }
+                }
+                ensureMonthStructureInitialized(client, pendPk);
+                var unutilizedSum = 0;
+                pendingDepositQueue.forEach(function(dep) { unutilizedSum = round2(unutilizedSum + dep.total); });
+                var hp = client.history[pendPk];
+                hp.cashLedgerBal = (ca && ca.closing && ca.closing.total > 0) ? ca.closing.total : unutilizedSum;
+                hp.challanStatus = "Paid";
+                if (lastDep.refNo) hp.challanCpin = lastDep.refNo;
+                if (lastDep.isoDate) hp.challanDate = lastDep.isoDate;
+                if (sortedPeriods.indexOf(pendPk) === -1) {
+                    sortedPeriods.push(pendPk);
+                    sortedPeriods.sort();
+                }
+            }
+
+            if (sortedPeriods.length > 0) {
+                var latestPk = sortedPeriods[sortedPeriods.length - 1];
+                if (ca && ca.closing && ca.closing.total > 0) {
+                    ensureMonthStructureInitialized(client, latestPk);
+                    client.history[latestPk].cashLedgerBal = ca.closing.total;
+                }
+                activeTargetPeriod = latestPk;
+                var lpParts = latestPk.split('-');
+                var lpYr = parseInt(lpParts[0], 10), lpMo = parseInt(lpParts[1], 10);
+                var fySt = (lpMo <= 3) ? (lpYr - 1) : lpYr;
+                var fySel = document.getElementById('global-fy-select');
+                if (fySel) fySel.value = fySt;
+            }
+        }
+
+
+        // --- UNIFIED GST PORTAL IMPORTER (CREDIT/CASH LEDGER CSV + 2B JSON + 3B/R1/PMT-06 PDF) ---
         function detectPeriodFromPdfText(text) {
             var monthMap = {
                 "january": "01", "jan": "01", "february": "02", "feb": "02", "march": "03", "mar": "03",
@@ -2039,6 +2592,42 @@
         }
 
         function applyParsedPortalRecordToDb(rec, populateFormIfSingle) {
+            if (rec.docType === 'CREDIT_LEDGER_CSV' || rec.docType === 'CASH_LEDGER_CSV') {
+                var lClient = rec.gstin ? db.find(function(c) { return c.gstin === rec.gstin; }) : null;
+                if (!lClient && activePortalLedgerClientId) {
+                    lClient = db.find(function(c) { return c.id === activePortalLedgerClientId; });
+                }
+                if (!lClient && rec.gstin) {
+                    lClient = {
+                        id: Date.now().toString() + Math.floor(Math.random() * 1000),
+                        name: rec.name || ("Client " + rec.gstin),
+                        phone: "",
+                        gstin: rec.gstin,
+                        scheme: "Monthly",
+                        user: "", pass: "", logo: "", tags: ["Portal Ledger"], notice: "",
+                        initItc: { igst: 0, cgst: 0, sgst: 0 },
+                        defaultFee: 0,
+                        history: {},
+                        portalLedgers: {},
+                        drc03List: []
+                    };
+                    db.push(lClient);
+                }
+                if (!lClient) return false;
+                if (!lClient.portalLedgers) lClient.portalLedgers = {};
+                if (rec.docType === 'CREDIT_LEDGER_CSV') {
+                    lClient.portalLedgers.credit = rec;
+                } else {
+                    lClient.portalLedgers.cash = rec;
+                }
+                syncClientPortalLedgers(lClient);
+                activePortalLedgerClientId = lClient.id;
+                if (populateFormIfSingle) {
+                    triggerInlineEdit(lClient.id);
+                }
+                return true;
+            }
+
             var targetPeriod = rec.periodKey || activeTargetPeriod;
             var client = rec.gstin ? db.find(function(c) { return c.gstin === rec.gstin; }) : null;
 
@@ -2141,12 +2730,13 @@
             return false;
         }
 
-        window.handlePortalFileImport = async function(event) {
+                window.handlePortalFileImport = async function(event) {
             var files = event.target.files;
             if (!files || files.length === 0) return;
             var isSingle = (files.length === 1);
             var importedCount = 0;
             var lastTypeLabel = "";
+            var importedLedgerCsv = false;
 
             showToast("Reading " + files.length + " portal file(s)...");
 
@@ -2154,7 +2744,64 @@
                 var file = files[i];
                 var fName = file.name.toLowerCase();
                 try {
-                    if (fName.endsWith('.pdf') || file.type === 'application/pdf') {
+                    if (fName.endsWith('.csv') || file.type === 'text/csv') {
+                        var csvTxt = await file.text();
+                        var ledgerRec = parseGstPortalLedgerCsv(csvTxt);
+                        if (ledgerRec.docType !== 'UNKNOWN') {
+                            if (applyParsedPortalRecordToDb(ledgerRec, isSingle)) {
+                                importedCount++;
+                                importedLedgerCsv = true;
+                                lastTypeLabel = (ledgerRec.docType === 'CREDIT_LEDGER_CSV' ? "Electronic Credit Ledger CSV" : "Electronic Cash Ledger CSV") + " (" + ledgerRec.gstin + ")";
+                            }
+                                                } else {
+                            var csvRows = parseCsvPreservingStrings(csvTxt);
+                            var inv2bArr = parseInwardRowsFromTable(csvRows);
+                            if (inv2bArr.length > 0) {
+                                var iSum = 0, cSum = 0, sSum = 0;
+                                inv2bArr.forEach(function(it) {
+                                    if (it.itcAvl !== 'N') { iSum += it.igst; cSum += it.cgst; sSum += it.sgst; }
+                                });
+                                var csvPrd = activeTargetPeriod;
+                                if (inv2bArr[0].returnPeriod2B && /^\d{2}-\d{4}$/.test(inv2bArr[0].returnPeriod2B)) {
+                                    csvPrd = inv2bArr[0].returnPeriod2B.substring(3, 7) + "-" + inv2bArr[0].returnPeriod2B.substring(0, 2);
+                                }
+                                var fallbackRec = {
+                                    docType: '2B_JSON', gstin: document.getElementById('client-gstin').value.trim().toUpperCase(),
+                                    periodKey: csvPrd,
+                                    itc2bIgst: round2(iSum), itc2bCgst: round2(cSum), itc2bSgst: round2(sSum),
+                                    rcmIgst: 0, rcmCgst: 0, rcmSgst: 0, inv2bList: inv2bArr
+                                };
+                                if (applyParsedPortalRecordToDb(fallbackRec, isSingle)) {
+                                    importedCount++;
+                                    lastTypeLabel = "GSTR-2B CSV (" + inv2bArr.length + " bills)";
+                                }
+                            }
+                        }
+                    } else if (fName.endsWith('.xlsx') || fName.endsWith('.xls')) {
+                        var xlRows = await extractRowsFromTabularFile(file);
+                        var xl2bArr = parseInwardRowsFromTable(xlRows);
+                        if (xl2bArr.length > 0) {
+                            var xi = 0, xc = 0, xs = 0;
+                            xl2bArr.forEach(function(it) {
+                                if (it.itcAvl !== 'N') { xi += it.igst; xc += it.cgst; xs += it.sgst; }
+                            });
+                            var xlPrd = activeTargetPeriod;
+                            if (xl2bArr[0].returnPeriod2B && /^\d{2}-\d{4}$/.test(xl2bArr[0].returnPeriod2B)) {
+                                xlPrd = xl2bArr[0].returnPeriod2B.substring(3, 7) + "-" + xl2bArr[0].returnPeriod2B.substring(0, 2);
+                            }
+                            var xlRec = {
+                                docType: '2B_JSON', gstin: document.getElementById('client-gstin').value.trim().toUpperCase(),
+                                periodKey: xlPrd,
+                                itc2bIgst: round2(xi), itc2bCgst: round2(xc), itc2bSgst: round2(xs),
+                                rcmIgst: 0, rcmCgst: 0, rcmSgst: 0, inv2bList: xl2bArr
+                            };
+                            if (applyParsedPortalRecordToDb(xlRec, isSingle)) {
+                                importedCount++;
+                                lastTypeLabel = "GSTR-2B Excel (" + xl2bArr.length + " bills)";
+                            }
+                        }
+
+                    } else if (fName.endsWith('.pdf') || file.type === 'application/pdf') {
                         var arrayBuf = await file.arrayBuffer();
                         var pdfText = await extractTextFromPdfBuffer(arrayBuf);
                         var pdfRec = parseGstPortalPdfText(pdfText);
@@ -2187,10 +2834,13 @@
             saveDatabase();
             renderFinancialYearCalendar();
             renderMasterDashboard();
+            if (importedLedgerCsv && document.getElementById('portal-ledger-modal').style.display === 'flex') {
+                openPortalLedgerModal(activePortalLedgerClientId);
+            }
             event.target.value = '';
 
             if (importedCount === 0) {
-                alert("Could not match or parse the selected file(s). Ensure it is an official GSTR-2B JSON or system-generated GSTR-3B / GSTR-1 / PMT-06 PDF.");
+                alert("Could not match or parse the selected file(s). Ensure it is an official Electronic Credit/Cash Ledger CSV, GSTR-2B JSON/CSV/Excel, or GSTR-3B / GSTR-1 / PMT-06 PDF.");
             } else if (isSingle) {
                 showToast("Imported " + lastTypeLabel + "!");
             } else {
@@ -2226,8 +2876,12 @@
             handleSchemeUI();
         };
 
-        function ensureMonthStructureInitialized(target, periodKey) {
+                function ensureMonthStructureInitialized(target, periodKey) {
             if (!target.history) target.history = {};
+            if (!target.initItc) target.initItc = { igst: 0, cgst: 0, sgst: 0 };
+            if (!target.drc03List) target.drc03List = [];
+            if (!target.portalLedgers) target.portalLedgers = {};
+            
             if (!target.history[periodKey]) {
                 target.history[periodKey] = {
                     outIgst: 0, outCgst: 0, outSgst: 0,
@@ -2361,7 +3015,9 @@
                     notice: document.getElementById('client-notice').value.trim(),
                     initItc: initItc,
                     defaultFee: feeEntered,
-                    history: {}
+                    history: {},
+                    portalLedgers: {},
+                    drc03List: []
                 };
                 newEntry.history[activeTargetPeriod] = payload;
                 db.push(newEntry);
@@ -2726,17 +3382,26 @@
             }
         };
 
-        window.purgeClientProfile = function(id) {
+                window.purgeClientProfile = function(id) {
             var target = db.find(function(c) { return c.id === id; });
             if (target && confirm("Delete " + target.name + " permanently?")) {
                 db = db.filter(function(c) { return c.id !== id; });
                 delete selectedClientIds[id];
+                if (document.getElementById('editing-client-id').value === id) {
+                    clearForm();
+                }
+                if (activePortalLedgerClientId === id) activePortalLedgerClientId = null;
+                if (activeDrc03ClientId === id) activeDrc03ClientId = null;
+                if (activeGstr9ClientId === id) activeGstr9ClientId = null;
+                if (activeFeeClientId === id) activeFeeClientId = null;
+                if (active2BClientId === id) active2BClientId = null;
                 saveDatabase();
                 renderFinancialYearCalendar();
                 renderMasterDashboard();
                 showToast("Client Deleted");
             }
         };
+
 
         window.copyClientCredential = function(id, field) {
             var target = db.find(function(c) { return c.id === id; });
@@ -2772,7 +3437,7 @@
             renderMasterDashboard();
         };
 
-        // --- FEATURE 4: MULTI-CLIENT BATCH ACTIONS ---
+        // --- MULTI-CLIENT BATCH ACTIONS ---
         function updateBatchBarVisibility() {
             var ids = Object.keys(selectedClientIds).filter(function(k) { return selectedClientIds[k]; });
             var bar = document.getElementById('batch-action-bar');
@@ -2855,6 +3520,7 @@
             renderMasterDashboard();
             showToast("Batch Action Applied to " + count + " Client(s)!");
         };
+
         // --- MASTER DASHBOARD RENDERER ---
         window.renderMasterDashboard = function() {
             var search = document.getElementById('search-bar').value.toLowerCase().trim();
@@ -3020,7 +3686,7 @@
                 if (cStat === 'Pending' || cStat === 'UTR_Sent' || cStat === 'Paid' || data.challanCpin || data.challanUtr) {
                     challanMetaInputs =
                         "<div style='margin-top:3px;'>" +
-                            "<input type='text' class='arn-edit' placeholder='14-Digit CPIN' maxlength='14' value='" + (data.challanCpin || '') + "' onchange=\"updateFilingMeta('" + client.id + "', 'challanCpin', this.value)\"> " +
+                            "<input type='text' class='arn-edit' placeholder='CPIN / Deposit Ref' maxlength='22' value='" + (data.challanCpin || '') + "' onchange=\"updateFilingMeta('" + client.id + "', 'challanCpin', this.value)\"> " +
                             "<input type='text' class='arn-edit' placeholder='Bank UTR #' value='" + (data.challanUtr || '') + "' onchange=\"updateFilingMeta('" + client.id + "', 'challanUtr', this.value)\">" +
                         "</div>";
                 }
@@ -3108,9 +3774,11 @@
                         "</div>" +
                         "<div class='action-row'>" +
                             "<button type='button' class='btn-inline' onclick=\"triggerInlineEdit('" + client.id + "')\">Edit</button>" +
+                            "<button type='button' class='btn-inline btn-ledger-passbook' onclick=\"openPortalLedgerModal('" + client.id + "')\" title='Portal Credit &amp; Cash Ledgers'>&#128210; Ledgers</button>" +
                             twoBInvoicesBtn +
                             "<button type='button' class='btn-inline btn-gstr9' onclick=\"openGstr9Modal('" + client.id + "')\">GSTR-9</button>" +
                             "<button type='button' class='btn-inline btn-rfd01' onclick=\"openRfd01Modal('" + client.id + "')\">RFD-01</button>" +
+                            "<button type='button' class='btn-inline btn-drc03' onclick=\"openDrc03Modal('" + client.id + "')\">DRC-03</button>" +
                             "<button type='button' class='btn-inline btn-fee-passbook' onclick=\"openFeePassbookModal('" + client.id + "')\">&#128188; Fee</button>" +
                             "<button type='button' class='btn-inline btn-print' onclick=\"printChallan('" + client.id + "')\">PDF</button>" +
                             "<button type='button' class='btn-inline btn-whatsapp' onclick=\"openWhatsAppModal('" + client.id + "')\">WA</button>" +
@@ -3128,8 +3796,7 @@
             document.getElementById('stat-cash').innerHTML = '&#8377;' + fmtINR(aggregateShortfallNeeded);
             document.getElementById('stat-fees').innerHTML = '&#8377;' + fmtINR(aggregateUncollectedFees);
         };
-
-        // --- FEATURE 2 MODAL: GSTR-2B PARTY-WISE & INVOICE-WISE INSPECTOR ---
+        // --- MODAL 6: GSTR-2B PARTY-WISE & INVOICE-WISE INSPECTOR ---
         window.open2BInspectorModal = function(clientId) {
             active2BClientId = clientId;
             document.getElementById('gstr2b-search-input').value = '';
@@ -3233,7 +3900,7 @@
             showToast("GSTR-2B Invoices CSV Downloaded");
         };
 
-        // --- FEATURE 5 MODAL: FIRM REVENUE & DEBTOR AGING ANALYTICS ---
+        // --- MODAL 7: FIRM REVENUE & DEBTOR AGING ANALYTICS ---
         window.openFirmAnalyticsModal = function() {
             var mainFy = document.getElementById('global-fy-select').value;
             var anaSelect = document.getElementById('analytics-fy-select');
@@ -3672,6 +4339,7 @@
 
             document.body.classList.remove('print-mode-fee');
             document.body.classList.remove('print-mode-rfd01');
+            document.body.classList.remove('print-mode-drc03');
             document.body.classList.add('print-mode-gstr9');
             setTimeout(function() {
                 window.print();
@@ -3824,6 +4492,7 @@
 
             document.body.classList.remove('print-mode-gstr9');
             document.body.classList.remove('print-mode-rfd01');
+            document.body.classList.remove('print-mode-drc03');
             document.body.classList.add('print-mode-fee');
 
             var qrImg = document.getElementById('dynamic-fee-qr-img');
@@ -3845,7 +4514,8 @@
                 launchPrint();
             }
         };
-                // --- MODAL 8: RFD-01 INVERTED DUTY STRUCTURE (INVITC) REFUND ARCHITECT ---
+
+        // --- MODAL 8: RFD-01 INVERTED DUTY STRUCTURE (INVITC) REFUND ARCHITECT ---
         function formatDateDDMMYYYY(raw) {
             if (!raw) return "";
             var s = String(raw).trim();
@@ -4103,12 +4773,11 @@
                 sel.appendChild(opt);
             });
             document.getElementById('rfd01-modal').style.display = 'flex';
-                        if (clientId) {
+            if (clientId) {
                 loadClientIntoRfd01();
             } else {
                 runRfd01Calculation();
             }
-
         };
 
         window.loadSampleRfd01Data = function(silent) {
@@ -4291,7 +4960,6 @@
             var adjTurnoverOverride = parseFloat(document.getElementById('rfd-adj-turnover').value) || 0;
             var manualServicesItc = parseFloat(document.getElementById('rfd-services-itc').value) || 0;
 
-            // 1. INWARD FILTERING (Rule 89(5) & Circular 135/05/2020-GST)
             var raw2BTot = { count: 0, val: 0, iamt: 0, camt: 0, samt: 0 };
             var rowBLowerRate = { count: 0, val: 0, iamt: 0, camt: 0, samt: 0 };
             var rowCServicesCap = { count: 0, val: 0, iamt: 0, camt: 0, samt: 0 };
@@ -4341,7 +5009,6 @@
                 }
             });
 
-            // 2. OUTWARD FILTERING (Section 54(3)(ii): Exclude >= 18% non-inverted sales from Statement 1A & Col 1/2)
             var eligibleOutward = [];
             var excludedOutward = { count: 0, val: 0, iamt: 0, camt: 0, samt: 0 };
             var totalGstr1Turnover = 0;
@@ -4379,7 +5046,6 @@
                 }
             });
 
-            // 3. STATEMENT 1A TOTALS & RFD-01 TABLE-1 COMPUTATION
             var stmt1AInwardTot = { val: 0, iamt: 0, camt: 0, samt: 0 };
             eligibleInward.forEach(function(it) {
                 stmt1AInwardTot.val = round2(stmt1AInwardTot.val + it.txval);
@@ -4396,7 +5062,6 @@
                 stmt1AOutwardTot.samt = round2(stmt1AOutwardTot.samt + ot.sgst);
             });
 
-            // Portal Ceiling Rule: Col (1) MUST NOT exceed Statement 1A outward taxable sum by even Rs. 0.01
             var col1Turnover = round2(stmt1AOutwardTot.oval);
             var col3AdjTurnover = adjTurnoverOverride > 0
                 ? round2(adjTurnoverOverride)
@@ -4407,7 +5072,6 @@
             var col4NetItcS = round2(stmt1AInwardTot.samt);
             var col4NetItcTot = round2(col4NetItcI + col4NetItcC + col4NetItcS);
 
-            // Rule 89(5) Ratio for Col (2): Net ITC on Inputs / Total ITC on Inputs & Input Services
             var detectedServicesItc = round2(rowCServicesCap.iamt + rowCServicesCap.camt + rowCServicesCap.samt);
             var servicesItcUsed = manualServicesItc > 0 ? manualServicesItc : detectedServicesItc;
             var totalInputsAndServicesItc = round2(col4NetItcTot + servicesItcUsed);
@@ -4424,7 +5088,6 @@
             var maxRefundS = Math.max(0, round2((col4NetItcS * turnoverRatio) - col2TaxPayableS));
             var maxRefundTot = round2(maxRefundI + maxRefundC + maxRefundS);
 
-            // TABLE-2 & TABLE-3: CIRCULAR 125/44/2019-GST LEDGER CAPPING
             var rawEndI = document.getElementById('rfd-ecl-end-i').value;
             var rawEndC = document.getElementById('rfd-ecl-end-c').value;
             var rawEndS = document.getElementById('rfd-ecl-end-s').value;
@@ -4562,7 +5225,6 @@
             }
         };
 
-        // --- DELIVERABLE 1: EXPORT STATEMENT 1A.JSON (OFFLINE UTILITY v2.0 PAIRED SCHEMA) ---
         window.exportRfd01Statement1AJson = function() {
             if (!rfdState.lastResult) runRfd01Calculation();
             var res = rfdState.lastResult;
@@ -4619,7 +5281,6 @@
             showToast("Statement 1A.json (v2.0 Paired Schema) Downloaded!");
         };
 
-        // --- DELIVERABLE 2: EXPORT ANNEXURE B.JSON (OFFLINE UTILITY v1.0 PER ADVISORY 660) ---
         window.exportRfd01AnnexureBJson = function() {
             if (!rfdState.lastResult) runRfd01Calculation();
             var res = rfdState.lastResult;
@@ -4658,7 +5319,6 @@
             showToast("Annexure B.json (v1.0 Advisory 660) Downloaded!");
         };
 
-        // --- DELIVERABLE 3A: EXPORT RECONCILIATION & STATEMENT 1A CSV ---
         window.exportRfd01ReconCsv = function() {
             if (!rfdState.lastResult) runRfd01Calculation();
             var res = rfdState.lastResult;
@@ -4696,7 +5356,6 @@
             showToast("RFD-01 Reconciliation CSV Downloaded!");
         };
 
-        // --- DELIVERABLE 3B: PRINTABLE GSTR-2B VS STATEMENT 1A RECONCILIATION PDF ---
         window.printRfd01ReconDossier = function() {
             if (!rfdState.lastResult) runRfd01Calculation();
             var res = rfdState.lastResult;
@@ -4778,11 +5437,509 @@
 
             document.body.classList.remove('print-mode-gstr9');
             document.body.classList.remove('print-mode-fee');
+            document.body.classList.remove('print-mode-drc03');
             document.body.classList.add('print-mode-rfd01');
             setTimeout(function() {
                 window.print();
                 setTimeout(function() {
                     document.body.classList.remove('print-mode-rfd01');
+                }, 600);
+            }, 200);
+        };
+        // --- MODAL 9: PORTAL ELECTRONIC CREDIT & CASH LEDGER PASSBOOK + SAMPLE LOADER ---
+        window.openPortalLedgerModal = function(clientId) {
+            var sel = document.getElementById('ledger-client-select');
+            sel.innerHTML = '<option value="">-- Select Client Profile --</option>';
+            db.forEach(function(c) {
+                var opt = document.createElement('option');
+                opt.value = c.id;
+                opt.textContent = c.name + " (" + c.gstin + ")";
+                if (clientId && c.id === clientId) opt.selected = true;
+                sel.appendChild(opt);
+            });
+            if (clientId) {
+                activePortalLedgerClientId = clientId;
+            } else if (sel.value) {
+                activePortalLedgerClientId = sel.value;
+            } else if (db.length > 0) {
+                activePortalLedgerClientId = db[0].id;
+                sel.value = db[0].id;
+            }
+            renderPortalLedgerModal();
+            document.getElementById('portal-ledger-modal').style.display = 'flex';
+        };
+
+                window.renderPortalLedgerModal = function() {
+            var sel = document.getElementById('ledger-client-select');
+            if (sel) activePortalLedgerClientId = sel.value || null;
+            var client = activePortalLedgerClientId ? db.find(function(c) { return c.id === activePortalLedgerClientId; }) : null;
+
+
+            var kpiGrid = document.getElementById('portal-ledger-kpi-grid');
+            var reconTbody = document.getElementById('portal-ledger-recon-tbody');
+            var crRawTbody = document.getElementById('portal-credit-raw-tbody');
+            var caRawTbody = document.getElementById('portal-cash-raw-tbody');
+
+                        if (!client) {
+                kpiGrid.innerHTML = "";
+                reconTbody.innerHTML = "<tr><td colspan='9' style='text-align:center; padding:18px; color:var(--text-muted);'>Upload ElectronicCreditLedger.csv &amp; Electronic_Cash_Ledger.csv to view reconstructed monthly ledgers.</td></tr>";
+                crRawTbody.innerHTML = "<tr><td colspan='9' style='text-align:center; padding:14px; color:var(--text-muted);'>No Credit Ledger loaded.</td></tr>";
+                caRawTbody.innerHTML = "<tr><td colspan='9' style='text-align:center; padding:14px; color:var(--text-muted);'>No Cash Ledger loaded.</td></tr>";
+                return;
+            }            
+
+            ensureMonthStructureInitialized(client, activeTargetPeriod);
+            var pl = client.portalLedgers || {};
+            var cr = pl.credit || null;
+            var ca = pl.cash || null;
+
+            document.getElementById('portal-ledger-title').textContent = "Portal Electronic Credit & Cash Ledger Passbook — " + client.name;
+            var dateSpan = (cr && cr.fromDate) ? ("Period: " + cr.fromDate + " to " + cr.toDate) : ((ca && ca.fromDate) ? ("Period: " + ca.fromDate + " to " + ca.toDate) : "Synced with Client Monthly History");
+            document.getElementById('portal-ledger-subtitle').textContent = "GSTIN: " + client.gstin + " | " + dateSpan;
+
+            var totItcAccrued = 0, totItcDebited = 0, totCashDeposited = 0, totCashDebited = 0;
+            if (cr && Array.isArray(cr.transactions)) {
+                cr.transactions.forEach(function(tx) {
+                    if (tx.txType === 'Credit') totItcAccrued = round2(totItcAccrued + tx.total);
+                    if (tx.txType === 'Debit') totItcDebited = round2(totItcDebited + tx.total);
+                });
+            }
+            if (ca && Array.isArray(ca.transactions)) {
+                ca.transactions.forEach(function(tx) {
+                    if (tx.txType === 'Credit') totCashDeposited = round2(totCashDeposited + tx.total);
+                    if (tx.txType === 'Debit') totCashDebited = round2(totCashDebited + tx.total);
+                });
+            }
+
+            var opCrTot = (cr && cr.opening) ? cr.opening.total : ((client.initItc.igst || 0) + (client.initItc.cgst || 0) + (client.initItc.sgst || 0));
+            var clCrTot = (cr && cr.closing) ? cr.closing.total : 0;
+            var clCaTot = (ca && ca.closing) ? ca.closing.total : 0;
+
+            kpiGrid.innerHTML =
+                "<div class='gstr9-kpi-box'>" +
+                    "<div class='summary-label'>Opening &amp; Closing Ledger Bal</div>" +
+                    "<div style='font-size:1.12rem; font-weight:800; color:var(--cyan); margin-top:3px;'>Op ITC: &#8377;" + fmtINR(opCrTot) + "</div>" +
+                    "<div style='font-size:0.7rem; color:var(--text-muted);'>Closing ITC: &#8377;" + fmtINR(clCrTot) + " | Cash Bal: &#8377;" + fmtINR(clCaTot) + "</div>" +
+                "</div>" +
+                "<div class='gstr9-kpi-box'>" +
+                    "<div class='summary-label'>Total 3B ITC Accrued (Credit)</div>" +
+                    "<div style='font-size:1.15rem; font-weight:800; color:var(--success); margin-top:3px;'>&#8377;" + fmtINR(totItcAccrued) + "</div>" +
+                    "<div style='font-size:0.7rem; color:var(--text-muted);'>ITC Utilized (Debit): &#8377;" + fmtINR(totItcDebited) + "</div>" +
+                "</div>" +
+                "<div class='gstr9-kpi-box'>" +
+                    "<div class='summary-label'>Total Cash Deposited &amp; Paid</div>" +
+                    "<div style='font-size:1.15rem; font-weight:800; color:var(--warning); margin-top:3px;'>&#8377;" + fmtINR(totCashDeposited) + "</div>" +
+                    "<div style='font-size:0.7rem; color:var(--text-muted);'>Cash Tax Debited: &#8377;" + fmtINR(totCashDebited) + "</div>" +
+                "</div>" +
+                "<div class='gstr9-kpi-box'>" +
+                    "<div class='summary-label'>Reconstructed Output Liability</div>" +
+                    "<div style='font-size:1.15rem; font-weight:800; color:var(--primary); margin-top:3px;'>&#8377;" + fmtINR(totItcDebited + totCashDebited) + "</div>" +
+                    "<div style='font-size:0.7rem; color:#6ee7b7;'>ITC Set-Off + Cash Paid Verified</div>" +
+                "</div>";
+
+            // Render Reconstructed Period-Wise Table
+            var periods = Object.keys(client.history || {}).sort();
+            reconTbody.innerHTML = '';
+            var activeRows = 0;
+
+            periods.forEach(function(pk) {
+                var h = client.history[pk];
+                var outTot = round2((h.outIgst || 0) + (h.outCgst || 0) + (h.outSgst || 0));
+                var itcTot = round2((h.itcIgst || 0) + (h.itcCgst || 0) + (h.itcSgst || 0));
+                if (outTot === 0 && itcTot === 0 && !h.r3bArn && !h.challanCpin) return;
+                activeRows++;
+
+                var op = calculateCumulativeITC(client, pk);
+                var due = getClientDueDates(client, pk);
+                var net = computeTaxEngine(h, due.r3bDueDate, op, client.scheme);
+                var itcUsedSum = round2(net.itcUsedFromPool.igst + net.itcUsedFromPool.cgst + net.itcUsedFromPool.sgst);
+
+                var tr = document.createElement('tr');
+                tr.innerHTML =
+                    "<td><strong>" + pk + "</strong></td>" +
+                    "<td>" + (h.r3bDate || '--') + "</td>" +
+                    "<td style='font-family:monospace; color:#93c5fd;'>" + (h.r3bArn || '--') + "</td>" +
+                    "<td style='color:var(--success);'><strong>&#8377;" + fmtINR(itcTot) + "</strong><br><span style='font-size:0.66rem; color:var(--text-muted);'>I:" + fmtINR(h.itcIgst) + " | C:" + fmtINR(h.itcCgst) + " | S:" + fmtINR(h.itcSgst) + "</span></td>" +
+                    "<td>&#8377;" + fmtINR(itcUsedSum) + "</td>" +
+                    "<td style='font-family:monospace; font-size:0.72rem; color:#fcd34d;'>" + (h.challanCpin || 'N/A') + (h.challanDate ? "<br><span style='color:var(--text-muted);'>" + h.challanDate + "</span>" : "") + "</td>" +
+                    "<td style='color:var(--warning);'><strong>&#8377;" + fmtINR(net.totalCash) + "</strong><br><span style='font-size:0.66rem; color:var(--text-muted);'>I:" + fmtINR(net.cashHeads.igst) + " | C:" + fmtINR(net.cashHeads.cgst) + " | S:" + fmtINR(net.cashHeads.sgst) + "</span></td>" +
+                    "<td style='color:var(--primary);'><strong>&#8377;" + fmtINR(outTot) + "</strong><br><span style='font-size:0.66rem; color:var(--text-muted);'>I:" + fmtINR(h.outIgst) + " | C:" + fmtINR(h.outCgst) + " | S:" + fmtINR(h.outSgst) + "</span></td>" +
+                    "<td>&#8377;" + fmtINR(net.carryCredit) + "</td>";
+                reconTbody.appendChild(tr);
+            });
+
+            if (activeRows === 0) {
+                reconTbody.innerHTML = "<tr><td colspan='9' style='text-align:center; padding:18px; color:var(--text-muted);'>No active ledger periods found for this client yet. Upload Credit/Cash Ledger CSVs above.</td></tr>";
+            }
+
+            // Render Raw Credit Ledger Passbook
+            crRawTbody.innerHTML = '';
+            if (cr && Array.isArray(cr.transactions) && cr.transactions.length > 0) {
+                cr.transactions.forEach(function(tx) {
+                    var tr = document.createElement('tr');
+                    var isCr = (tx.txType === 'Credit');
+                    tr.innerHTML =
+                        "<td>" + tx.date + "</td>" +
+                        "<td><strong>" + tx.rawPeriod + "</strong></td>" +
+                        "<td style='font-family:monospace; font-size:0.7rem;'>" + tx.refNo + "</td>" +
+                        "<td>" + tx.desc + "</td>" +
+                        "<td style='color:" + (isCr ? 'var(--success)' : 'var(--danger)') + "; font-weight:700;'>" + tx.txType + "</td>" +
+                        "<td>" + fmtINR(tx.igst) + "</td>" +
+                        "<td>" + fmtINR(tx.cgst) + "</td>" +
+                        "<td>" + fmtINR(tx.sgst) + "</td>" +
+                        "<td><strong>&#8377;" + fmtINR(tx.balTotal) + "</strong></td>";
+                    crRawTbody.appendChild(tr);
+                });
+            } else {
+                crRawTbody.innerHTML = "<tr><td colspan='9' style='text-align:center; padding:14px; color:var(--text-muted);'>Upload ElectronicCreditLedger.csv to inspect raw credit &amp; debit entries.</td></tr>";
+            }
+
+            // Render Raw Cash Ledger Passbook
+            caRawTbody.innerHTML = '';
+            if (ca && Array.isArray(ca.transactions) && ca.transactions.length > 0) {
+                ca.transactions.forEach(function(tx) {
+                    var tr = document.createElement('tr');
+                    var isCr = (tx.txType === 'Credit');
+                    tr.innerHTML =
+                        "<td>" + tx.date + "</td>" +
+                        "<td><strong>" + (tx.rawPeriod || '-') + "</strong></td>" +
+                        "<td style='font-family:monospace; font-size:0.7rem;'>" + tx.refNo + "</td>" +
+                        "<td>" + tx.desc + "</td>" +
+                        "<td style='color:" + (isCr ? 'var(--success)' : 'var(--warning)') + "; font-weight:700;'>" + tx.txType + "</td>" +
+                        "<td>" + fmtINR(tx.igstTot) + "</td>" +
+                        "<td>" + fmtINR(tx.cgstTot) + "</td>" +
+                        "<td>" + fmtINR(tx.sgstTot) + "</td>" +
+                        "<td><strong>&#8377;" + fmtINR(tx.balTotal) + "</strong></td>";
+                    caRawTbody.appendChild(tr);
+                });
+            } else {
+                caRawTbody.innerHTML = "<tr><td colspan='9' style='text-align:center; padding:14px; color:var(--text-muted);'>Upload Electronic_Cash_Ledger.csv to inspect challan deposits &amp; cash debits.</td></tr>";
+            }            
+        };
+
+
+        window.exportPortalLedgerReconCsv = function() {
+            var client = db.find(function(c) { return c.id === activePortalLedgerClientId; });
+            if (!client) return alert("Select a client first.");
+
+            var headers = ["Period","Filing Date","3B ARN","ITC IGST","ITC CGST","ITC SGST","Total ITC Accrued","Cash Ref / CPIN","Cash IGST Paid","Cash CGST Paid","Cash SGST Paid","Reconstructed Out IGST","Reconstructed Out CGST","Reconstructed Out SGST","Total Output Liability"];
+            var rows = [headers.join(",")];
+
+            var periods = Object.keys(client.history || {}).sort();
+            periods.forEach(function(pk) {
+                var h = client.history[pk];
+                var outTot = round2((h.outIgst || 0) + (h.outCgst || 0) + (h.outSgst || 0));
+                var itcTot = round2((h.itcIgst || 0) + (h.itcCgst || 0) + (h.itcSgst || 0));
+                if (outTot === 0 && itcTot === 0 && !h.r3bArn) return;
+
+                var op = calculateCumulativeITC(client, pk);
+                var due = getClientDueDates(client, pk);
+                var net = computeTaxEngine(h, due.r3bDueDate, op, client.scheme);
+
+                rows.push([
+                    '"' + pk + '"', '"' + (h.r3bDate || '') + '"', '"' + (h.r3bArn || '') + '"',
+                    h.itcIgst || 0, h.itcCgst || 0, h.itcSgst || 0, itcTot,
+                    '"' + (h.challanCpin || '') + '"',
+                    net.cashHeads.igst, net.cashHeads.cgst, net.cashHeads.sgst,
+                    h.outIgst || 0, h.outCgst || 0, h.outSgst || 0, outTot
+                ].join(","));
+            });
+
+            var a = document.createElement('a');
+            a.href = "data:text/csv;charset=utf-8," + encodeURIComponent(rows.join("\n"));
+            a.download = "Reconstructed_Portal_Ledger_" + client.gstin + ".csv";
+            document.body.appendChild(a); a.click(); a.remove();
+            showToast("Reconstructed Ledger CSV Downloaded!");
+        };
+
+        // --- MODAL 10: FORM GST DRC-03 VOLUNTARY PAYMENT, NOTICE REGISTER & CMP-08 WORKING SUITE ---
+        window.openDrc03Modal = function(clientId) {
+            var sel = document.getElementById('drc-client-select');
+            sel.innerHTML = '<option value="">-- Select Client Profile --</option>';
+            db.forEach(function(c) {
+                var opt = document.createElement('option');
+                opt.value = c.id;
+                opt.textContent = c.name + " (" + c.gstin + ")";
+                if (clientId && c.id === clientId) opt.selected = true;
+                sel.appendChild(opt);
+            });
+            if (clientId) {
+                activeDrc03ClientId = clientId;
+            } else if (sel.value) {
+                activeDrc03ClientId = sel.value;
+            } else if (db.length > 0) {
+                activeDrc03ClientId = db[0].id;
+                sel.value = db[0].id;
+            }
+            document.getElementById('drc-period').value = activeTargetPeriod;
+            loadClientIntoDrc03();
+            document.getElementById('drc03-modal').style.display = 'flex';
+        };
+
+                window.loadClientIntoDrc03 = function() {
+            var sel = document.getElementById('drc-client-select');
+            if (sel) activeDrc03ClientId = sel.value || null;
+            var client = activeDrc03ClientId ? db.find(function(c) { return c.id === activeDrc03ClientId; }) : null;
+
+            var drcTbody = document.getElementById('drc03-history-tbody');
+            var cmpTbody = document.getElementById('cmp08-summary-tbody');
+
+            if (!client) {
+                drcTbody.innerHTML = "<tr><td colspan='8' style='text-align:center; padding:16px; color:var(--text-muted);'>Select a client to manage Form GST DRC-03 &amp; CMP-08 workings.</td></tr>";
+                cmpTbody.innerHTML = "<tr><td colspan='6' style='text-align:center; padding:16px; color:var(--text-muted);'>Select a client to view quarterly CMP-08 summary.</td></tr>";
+                return;
+            }
+
+            ensureMonthStructureInitialized(client, activeTargetPeriod);
+            if (client.notice && !document.getElementById('drc-ref-arn').value) {
+                document.getElementById('drc-ref-arn').value = client.notice;
+            }
+
+            // Render DRC-03 Register
+            var list = client.drc03List || [];
+            drcTbody.innerHTML = '';
+            if (list.length === 0) {
+                drcTbody.innerHTML = "<tr><td colspan='8' style='text-align:center; padding:16px; color:var(--text-muted);'>No DRC-03 voluntary payments logged yet for " + client.name + ".</td></tr>";
+            } else {
+                list.forEach(function(item, idx) {
+                    var taxSum = round2((item.taxI || 0) + (item.taxC || 0) + (item.taxS || 0));
+                    var totSum = round2(taxSum + (item.interest || 0) + (item.penalty || 0));
+                    var tr = document.createElement('tr');
+                    tr.innerHTML =
+                        "<td><strong>" + item.period + "</strong><br><span style='font-size:0.68rem; color:var(--text-muted);'>" + item.cause + "</span></td>" +
+                        "<td>" + item.section + "</td>" +
+                        "<td>&#8377;" + fmtINR(taxSum) + "</td>" +
+                        "<td>&#8377;" + fmtINR(item.interest) + "</td>" +
+                        "<td>&#8377;" + fmtINR(item.penalty) + "</td>" +
+                        "<td style='color:var(--warning); font-weight:800;'>&#8377;" + fmtINR(totSum) + "</td>" +
+                        "<td><span class='segment-tag'>" + item.payMode + "</span>" + (item.refArn ? "<br><span style='font-family:monospace; font-size:0.68rem;'>" + item.refArn + "</span>" : "") + "</td>" +
+                        "<td><button type='button' class='btn-inline' style='color:var(--danger); padding:2px 6px;' onclick=\"deleteDrc03Entry(" + idx + ")\">&times;</button></td>";
+                    drcTbody.appendChild(tr);
+                });
+            }
+
+            // Render 4-Quarter CMP-08 Summary for Selected FY
+            var startYear = parseInt(document.getElementById('global-fy-select').value, 10);
+            var quarters = [
+                { q: "Q1 (Apr–Jun)", months: [startYear + "-04", startYear + "-05", startYear + "-06"], m3: startYear + "-06" },
+                { q: "Q2 (Jul–Sep)", months: [startYear + "-07", startYear + "-08", startYear + "-09"], m3: startYear + "-09" },
+                { q: "Q3 (Oct–Dec)", months: [startYear + "-10", startYear + "-11", startYear + "-12"], m3: startYear + "-12" },
+                { q: "Q4 (Jan–Mar)", months: [(startYear + 1) + "-01", (startYear + 1) + "-02", (startYear + 1) + "-03"], m3: (startYear + 1) + "-03" }
+            ];
+
+            cmpTbody.innerHTML = '';
+            quarters.forEach(function(qObj) {
+                var outSum = 0, rcmSum = 0;
+                qObj.months.forEach(function(pk) {
+                    ensureMonthStructureInitialized(client, pk);
+                    var d = client.history[pk];
+                    outSum = round2(outSum + (d.outIgst || 0) + (d.outCgst || 0) + (d.outSgst || 0));
+                    rcmSum = round2(rcmSum + (d.rcmIgst || 0) + (d.rcmCgst || 0) + (d.rcmSgst || 0));
+                });
+                var m3Data = client.history[qObj.m3];
+                var qStatus = m3Data ? m3Data.r3b : "Pending";
+                var tr = document.createElement('tr');
+                tr.innerHTML =
+                    "<td><strong>" + qObj.q + "</strong></td>" +
+                    "<td style='font-size:0.7rem; color:var(--text-muted);'>" + qObj.months.join(", ") + "</td>" +
+                    "<td>&#8377;" + fmtINR(outSum) + "</td>" +
+                    "<td>&#8377;" + fmtINR(rcmSum) + "</td>" +
+                    "<td style='color:var(--primary); font-weight:800;'>&#8377;" + fmtINR(outSum + rcmSum) + "</td>" +
+                    "<td style='color:" + (qStatus === 'Filed' ? 'var(--success)' : 'var(--warning)') + "; font-weight:700;'>" + qStatus + (m3Data && m3Data.r3bArn ? " (" + m3Data.r3bArn + ")" : "") + "</td>";
+                cmpTbody.appendChild(tr);
+            });
+        };
+
+        window.autoCalcDrc03Interest = function() {
+            var tI = parseFloat(document.getElementById('drc-tax-i').value) || 0;
+            var tC = parseFloat(document.getElementById('drc-tax-c').value) || 0;
+            var tS = parseFloat(document.getElementById('drc-tax-s').value) || 0;
+            var days = parseInt(document.getElementById('drc-delay-days').value, 10) || 0;
+            var sec = document.getElementById('drc-section').value;
+
+            var totTax = tI + tC + tS;
+            if (totTax > 0 && days > 0) {
+                var intVal = round2(totTax * 0.18 * (days / 365));
+                document.getElementById('drc-interest-tot').value = intVal.toFixed(2);
+            }
+            if (sec === '74(5)' && totTax > 0) {
+                document.getElementById('drc-penalty-tot').value = round2(totTax * 0.15).toFixed(2);
+            }
+        };
+
+        window.recalcDrc03Preview = function() {
+            autoCalcDrc03Interest();
+        };
+
+        window.autoPull2BExcessIntoDrc03 = function() {
+            var client = db.find(function(c) { return c.id === activeDrc03ClientId; });
+            if (!client) return showToast("Select a client first");
+            ensureMonthStructureInitialized(client, activeTargetPeriod);
+            var d = client.history[activeTargetPeriod];
+
+            var exI = Math.max(0, round2((d.itcIgst || 0) - (d.itc2bIgst || 0)));
+            var exC = Math.max(0, round2((d.itcCgst || 0) - (d.itc2bCgst || 0)));
+            var exS = Math.max(0, round2((d.itcSgst || 0) - (d.itc2bSgst || 0)));
+
+            document.getElementById('drc-cause').value = 'ITC_Reversal';
+            document.getElementById('drc-period').value = activeTargetPeriod;
+            document.getElementById('drc-tax-i').value = exI.toFixed(2);
+            document.getElementById('drc-tax-c').value = exC.toFixed(2);
+            document.getElementById('drc-tax-s').value = exS.toFixed(2);
+            document.getElementById('drc-remarks').value = "Voluntary reversal of excess ITC claimed in GSTR-3B over GSTR-2B for period " + activeTargetPeriod;
+            autoCalcDrc03Interest();
+            showToast("Pulled 2B vs 3B Excess ITC (Rs. " + fmtINR(exI + exC + exS) + ")");
+        };
+
+        window.autoPullAnnualGstr9DiffIntoDrc03 = function() {
+            var client = db.find(function(c) { return c.id === activeDrc03ClientId; });
+            if (!client) return showToast("Select a client first");
+            var startYear = parseInt(document.getElementById('global-fy-select').value, 10);
+            var g9 = computeGstr9DossierData(client, startYear);
+
+            var exI = Math.max(0, round2(g9.t8.itc3bI - g9.t8.itc2bI));
+            var exC = Math.max(0, round2(g9.t8.itc3bC - g9.t8.itc2bC));
+            var exS = Math.max(0, round2(g9.t8.itc3bS - g9.t8.itc2bS));
+
+            document.getElementById('drc-cause').value = 'GSTR9_Recon';
+            document.getElementById('drc-period').value = g9.fyLabel;
+            document.getElementById('drc-tax-i').value = exI.toFixed(2);
+            document.getElementById('drc-tax-c').value = exC.toFixed(2);
+            document.getElementById('drc-tax-s').value = exS.toFixed(2);
+            document.getElementById('drc-remarks').value = "Voluntary payment against GSTR-9 Table 8D variance for " + g9.fyLabel;
+            autoCalcDrc03Interest();
+            showToast("Pulled Annual GSTR-9 Table 8D Variance (Rs. " + fmtINR(exI + exC + exS) + ")");
+        };
+
+        window.saveDrc03Entry = function() {
+            var client = db.find(function(c) { return c.id === activeDrc03ClientId; });
+            if (!client) return alert("Please select a client first.");
+            if (!client.drc03List) client.drc03List = [];
+
+            var entry = {
+                id: Date.now().toString(),
+                cause: document.getElementById('drc-cause').value,
+                section: document.getElementById('drc-section').value,
+                period: document.getElementById('drc-period').value.trim() || activeTargetPeriod,
+                refArn: document.getElementById('drc-ref-arn').value.trim(),
+                taxI: parseFloat(document.getElementById('drc-tax-i').value) || 0,
+                taxC: parseFloat(document.getElementById('drc-tax-c').value) || 0,
+                taxS: parseFloat(document.getElementById('drc-tax-s').value) || 0,
+                delayDays: parseInt(document.getElementById('drc-delay-days').value, 10) || 0,
+                interest: parseFloat(document.getElementById('drc-interest-tot').value) || 0,
+                penalty: parseFloat(document.getElementById('drc-penalty-tot').value) || 0,
+                payMode: document.getElementById('drc-pay-mode').value,
+                remarks: document.getElementById('drc-remarks').value.trim(),
+                createdAt: new Date().toLocaleDateString('en-IN')
+            };
+
+            client.drc03List.push(entry);
+            saveDatabase();
+            loadClientIntoDrc03();
+            showToast("Form GST DRC-03 Record Logged!");
+        };
+
+        window.deleteDrc03Entry = function(idx) {
+            var client = db.find(function(c) { return c.id === activeDrc03ClientId; });
+            if (!client || !client.drc03List) return;
+            client.drc03List.splice(idx, 1);
+            saveDatabase();
+            loadClientIntoDrc03();
+            showToast("DRC-03 Record Removed");
+        };
+
+        window.printDrc03OrCmp08Dossier = function() {
+            var client = db.find(function(c) { return c.id === activeDrc03ClientId; });
+            if (!client) return alert("Select a client first.");
+
+            var startYear = parseInt(document.getElementById('global-fy-select').value, 10);
+            var fyLabel = "FY " + startYear + "-" + String(startYear + 1).substring(2);
+            var drcList = client.drc03List || [];
+
+            var drcRowsHtml = "";
+            var totDrcGrand = 0;
+            if (drcList.length === 0) {
+                drcRowsHtml = "<tr><td colspan='8' style='text-align:center;'>No Form GST DRC-03 payments recorded.</td></tr>";
+            } else {
+                drcList.forEach(function(it, i) {
+                    var tSum = round2((it.taxI || 0) + (it.taxC || 0) + (it.taxS || 0));
+                    var gSum = round2(tSum + (it.interest || 0) + (it.penalty || 0));
+                    totDrcGrand = round2(totDrcGrand + gSum);
+                    drcRowsHtml +=
+                        "<tr>" +
+                            "<td style='text-align:center;'>" + (i + 1) + "</td>" +
+                            "<td style='text-align:left;'><strong>" + it.period + "</strong> - " + it.cause + (it.remarks ? "<br><span style='font-size:9.5px; color:#475569;'>" + it.remarks + "</span>" : "") + "</td>" +
+                            "<td style='text-align:center;'>" + it.section + "</td>" +
+                            "<td>I:" + fmtINR(it.taxI) + " | C:" + fmtINR(it.taxC) + " | S:" + fmtINR(it.taxS) + "</td>" +
+                            "<td>" + fmtINR(it.interest) + "</td>" +
+                            "<td>" + fmtINR(it.penalty) + "</td>" +
+                            "<td style='text-align:center;'>" + it.payMode + (it.refArn ? "<br>" + it.refArn : "") + "</td>" +
+                            "<td><strong>&#8377;" + fmtINR(gSum) + "</strong></td>" +
+                        "</tr>";
+                });
+            }
+
+            var quarters = [
+                { q: "Q1 (Apr–Jun)", months: [startYear + "-04", startYear + "-05", startYear + "-06"], m3: startYear + "-06" },
+                { q: "Q2 (Jul–Sep)", months: [startYear + "-07", startYear + "-08", startYear + "-09"], m3: startYear + "-09" },
+                { q: "Q3 (Oct–Dec)", months: [startYear + "-10", startYear + "-11", startYear + "-12"], m3: startYear + "-12" },
+                { q: "Q4 (Jan–Mar)", months: [(startYear + 1) + "-01", (startYear + 1) + "-02", (startYear + 1) + "-03"], m3: (startYear + 1) + "-03" }
+            ];
+            var cmpRowsHtml = "";
+            quarters.forEach(function(qObj) {
+                var outSum = 0, rcmSum = 0;
+                qObj.months.forEach(function(pk) {
+                    ensureMonthStructureInitialized(client, pk);
+                    var d = client.history[pk];
+                    outSum = round2(outSum + (d.outIgst || 0) + (d.outCgst || 0) + (d.outSgst || 0));
+                    rcmSum = round2(rcmSum + (d.rcmIgst || 0) + (d.rcmCgst || 0) + (d.rcmSgst || 0));
+                });
+                var m3Data = client.history[qObj.m3];
+                cmpRowsHtml +=
+                    "<tr>" +
+                        "<td style='text-align:left;'><strong>" + qObj.q + "</strong></td>" +
+                        "<td style='text-align:center;'>" + qObj.months.join(", ") + "</td>" +
+                        "<td>&#8377;" + fmtINR(outSum) + "</td>" +
+                        "<td>&#8377;" + fmtINR(rcmSum) + "</td>" +
+                        "<td><strong>&#8377;" + fmtINR(outSum + rcmSum) + "</strong></td>" +
+                        "<td style='text-align:center;'>" + (m3Data ? m3Data.r3b : 'Pending') + "</td>" +
+                    "</tr>";
+            });
+
+            var container = document.getElementById('print-drc03-area');
+            container.innerHTML =
+                "<div class='print-header'>" +
+                    "<div><div style='font-weight:900; font-size:17px;'>" + practiceConfig.firmName + "</div></div>" +
+                    "<div style='text-align:right;'>" +
+                        "<h1>Form GST DRC-03 Voluntary Payment &amp; Quarterly CMP-08 Working Dossier</h1>" +
+                        "<p style='font-size:11px; color:#475569;'>Section 73(5) / 74(5) &bull; Section 50 Interest &bull; Form GST CMP-08 &bull; Date: " + new Date().toLocaleDateString('en-IN') + "</p>" +
+                    "</div>" +
+                "</div>" +
+                "<div class='print-details'>" +
+                    "<div><strong>Client Name:</strong> " + client.name + "<br><strong>GSTIN:</strong> " + client.gstin + " | <strong>Scheme:</strong> " + (client.scheme || 'Monthly') + "</div>" +
+                    "<div style='text-align:right;'><strong>Financial Year:</strong> " + fyLabel + "<br><strong>Active Notice:</strong> " + (client.notice || 'None') + "</div>" +
+                "</div>" +
+                "<div class='print-section-title'>Part 1: Form GST DRC-03 Intimation of Voluntary Tax / Notice Payment Schedule</div>" +
+                "<table class='print-table'>" +
+                    "<thead><tr><th>#</th><th>Period, Cause &amp; Grounds</th><th>Sec</th><th>Basic Tax (I/C/S)</th><th>Interest (18%)</th><th>Penalty</th><th>Mode / ARN</th><th>Total Paid (&#8377;)</th></tr></thead>" +
+                    "<tbody>" + drcRowsHtml +
+                        "<tr class='print-total'><td colspan='7' style='text-align:left;'>TOTAL VOLUNTARY / DEMAND DISCHARGE (FORM GST DRC-03)</td><td>&#8377;" + fmtINR(totDrcGrand) + "</td></tr>" +
+                    "</tbody>" +
+                "</table>" +
+                "<div class='print-section-title'>Part 2: Quarterly Form GST CMP-08 / Tax Summary (" + fyLabel + ")</div>" +
+                "<table class='print-table'>" +
+                    "<thead><tr><th>Quarter</th><th>Months Covered</th><th>Outward Tax Payable</th><th>RCM Tax Payable</th><th>Total Quarterly Tax</th><th>Filing Status</th></tr></thead>" +
+                    "<tbody>" + cmpRowsHtml + "</tbody>" +
+                "</table>";
+
+            document.body.classList.remove('print-mode-gstr9');
+            document.body.classList.remove('print-mode-fee');
+            document.body.classList.remove('print-mode-rfd01');
+            document.body.classList.add('print-mode-drc03');
+            setTimeout(function() {
+                window.print();
+                setTimeout(function() {
+                    document.body.classList.remove('print-mode-drc03');
                 }, 600);
             }, 200);
         };
@@ -4860,7 +6017,7 @@
                 lines.push("Your GST Challan Mandate (*Form GST PMT-06*) for *" + periodLabel + "* (" + client.gstin + ") has been generated for bank remittance:");
                 lines.push("");
                 lines.push("- *Remittance Mode:* " + (d.challanMode || "NEFT/RTGS"));
-                if (d.challanCpin) lines.push("- *14-Digit CPIN:* " + d.challanCpin);
+                if (d.challanCpin) lines.push("- *CPIN / Ref:* " + d.challanCpin);
                 if (d.challanDate) {
                     var expD = new Date(new Date(d.challanDate).getTime() + (15 * 86400000));
                     lines.push("- *Challan Valid Till (15 Days):* " + expD.toLocaleDateString('en-IN'));
@@ -4916,6 +6073,7 @@
             document.body.classList.remove('print-mode-gstr9');
             document.body.classList.remove('print-mode-fee');
             document.body.classList.remove('print-mode-rfd01');
+            document.body.classList.remove('print-mode-drc03');
 
             ensureMonthStructureInitialized(client, activeTargetPeriod);
             var data = client.history[activeTargetPeriod];

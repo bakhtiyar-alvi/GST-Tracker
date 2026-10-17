@@ -1,4 +1,4 @@
-I know that not many users gonna use my AI Vibe Coding but if you find this contact me for any queries. 
+I know that not many users gonna use my AI Vibe Coded WebApp but if you find this contact me for any queries. 
 Write at bakhtiyaralvi03@gmail.com 🙃
 
 

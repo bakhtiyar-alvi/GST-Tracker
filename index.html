@@ -7,7 +7,7 @@
     <link rel="manifest" href="manifest.json">
     <link rel="icon" type="image/png" href="./Logo.png">
     <link rel="apple-touch-icon" href="./Logo.png">
-    <meta name="theme-color" content="#060913">
+    <meta name="theme-color" content="#050811">
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', function() {
@@ -30,13 +30,13 @@
 
     <style>
         :root {
-            --surface-dark: #060913;
-            --surface-card: #0f172a;
-            --surface-elevated: #1e293b;
-            --surface-input: #090e1a;
+            --surface-dark: #050811;
+            --surface-card: #0c1324;
+            --surface-elevated: #162238;
+            --surface-input: #080d1a;
             --primary: #3b82f6;
             --primary-hover: #2563eb;
-            --primary-glow: rgba(59, 130, 246, 0.28);
+            --primary-glow: rgba(59, 130, 246, 0.32);
             --success: #10b981;
             --warning: #f59e0b;
             --danger: #ef4444;
@@ -47,17 +47,18 @@
             --text-muted: #94a3b8;
             --border: #1e293b;
             --border-light: #334155;
-            --shadow-card: 0 10px 25px -5px rgba(0, 0, 0, 0.45), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
+            --shadow-card: 0 12px 28px -6px rgba(0, 0, 0, 0.55), 0 8px 12px -6px rgba(0, 0, 0, 0.35);
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif; }
         body {
             background-color: var(--surface-dark);
             background-image:
-                radial-gradient(at 0% 0%, rgba(59, 130, 246, 0.10) 0px, transparent 45%),
-                radial-gradient(at 100% 0%, rgba(139, 92, 246, 0.10) 0px, transparent 45%);
+                radial-gradient(at 0% 0%, rgba(6, 182, 212, 0.12) 0px, transparent 45%),
+                radial-gradient(at 100% 0%, rgba(139, 92, 246, 0.12) 0px, transparent 45%),
+                radial-gradient(at 50% 100%, rgba(59, 130, 246, 0.08) 0px, transparent 50%);
             color: var(--text-main);
-            padding: 16px;
+            padding: 14px 16px 88px 16px;
             min-height: 100vh;
             overflow-x: hidden;
         }
@@ -68,52 +69,105 @@
         ::-webkit-scrollbar-thumb:hover { background: var(--primary); }
 
         #toast-banner {
-            position: fixed; bottom: 24px; right: 24px; z-index: 9999;
-            background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(12px);
-            color: var(--text-main); border: 1px solid var(--primary); border-left: 4px solid var(--primary);
-            padding: 12px 18px; border-radius: 10px; font-size: 0.84rem; font-weight: 600;
-            box-shadow: 0 15px 30px rgba(0,0,0,0.6); transform: translateY(120px);
+            position: fixed; bottom: 82px; right: 20px; z-index: 9999;
+            background: rgba(12, 19, 36, 0.96); backdrop-filter: blur(12px);
+            color: var(--text-main); border: 1px solid var(--primary); border-left: 4px solid var(--cyan);
+            padding: 12px 18px; border-radius: 10px; font-size: 0.83rem; font-weight: 600;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.65); transform: translateY(140px);
             opacity: 0; transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1); pointer-events: none;
         }
         #toast-banner.show { transform: translateY(0); opacity: 1; }
 
         #pin-lock-overlay {
             position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(6, 9, 19, 0.96); backdrop-filter: blur(12px);
+            background: rgba(5, 8, 17, 0.96); backdrop-filter: blur(12px);
             z-index: 10000; display: none; align-items: center; justify-content: center; padding: 20px;
         }
         .pin-box {
             background: var(--surface-card); border: 1px solid var(--border-light); border-radius: 16px;
-            padding: 28px; width: 100%; max-width: 350px; text-align: center; box-shadow: 0 25px 60px rgba(0,0,0,0.7);
+            padding: 28px; width: 100%; max-width: 350px; text-align: center; box-shadow: 0 25px 60px rgba(0,0,0,0.75);
         }
         .pin-input {
             letter-spacing: 12px; font-size: 1.5rem; text-align: center; font-weight: bold;
             margin: 16px 0; padding: 12px; border: 2px solid var(--primary); border-radius: 8px;
         }
 
-        .workspace-grid { display: grid; grid-template-columns: 390px 1fr; gap: 18px; max-width: 1920px; margin: 0 auto; align-items: start; }
+        /* MOCKUP TOP COMMAND HEADER */
+        .mockup-top-header {
+            max-width: 1920px; margin: 0 auto 12px auto;
+            background: linear-gradient(135deg, rgba(16, 26, 48, 0.92), rgba(9, 15, 29, 0.96));
+            border: 1px solid rgba(59, 130, 246, 0.28); border-radius: 16px;
+            padding: 12px 18px; display: flex; justify-content: space-between; align-items: center;
+            gap: 14px; flex-wrap: wrap; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255,255,255,0.06);
+        }
+        .brand-left { display: flex; align-items: center; gap: 13px; }
+        .logo-glow-ring {
+            width: 50px; height: 50px; border-radius: 50%; padding: 3px;
+            background: linear-gradient(135deg, #06b6d4, #3b82f6, #8b5cf6);
+            box-shadow: 0 0 18px rgba(6, 182, 212, 0.4); display: flex; align-items: center; justify-content: center;
+        }
+        .app-logo-img { width: 44px; height: 44px; border-radius: 50%; object-fit: cover; background: #060913; }
+        .brand-title-row { display: flex; align-items: center; gap: 7px; font-size: 1.25rem; font-weight: 900; letter-spacing: 0.6px; color: #fff; }
+        .brand-pro-badge {
+            background: linear-gradient(135deg, #06b6d4, #2563eb); color: #fff;
+            font-size: 0.72rem; font-weight: 800; padding: 2px 8px; border-radius: 6px;
+            box-shadow: 0 0 12px rgba(6, 182, 212, 0.45); letter-spacing: 1px;
+        }
+        .brand-subtitle { font-size: 0.65rem; color: #94a3b8; font-weight: 700; letter-spacing: 1.6px; margin-top: 3px; text-transform: uppercase; }
+
+        .top-cloud-cluster { display: flex; flex-direction: column; align-items: flex-end; gap: 7px; }
+        .top-cloud-row1, .top-cloud-row2 { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+        .btn-drive-connect {
+            width: auto; padding: 7px 14px; font-size: 0.76rem; font-weight: 700; border-radius: 9px;
+            background: linear-gradient(135deg, #0284c7, #2563eb); color: #fff;
+            border: 1px solid rgba(56, 189, 248, 0.5); box-shadow: 0 4px 14px rgba(37, 99, 235, 0.4);
+            display: inline-flex; align-items: center; gap: 6px;
+        }
+        .btn-drive-connect:hover { filter: brightness(1.12); transform: translateY(-1px); }
+        .session-timer-box {
+            background: rgba(8, 13, 26, 0.9); border: 1px solid var(--border-light);
+            border-radius: 9px; padding: 4px 11px; display: flex; flex-direction: column; align-items: center; min-width: 105px;
+        }
+        .btn-drive-restore {
+            width: auto; padding: 5px 13px; font-size: 0.73rem; font-weight: 700; border-radius: 18px;
+            background: rgba(16, 185, 129, 0.16); color: #6ee7b7; border: 1px solid rgba(16, 185, 129, 0.45);
+            display: inline-flex; align-items: center; gap: 5px;
+        }
+        .btn-drive-restore:hover { background: var(--success); color: #041f14; }
+        .btn-drive-backup {
+            width: auto; padding: 5px 13px; font-size: 0.73rem; font-weight: 700; border-radius: 18px;
+            background: rgba(139, 92, 246, 0.18); color: #c4b5fd; border: 1px solid rgba(139, 92, 246, 0.48);
+            display: inline-flex; align-items: center; gap: 5px;
+        }
+        .btn-drive-backup:hover { background: var(--purple); color: #fff; }
+
+        /* STATUTORY DUE-DATE COUNTDOWN & URGENCY BANNER */
+        #urgency-countdown-banner {
+            max-width: 1920px; margin: 0 auto 14px auto;
+            background: linear-gradient(90deg, rgba(15, 23, 42, 0.95), rgba(30, 41, 59, 0.88));
+            border: 1px solid var(--border-light); border-left: 4px solid var(--cyan);
+            border-radius: 12px; padding: 9px 14px; display: flex; justify-content: space-between;
+            align-items: center; gap: 10px; flex-wrap: wrap; font-size: 0.76rem; box-shadow: var(--shadow-card);
+        }
+        .urgency-chip {
+            padding: 3px 9px; border-radius: 6px; font-size: 0.7rem; font-weight: 700;
+            background: rgba(255,255,255,0.04); border: 1px solid var(--border-light); display: inline-flex; align-items: center; gap: 5px;
+        }
+
+        .workspace-grid { display: grid; grid-template-columns: 395px 1fr; gap: 18px; max-width: 1920px; margin: 0 auto; align-items: start; }
         .sidebar { display: flex; flex-direction: column; gap: 14px; }
         .panel-card {
-            background: linear-gradient(180deg, rgba(15, 23, 42, 0.95) 0%, rgba(11, 17, 30, 0.98) 100%);
-            border: 1px solid var(--border); border-radius: 14px; padding: 16px;
+            background: linear-gradient(180deg, rgba(15, 23, 42, 0.94) 0%, rgba(9, 14, 26, 0.98) 100%);
+            border: 1px solid rgba(51, 65, 85, 0.65); border-radius: 15px; padding: 16px;
             box-shadow: var(--shadow-card); position: relative;
         }
 
-        .brand-header {
-            display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap;
-            background: linear-gradient(135deg, rgba(30, 41, 59, 0.85), rgba(15, 23, 42, 0.95));
-            border: 1px solid var(--border-light); border-radius: 14px; padding: 14px 16px;
-            box-shadow: var(--shadow-card);
-        }
-        .brand-left { display: flex; align-items: center; gap: 11px; }
-        .app-logo-img { width: 42px; height: 42px; border-radius: 10px; object-fit: cover; border: 1px solid var(--border-light); }
-
-        h2 { font-size: 0.95rem; font-weight: 700; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; color: var(--text-main); letter-spacing: 0.2px; }
+        h2 { font-size: 0.95rem; font-weight: 700; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; gap: 6px; flex-wrap: wrap; color: var(--text-main); letter-spacing: 0.2px; }
         .form-group { margin-bottom: 10px; }
         label { display: flex; justify-content: space-between; align-items: center; font-size: 0.74rem; color: var(--text-muted); margin-bottom: 4px; font-weight: 600; }
         input, select, textarea {
             width: 100%; background-color: var(--surface-input); border: 1px solid var(--border);
-            border-radius: 7px; padding: 8px 10px; color: white; font-size: 0.83rem; transition: all 0.18s;
+            border-radius: 8px; padding: 8px 10px; color: white; font-size: 0.83rem; transition: all 0.18s;
         }
         input:focus, select:focus, textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-glow); outline: none; }
 
@@ -122,72 +176,97 @@
         .split-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
         .split-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; }
 
-        button { width: 100%; padding: 9px 12px; font-size: 0.83rem; font-weight: 600; border: none; border-radius: 7px; cursor: pointer; transition: all 0.18s; }
-        .btn-primary { background: linear-gradient(135deg, #3b82f6, #2563eb); color: white; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3); }
+        button { width: 100%; padding: 9px 12px; font-size: 0.83rem; font-weight: 600; border: none; border-radius: 8px; cursor: pointer; transition: all 0.18s; }
+        .btn-primary { background: linear-gradient(135deg, #3b82f6, #2563eb); color: white; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35); }
         .btn-primary:hover { filter: brightness(1.1); transform: translateY(-1px); }
         .btn-success { background: linear-gradient(135deg, #10b981, #059669); color: #041f14; font-weight: 700; }
         .btn-warning { background: linear-gradient(135deg, #f59e0b, #d97706); color: #1f1202; font-weight: 700; }
         .btn-rose { background: linear-gradient(135deg, #f43f5e, #e11d48); color: #fff; font-weight: 700; }
         .btn-chip {
-            width: auto; padding: 3px 8px; font-size: 0.68rem; border-radius: 5px;
-            background: rgba(59, 130, 246, 0.15); color: #93c5fd; border: 1px solid rgba(59, 130, 246, 0.38);
+            width: auto; padding: 4px 9px; font-size: 0.69rem; border-radius: 6px;
+            background: rgba(59, 130, 246, 0.16); color: #93c5fd; border: 1px solid rgba(59, 130, 246, 0.42);
         }
         .btn-chip:hover { background: var(--primary); color: #fff; }
 
         .rate-btn {
-            padding: 5px 4px; font-size: 0.69rem; font-weight: 700; border-radius: 5px;
+            padding: 5px 4px; font-size: 0.69rem; font-weight: 700; border-radius: 6px;
             background: rgba(6, 182, 212, 0.14); color: #67e8f9; border: 1px solid rgba(6, 182, 212, 0.35);
         }
         .rate-btn:hover { background: var(--cyan); color: #041f14; transform: translateY(-1px); }
 
         .cloud-timer-pill {
-            font-family: monospace; font-size: 0.72rem; font-weight: 700;
-            padding: 2px 8px; border-radius: 12px; border: 1px solid var(--border);
-            background: var(--surface-input); color: var(--text-muted); display: inline-block;
+            font-family: monospace; font-size: 0.82rem; font-weight: 800;
+            color: var(--text-muted); display: inline-block;
         }
-        .cloud-timer-pill.timer-active { color: #6ee7b7; border-color: var(--success); background: rgba(16, 185, 129, 0.12); }
-        .cloud-timer-pill.timer-warn { color: #fcd34d; border-color: var(--warning); background: rgba(245, 158, 11, 0.2); animation: pulseWarn 1.2s infinite; }
-        .cloud-timer-pill.timer-expired { color: #fca5a5; border-color: var(--danger); background: rgba(239, 68, 68, 0.18); }
+        .cloud-timer-pill.timer-active { color: #6ee7b7; }
+        .cloud-timer-pill.timer-warn { color: #fcd34d; animation: pulseWarn 1.2s infinite; }
+        .cloud-timer-pill.timer-expired { color: #fca5a5; }
 
         @keyframes pulseWarn {
             0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.75; transform: scale(0.98); }
+            50% { opacity: 0.75; transform: scale(0.97); }
         }
 
         .fy-matrix-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-top: 10px; }
         .fy-month-block {
             background-color: var(--surface-input); border: 1px solid var(--border);
-            border-radius: 7px; padding: 7px 4px; text-align: center; font-size: 0.75rem;
+            border-radius: 8px; padding: 7px 4px; text-align: center; font-size: 0.75rem;
             cursor: pointer; transition: all 0.18s;
         }
         .fy-month-block:hover { border-color: var(--text-muted); transform: translateY(-1px); }
         .fy-month-block.active-month {
-            border-color: var(--primary); background: rgba(59, 130, 246, 0.18);
-            font-weight: 700; box-shadow: inset 0 0 10px rgba(59, 130, 246, 0.2);
+            border-color: var(--cyan); background: rgba(6, 182, 212, 0.16);
+            font-weight: 700; box-shadow: inset 0 0 12px rgba(6, 182, 212, 0.25);
         }
         .micro-indicator-row { display: flex; justify-content: center; gap: 4px; margin-top: 3px; font-size: 0.61rem; font-weight: 600; }
         .dot-pending { color: var(--warning); }
         .dot-clean { color: var(--success); }
 
         .main-window { display: flex; flex-direction: column; gap: 15px; min-width: 0; }
-        .summary-banner { display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; }
-        .summary-card {
-            background: linear-gradient(180deg, rgba(15, 23, 42, 0.95) 0%, rgba(11, 17, 30, 0.98) 100%);
-            border-left: 4px solid var(--primary); padding: 12px 13px; border-radius: 12px;
-            border-top: 1px solid var(--border); border-right: 1px solid var(--border); border-bottom: 1px solid var(--border);
-            box-shadow: var(--shadow-card); transition: transform 0.18s;
+
+        /* MOCKUP QUICK OVERVIEW GLOWING KPI CARDS */
+        .kpi-overview-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: -6px; padding: 0 2px; }
+        .kpi-overview-title { font-size: 0.88rem; font-weight: 800; color: #e2e8f0; display: flex; align-items: center; gap: 7px; }
+        .summary-banner { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+        .kpi-glow-card {
+            background: linear-gradient(145deg, rgba(16, 25, 46, 0.92), rgba(9, 14, 26, 0.97));
+            border-radius: 14px; padding: 13px 15px; display: flex; align-items: center; gap: 13px;
+            border: 1px solid var(--border-light); box-shadow: var(--shadow-card);
+            cursor: pointer; transition: all 0.2s ease; position: relative; overflow: hidden;
         }
-        .summary-card:hover { transform: translateY(-2px); }
-        .summary-label { font-size: 0.64rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.4px; }
-        .summary-val { font-size: 1.25rem; font-weight: 800; margin-top: 4px; }
+        .kpi-glow-card:hover { transform: translateY(-2px); filter: brightness(1.08); }
+        .kpi-glow-cyan { border-color: rgba(6, 182, 212, 0.5); box-shadow: 0 6px 20px -6px rgba(6, 182, 212, 0.28); }
+        .kpi-glow-amber { border-color: rgba(245, 158, 11, 0.5); box-shadow: 0 6px 20px -6px rgba(245, 158, 11, 0.28); }
+        .kpi-glow-crimson { border-color: rgba(239, 68, 68, 0.5); box-shadow: 0 6px 20px -6px rgba(239, 68, 68, 0.28); }
+        .kpi-glow-emerald { border-color: rgba(16, 185, 129, 0.5); box-shadow: 0 6px 20px -6px rgba(16, 185, 129, 0.28); }
+        .kpi-glow-purple { border-color: rgba(139, 92, 246, 0.5); box-shadow: 0 6px 20px -6px rgba(139, 92, 246, 0.28); }
+        .kpi-glow-blue { border-color: rgba(59, 130, 246, 0.5); box-shadow: 0 6px 20px -6px rgba(59, 130, 246, 0.28); }
+
+        .kpi-icon-circle {
+            width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            font-size: 1.2rem; flex-shrink: 0; font-weight: 800;
+        }
+        .kpi-body { flex: 1; min-width: 0; }
+        .summary-label { font-size: 0.7rem; color: #cbd5e1; font-weight: 700; letter-spacing: 0.2px; }
+        .summary-val-row { display: flex; align-items: baseline; gap: 6px; margin-top: 3px; flex-wrap: wrap; }
+        .summary-val { font-size: 1.38rem; font-weight: 900; color: #fff; }
+        .summary-sub { font-size: 0.7rem; color: var(--text-muted); font-weight: 600; }
 
         .toolbar-card {
             background: linear-gradient(180deg, rgba(15, 23, 42, 0.95) 0%, rgba(11, 17, 30, 0.98) 100%);
-            border: 1px solid var(--border); border-radius: 12px; padding: 12px 16px;
+            border: 1px solid var(--border); border-radius: 14px; padding: 12px 16px;
             display: flex; flex-direction: column; gap: 10px; box-shadow: var(--shadow-card);
         }
-        .header-bar { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
-        .search-filter { display: flex; gap: 8px; flex: 1; min-width: 280px; }
+        .header-bar { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
+        .search-filter { display: flex; gap: 8px; flex: 1; min-width: 260px; align-items: center; }
+        .search-input-wrap { position: relative; flex: 1; }
+        .search-input-wrap input { padding-left: 32px; border-radius: 10px; border-color: var(--border-light); }
+        .search-icon-prefix { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--cyan); font-size: 0.85rem; pointer-events: none; }
+
+        .view-toggle-group { display: inline-flex; background: var(--surface-input); border: 1px solid var(--border-light); border-radius: 8px; overflow: hidden; }
+        .view-mode-btn { width: auto; padding: 6px 11px; font-size: 0.72rem; font-weight: 700; background: transparent; color: var(--text-muted); border-radius: 0; }
+        .view-mode-btn.active { background: var(--primary); color: #fff; }
+
         .filter-pills { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
         .pill {
             padding: 5px 11px; border-radius: 20px; font-size: 0.72rem; font-weight: 600;
@@ -199,12 +278,67 @@
 
         #batch-action-bar {
             display: none; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap;
-            background: linear-gradient(135deg, rgba(30, 58, 138, 0.9), rgba(15, 23, 42, 0.96));
+            background: linear-gradient(135deg, rgba(30, 58, 138, 0.92), rgba(15, 23, 42, 0.96));
             border: 1px solid var(--primary); border-radius: 12px; padding: 10px 16px;
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
         }
         .row-checkbox { width: 15px; height: 15px; accent-color: var(--primary); cursor: pointer; vertical-align: middle; margin-right: 6px; }
 
+        /* MOCKUP CLIENT CARDS VIEW */
+        #client-cards-container { display: flex; flex-direction: column; gap: 11px; }
+        .mockup-client-card {
+            background: linear-gradient(180deg, rgba(15, 24, 44, 0.95) 0%, rgba(10, 16, 30, 0.98) 100%);
+            border: 1px solid rgba(51, 65, 85, 0.75); border-radius: 14px; padding: 14px 16px;
+            box-shadow: var(--shadow-card); transition: all 0.18s;
+        }
+        .mockup-client-card:hover { border-color: rgba(59, 130, 246, 0.5); }
+        .mc-top-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+        .mc-left-info { display: flex; align-items: center; gap: 12px; min-width: 230px; flex: 1; }
+        .mc-avatar {
+            width: 44px; height: 44px; border-radius: 11px; background: rgba(59, 130, 246, 0.14);
+            border: 1px solid rgba(59, 130, 246, 0.35); display: flex; align-items: center; justify-content: center;
+            font-size: 1.25rem; color: #60a5fa; flex-shrink: 0; overflow: hidden;
+        }
+        .mc-avatar img { width: 100%; height: 100%; object-fit: cover; }
+        .mc-title { font-size: 0.98rem; font-weight: 800; color: #fff; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+        .mc-sub { font-size: 0.76rem; color: #94a3b8; font-family: monospace; margin-top: 2px; }
+
+        .mc-right-meta { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+        .overall-status-pill {
+            padding: 5px 14px; border-radius: 20px; font-size: 0.74rem; font-weight: 800;
+            text-align: center; min-width: 88px; letter-spacing: 0.3px;
+        }
+        .osp-filed { background: rgba(16, 185, 129, 0.18); color: #6ee7b7; border: 1px solid var(--success); }
+        .osp-pending { background: rgba(245, 158, 11, 0.18); color: #fcd34d; border: 1px solid var(--warning); }
+        .osp-overdue { background: rgba(239, 68, 68, 0.2); color: #fca5a5; border: 1px solid var(--danger); }
+
+        .mc-due-box { font-size: 0.73rem; color: var(--text-muted); line-height: 1.35; min-width: 115px; }
+        .mc-due-box strong { color: #f8fafc; font-size: 0.8rem; display: block; }
+
+        .mc-chip-row {
+            display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap;
+            margin-top: 11px; padding-top: 10px; border-top: 1px solid rgba(51, 65, 85, 0.45);
+        }
+        .mc-status-chips { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; }
+        .status-mini-chip {
+            padding: 4px 10px; border-radius: 16px; font-size: 0.7rem; font-weight: 700;
+            cursor: pointer; user-select: none; display: inline-flex; align-items: center; gap: 5px; transition: transform 0.12s;
+        }
+        .status-mini-chip:hover { transform: scale(1.03); }
+        .smc-green { background: rgba(16, 185, 129, 0.16); color: #6ee7b7; border: 1px solid rgba(16, 185, 129, 0.4); }
+        .smc-amber { background: rgba(245, 158, 11, 0.16); color: #fcd34d; border: 1px solid rgba(245, 158, 11, 0.4); }
+        .smc-red { background: rgba(239, 68, 68, 0.18); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.45); }
+        .smc-cyan { background: rgba(6, 182, 212, 0.16); color: #67e8f9; border: 1px solid rgba(6, 182, 212, 0.4); }
+
+        .mc-drawer {
+            display: none; margin-top: 12px; padding-top: 12px; border-top: 1px dashed var(--border-light);
+            grid-template-columns: repeat(4, 1fr); gap: 10px;
+        }
+        .mc-drawer.open { display: grid; }
+        @media (max-width: 1100px) { .mc-drawer.open { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 640px) { .mc-drawer.open { grid-template-columns: 1fr; } }
+
+        /* PRO MASTER TABLE VIEW */
         .table-container {
             background-color: var(--surface-card); border: 1px solid var(--border);
             border-radius: 14px; overflow-x: auto; max-height: 76vh; box-shadow: var(--shadow-card);
@@ -281,10 +415,51 @@
         .date-edit::-webkit-calendar-picker-indicator { filter: invert(1); cursor: pointer; }
         .recon-alert { font-size: 0.68rem; font-weight: 700; padding: 3px 7px; border-radius: 4px; margin-top: 4px; display: inline-block; }
 
+        /* SETTINGS 2-TAB BAR & CLIENT ACTIVITY HISTORY LOG */
+        .settings-tab-bar { display: flex; gap: 8px; margin-bottom: 14px; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
+        .settings-tab-btn {
+            width: auto; padding: 7px 14px; font-size: 0.78rem; font-weight: 700; border-radius: 8px;
+            background: var(--surface-input); color: var(--text-muted); border: 1px solid var(--border);
+        }
+        .settings-tab-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); box-shadow: 0 2px 10px var(--primary-glow); }
+        .audit-log-card {
+            background: var(--surface-input); border: 1px solid var(--border); border-left: 3px solid var(--primary);
+            border-radius: 9px; padding: 10px 12px; margin-bottom: 8px; font-size: 0.76rem;
+            display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; flex-wrap: wrap;
+        }
+                .audit-diff-pill {
+            display: inline-block; background: rgba(59, 130, 246, 0.12); border: 1px solid rgba(59, 130, 246, 0.3);
+            color: #93c5fd; padding: 2px 7px; border-radius: 5px; font-family: monospace; font-size: 0.7rem; margin-top: 4px; margin-right: 4px;
+        }
+        .history-filter-grid {
+            display: grid; grid-template-columns: 1.5fr 1fr 1fr auto auto; gap: 8px; align-items: center;
+        }
+        @media (max-width: 768px) {
+            .history-filter-grid { grid-template-columns: 1fr 1fr; }
+            .history-filter-grid #history-search-input { grid-column: 1 / -1; }
+        }
+
+        /* STICKY 5-TAB BOTTOM NAVIGATION BAR (MOCKUP DOCK) */
+        .bottom-nav-dock {
+            position: fixed; bottom: 0; left: 0; right: 0; z-index: 8500;
+            background: rgba(8, 13, 26, 0.96); backdrop-filter: blur(14px);
+            border-top: 1px solid rgba(59, 130, 246, 0.28);
+            display: flex; justify-content: space-around; align-items: center;
+            padding: 7px 10px; box-shadow: 0 -8px 25px rgba(0, 0, 0, 0.6);
+        }
+        .bottom-nav-item {
+            background: transparent; border: none; color: var(--text-muted);
+            display: flex; flex-direction: column; align-items: center; gap: 3px;
+            font-size: 0.68rem; font-weight: 700; width: auto; padding: 4px 14px; border-radius: 10px;
+        }
+        .bottom-nav-item span.nav-ico { font-size: 1.15rem; }
+        .bottom-nav-item:hover { color: #fff; }
+        .bottom-nav-item.active { color: #38bdf8; background: rgba(59, 130, 246, 0.12); }
+
         /* Modals & Working Dossiers */
         .modal-backdrop {
             position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(6, 9, 19, 0.88); backdrop-filter: blur(8px);
+            background: rgba(5, 8, 17, 0.88); backdrop-filter: blur(8px);
             z-index: 9000; display: none; align-items: center; justify-content: center; padding: 14px;
         }
         .modal-card {
@@ -315,21 +490,17 @@
         }
         details.form-accordion[open] summary { margin-bottom: 8px; }
 
-        @media (max-width: 1360px) {
-            .summary-banner { grid-template-columns: repeat(4, 1fr); }
-        }
         @media (max-width: 1240px) {
             .workspace-grid { grid-template-columns: 1fr; }
             .sidebar { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); }
-            .brand-header { grid-column: 1 / -1; }
-            .summary-banner { grid-template-columns: repeat(3, 1fr); }
+            .summary-banner { grid-template-columns: repeat(2, 1fr); }
             .gstr9-section-grid { grid-template-columns: 1fr; }
             .gstr9-kpi-grid { grid-template-columns: repeat(2, 1fr); }
         }
         @media (max-width: 768px) {
-            body { padding: 10px; }
+            body { padding: 10px 10px 88px 10px; }
             .summary-banner { grid-template-columns: repeat(2, 1fr); }
-            .search-filter { flex-direction: column; width: 100%; }
+            .search-filter { flex-direction: column; width: 100%; align-items: stretch; }
             #master-table, #master-table thead, #master-table tbody, #master-table th, #master-table td, #master-table tr { display: block; min-width: 100%; }
             #master-table thead tr { display: none; }
             #master-table tbody tr {
@@ -340,14 +511,14 @@
             #master-table td:last-child { border-bottom: none; }
         }
         @media (max-width: 480px) {
-            .split-5, .split-4, .split-3, .split-2, .gstr9-kpi-grid { grid-template-columns: 1fr; }
+            .summary-banner, .split-5, .split-4, .split-3, .split-2, .gstr9-kpi-grid { grid-template-columns: 1fr; }
         }
 
-        /* QUINTUPLE PRINT ENGINE (Challan PDF vs GSTR-9 PDF vs Consolidated Fee PDF vs RFD-01 PDF vs DRC-03/CMP-08 PDF) */
+        /* QUINTUPLE PRINT ENGINE */
         #print-area, #print-gstr9-area, #print-fee-area, #print-rfd01-area, #print-drc03-area { display: none; }
         @media print {
             body { background: white !important; background-image: none !important; color: black !important; padding: 0 !important; margin: 0 !important; }
-            .workspace-grid, .modal-backdrop, #toast-banner, #pin-lock-overlay { display: none !important; }
+            .mockup-top-header, #urgency-countdown-banner, .bottom-nav-dock, .workspace-grid, .modal-backdrop, #toast-banner, #pin-lock-overlay { display: none !important; }
 
             body:not(.print-mode-gstr9):not(.print-mode-fee):not(.print-mode-rfd01):not(.print-mode-drc03) #print-area { display: block !important; padding: 24px; font-family: Arial, sans-serif; color: #111; }
             body.print-mode-gstr9 #print-gstr9-area { display: block !important; padding: 20px; font-family: Arial, sans-serif; color: #111; }
@@ -385,46 +556,82 @@
         </div>
     </div>
 
+    <!-- MOCKUP TOP COMMAND HEADER -->
+    <header class="mockup-top-header">
+        <div class="brand-left">
+            <div class="logo-glow-ring">
+                <img src="./Logo.png" alt="Logo" class="app-logo-img" onerror="this.style.display='none'; document.getElementById('fallback-svg-logo').style.display='block';">
+                <svg id="fallback-svg-logo" style="display:none; border-radius:50%;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="44" height="44">
+                    <defs>
+                        <linearGradient id="lbg" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#1e293b" /><stop offset="100%" stop-color="#090d16" /></linearGradient>
+                        <linearGradient id="lg" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#06b6d4" /><stop offset="100%" stop-color="#3b82f6" /></linearGradient>
+                        <linearGradient id="lb1" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#38bdf8" /><stop offset="100%" stop-color="#2563eb" /></linearGradient>
+                        <linearGradient id="lb2" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#a78bfa" /><stop offset="100%" stop-color="#8b5cf6" /></linearGradient>
+                        <linearGradient id="lchk" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#10b981" /><stop offset="100%" stop-color="#059669" /></linearGradient>
+                    </defs>
+                    <rect width="512" height="512" rx="256" fill="url(#lbg)" />
+                    <path d="M 256 86 A 170 170 0 1 0 426 256 H 330" fill="none" stroke="url(#lg)" stroke-width="40" stroke-linecap="round" stroke-linejoin="round" />
+                    <rect x="156" y="250" width="32" height="86" rx="14" fill="url(#lb1)" />
+                    <rect x="208" y="190" width="32" height="146" rx="14" fill="url(#lb2)" />
+                    <rect x="260" y="130" width="32" height="206" rx="14" fill="url(#lb1)" />
+                    <path d="M 170 300 L 240 360 L 390 180" fill="none" stroke="url(#lchk)" stroke-width="34" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+            </div>
+            <div>
+                <div class="brand-title-row">
+                    <span>GST BEAST</span>
+                    <span class="brand-pro-badge">PRO</span>
+                </div>
+                <div class="brand-subtitle">TRACK &bull; FILE &bull; STAY COMPLIANT</div>
+            </div>
+        </div>
+
+        <div style="display:flex; gap:6px; align-items:center; flex-wrap:wrap;">
+            <button type="button" class="btn-inline btn-ledger-passbook" style="padding:6px 10px; font-weight:700;" onclick="openPortalLedgerModal()">&#128210; Ledgers</button>
+            <button type="button" class="btn-inline btn-drc03" style="padding:6px 10px; font-weight:700;" onclick="openDrc03Modal()">&#9878; DRC-03</button>
+            <button type="button" class="btn-inline btn-rfd01" style="padding:6px 10px; font-weight:700;" onclick="openRfd01Modal()">&#127963; RFD-01</button>
+            <button type="button" class="btn-inline" style="padding:6px 10px; border-color:var(--purple); color:#c4b5fd; font-weight:700;" onclick="openFirmAnalyticsModal()">&#128200; Firm</button>
+            <button type="button" class="btn-inline" style="padding:6px 10px; border-color:var(--cyan); color:#67e8f9; font-weight:700;" onclick="openSettingsModal('HISTORY')">&#128220; History</button>
+            <button type="button" class="btn-inline" style="padding:6px 10px;" onclick="openSettingsModal('DESK')">&#9881;</button>
+        </div>
+
+        <div class="top-cloud-cluster">
+            <div class="top-cloud-row1">
+                <button type="button" class="btn-drive-connect" onclick="initializeGoogleAuth()">
+                    <span>&#9650; Connect to Drive</span>
+                    <span>&#128279;</span>
+                </button>
+                <div class="session-timer-box">
+                    <div style="display:flex; align-items:center; gap:5px;">
+                        <span style="font-size:0.75rem;">&#128337;</span>
+                        <span id="cloud-timer-badge" class="cloud-timer-pill">--:--</span>
+                    </div>
+                    <span id="cloud-status" style="font-size:0.62rem; color:var(--text-muted); font-weight:600;">Session Timer</span>
+                </div>
+            </div>
+            <div class="top-cloud-row2">
+                <button type="button" class="btn-drive-restore" onclick="restoreFromDrive()" title="Pull Backup from Google Drive">&#8635; Restore</button>
+                <button type="button" class="btn-drive-backup" onclick="forceBackupToDrive()" title="Create or Update GST_Master_Backup.json on Google Drive">&#9729; Backup</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- STATUTORY DUE-DATE COUNTDOWN & URGENCY BANNER -->
+    <div id="urgency-countdown-banner">
+        <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+            <span style="font-weight:800; color:var(--cyan); text-transform:uppercase; letter-spacing:0.5px;">&#9200; Statutory Deadlines:</span>
+            <span id="urgency-deadlines-strip" style="display:flex; gap:6px; flex-wrap:wrap;"></span>
+        </div>
+        <div id="urgency-alerts-right" style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;"></div>
+    </div>
+
     <div class="workspace-grid">
         <!-- LEFT SIDEBAR -->
-        <div class="sidebar">
-            <div class="brand-header">
-                <div class="brand-left">
-                    <img src="./Logo.png" alt="Logo" class="app-logo-img" onerror="this.style.display='none'; document.getElementById('fallback-svg-logo').style.display='block';">
-                    <svg id="fallback-svg-logo" style="display:none;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="42" height="42">
-                        <defs>
-                            <linearGradient id="lbg" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#1e293b" /><stop offset="100%" stop-color="#090d16" /></linearGradient>
-                            <linearGradient id="lg" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#3b82f6" /><stop offset="100%" stop-color="#8b5cf6" /></linearGradient>
-                            <linearGradient id="lb1" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#60a5fa" /><stop offset="100%" stop-color="#3b82f6" /></linearGradient>
-                            <linearGradient id="lb2" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#a78bfa" /><stop offset="100%" stop-color="#8b5cf6" /></linearGradient>
-                            <linearGradient id="lchk" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#10b981" /><stop offset="100%" stop-color="#059669" /></linearGradient>
-                        </defs>
-                        <rect width="512" height="512" rx="120" fill="url(#lbg)" />
-                        <path d="M 256 96 A 160 160 0 1 0 416 256 H 320" fill="none" stroke="url(#lg)" stroke-width="44" stroke-linecap="round" stroke-linejoin="round" />
-                        <rect x="156" y="250" width="32" height="86" rx="16" fill="url(#lb1)" />
-                        <rect x="208" y="190" width="32" height="146" rx="16" fill="url(#lb2)" />
-                        <rect x="260" y="130" width="32" height="206" rx="16" fill="url(#lb1)" />
-                        <path d="M 170 300 L 240 360 L 390 180" fill="none" stroke="url(#lchk)" stroke-width="36" stroke-linecap="round" stroke-linejoin="round" />
-                    </svg>
-                    <div>
-                        <div style="font-size: 1.08rem; font-weight: 800;">GST Beast Pro</div>
-                        <div style="font-size: 0.66rem; color: var(--success); font-weight: 700;">Ledger CSV &bull; RFD-01 &bull; DRC-03 &bull; GSTR-9</div>
-                    </div>
-                </div>
-                                <div style="display:flex; gap:4px; flex-wrap:wrap;">
-                    <button type="button" class="btn-inline btn-ledger-passbook" onclick="openPortalLedgerModal()">&#128210; Ledgers</button>
-                    <button type="button" class="btn-inline btn-drc03" onclick="openDrc03Modal()">&#9878; DRC-03</button>
-                    <button type="button" class="btn-inline btn-rfd01" onclick="openRfd01Modal()">&#127963; RFD-01</button>
-                    <button type="button" class="btn-inline" style="border-color:var(--purple); color:#c4b5fd;" onclick="openFirmAnalyticsModal()">&#128200; Firm</button>
-                    <button type="button" class="btn-inline" onclick="openSettingsModal()">&#9881;</button>
-                </div>
-
-            </div>
-
+        <div class="sidebar" id="sidebar-form-panel">
             <div class="panel-card">
                 <h2>
-                    <span>Financial Year Matrix</span>
-                    <span id="active-fy-pill" style="font-size:0.72rem; color:var(--primary);"></span>
+                    <span>&#128197; Financial Year Matrix</span>
+                    <span id="active-fy-pill" style="font-size:0.74rem; color:var(--cyan); font-weight:800;"></span>
                 </h2>
                 <div class="form-group" style="margin-bottom:8px;">
                     <select id="global-fy-select" onchange="handleFYChange()"></select>
@@ -434,34 +641,37 @@
 
             <div class="panel-card">
                 <h2>
-                    <span id="form-title">Client &amp; Return Entry</span>
-                    <button type="button" class="btn-chip" onclick="document.getElementById('portal-json-input').click()" title="Import Electronic Credit/Cash Ledger CSV, 2B JSON, 3B/R1/PMT-06 PDF">&#128194; Import Ledger CSV / 2B / 3B / R1</button>
+                    <span id="form-title">&#128101; Add / Manage Client &amp; Return</span>
+                    <button type="button" class="btn-primary" style="width:auto; padding:5px 11px; font-size:0.72rem; border-radius:7px;" onclick="processClientSubmission()">+ Save Client / Return</button>
                 </h2>
+                <div style="display:flex; justify-content:space-between; align-items:center; gap:6px; margin-bottom:10px;">
+                    <button type="button" class="btn-chip" style="width:100%; padding:6px 10px; font-weight:700;" onclick="document.getElementById('portal-json-input').click()" title="Import Electronic Credit/Cash Ledger CSV, 2B JSON/CSV/Excel, 3B/R1/PMT-06 PDF">&#128194; Import Ledger CSV / 2B / 3B / R1 / PMT-06</button>
+                </div>
                 <input type="file" id="portal-json-input" accept=".json,.pdf,.csv,.xlsx,.xls,application/json,application/pdf,text/csv" multiple style="display:none;" onchange="handlePortalFileImport(event)">
                 <input type="hidden" id="editing-client-id" value="">
 
                 <div class="split-2">
                     <div class="form-group">
-                        <label>Trade Name *</label>
-                        <input type="text" id="client-name" placeholder="Apex Logistics Pvt Ltd">
-                    </div>
-                    <div class="form-group">
-                        <label>WhatsApp Mobile</label>
-                        <input type="tel" id="client-phone" placeholder="10-digit Mobile" maxlength="10">
-                    </div>
-                </div>
-
-                <div class="split-2">
-                    <div class="form-group">
                         <label>
-                            <span>GSTIN *</span>
-                            <span id="gstin-state-badge" style="font-size:0.66rem; color:var(--cyan);"></span>
+                            <span>&#127970; GSTIN *</span>
+                            <span id="gstin-state-badge" style="font-size:0.65rem; color:var(--cyan);"></span>
                         </label>
                         <input type="text" id="client-gstin" placeholder="09AAAAA0000A1Z5" maxlength="15" oninput="validateGSTIN()">
                         <div id="gstin-error" style="color:var(--danger); font-size:0.7rem; display:none; margin-top:3px;">Invalid GSTIN format</div>
                     </div>
                     <div class="form-group">
-                        <label>Filing Scheme</label>
+                        <label>&#128100; Client / Trade Name *</label>
+                        <input type="text" id="client-name" placeholder="Shifa Medical Store">
+                    </div>
+                </div>
+
+                <div class="split-2">
+                    <div class="form-group">
+                        <label>&#128241; WhatsApp Mobile</label>
+                        <input type="tel" id="client-phone" placeholder="10-digit Mobile" maxlength="10">
+                    </div>
+                    <div class="form-group">
+                        <label>&#128203; Filing Scheme</label>
                         <select id="client-scheme" onchange="handleSchemeUI()">
                             <option value="Monthly" selected>Monthly (Regular)</option>
                             <option value="QRMP">QRMP (Quarterly)</option>
@@ -470,7 +680,7 @@
                     </div>
                 </div>
 
-                <!-- SMART TURNOVER-TO-TAX AUTO-CALCULATOR + OUTPUT LIABILITY -->
+                <!-- SMART TURNOVER-TO-TAX AUTO-CALCULATOR + OUTPUT & GSTR-1 LIABILITY -->
                 <div class="form-group" style="border: 1px dashed var(--border-light); padding: 9px; border-radius: 8px;">
                     <label style="color:var(--cyan);">
                         <span>&#9889; Quick Turnover-to-Tax Calculator</span>
@@ -495,12 +705,23 @@
                         <button type="button" class="rate-btn" onclick="applyTurnoverTaxRate(28)">28%</button>
                     </div>
 
-                    <label style="color:var(--primary);">Output Tax Liability (GSTR-1 / 3B)</label>
+                    <label style="color:var(--primary);">Output Tax Liability Declared in GSTR-3B</label>
                     <div class="split-3">
-                        <input type="number" id="out-igst" placeholder="IGST" min="0" step="0.01">
-                        <input type="number" id="out-cgst" placeholder="CGST" min="0" step="0.01">
-                        <input type="number" id="out-sgst" placeholder="SGST" min="0" step="0.01">
+                        <input type="number" id="out-igst" placeholder="3B Out IGST" min="0" step="0.01">
+                        <input type="number" id="out-cgst" placeholder="3B Out CGST" min="0" step="0.01">
+                        <input type="number" id="out-sgst" placeholder="3B Out SGST" min="0" step="0.01">
                     </div>
+
+                    <label style="color:#c4b5fd; margin-top:8px;">
+                        <span>GSTR-1 Outward Tax (Rule 88C / DRC-01B Check)</span>
+                        <button type="button" class="btn-chip" onclick="copyR1To3BOutput()">Copy R1 &rarr; 3B</button>
+                    </label>
+                    <div class="split-3">
+                        <input type="number" id="r1-igst" placeholder="R1 IGST" min="0" step="0.01">
+                        <input type="number" id="r1-cgst" placeholder="R1 CGST" min="0" step="0.01">
+                        <input type="number" id="r1-sgst" placeholder="R1 SGST" min="0" step="0.01">
+                    </div>
+
                     <label style="color:var(--danger); margin-top:8px;">RCM Liability (Mandatory Cash Ledger)</label>
                     <div class="split-3">
                         <input type="number" id="rcm-igst" placeholder="RCM IGST" min="0" step="0.01">
@@ -635,83 +856,113 @@
             </div>
 
             <div class="panel-card">
-                <h2><span>Backup &amp; Google Drive Sync</span></h2>
+                <h2><span>&#128190; Local Export &amp; Full JSON Backup</span></h2>
                 <div class="split-2" style="margin-bottom:8px;">
                     <button type="button" class="btn-success" onclick="exportMasterWorkbook()">Export CSV</button>
-                    <button type="button" class="btn-inline" onclick="backupSystemDatabase()" style="color:var(--cyan); border-color:var(--cyan);">Backup JSON</button>
+                    <button type="button" class="btn-inline" onclick="backupSystemDatabase()" style="color:var(--cyan); border-color:var(--cyan); font-weight:700;">Backup JSON</button>
                 </div>
-                <button type="button" class="btn-inline" onclick="document.getElementById('import-file-input').click()" style="width:100%; margin-bottom:10px; color:var(--primary); border-color:var(--primary);">Restore JSON Database File</button>
+                <button type="button" class="btn-inline" onclick="document.getElementById('import-file-input').click()" style="width:100%; color:var(--primary); border-color:var(--primary); font-weight:700;">Restore JSON Database File</button>
                 <input type="file" id="import-file-input" accept=".json" onchange="restoreSystemDatabase(event)" style="display:none;">
-
-                <div style="border-top: 1px solid var(--border); padding-top: 12px;">
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
-                        <span style="font-size:0.78rem; font-weight:700; color:var(--primary);">Google Drive Cloud</span>
-                        <span id="cloud-status" style="font-size:0.72rem; color:var(--text-muted);">Offline</span>
-                    </div>
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-                        <span style="font-size:0.7rem; color:var(--text-muted);">60-Min Session Timer:</span>
-                        <span id="cloud-timer-badge" class="cloud-timer-pill">--:--</span>
-                    </div>
-                    <div class="split-3">
-                        <button type="button" class="btn-inline" style="color:var(--primary); border-color:var(--primary);" onclick="initializeGoogleAuth()">Connect</button>
-                        <button type="button" class="btn-inline" style="color:var(--warning); border-color:var(--warning);" onclick="forceBackupToDrive()">Push</button>
-                        <button type="button" class="btn-inline" style="color:var(--success); border-color:var(--success);" onclick="restoreFromDrive()">Pull</button>
-                    </div>
-                </div>
             </div>
         </div>
 
         <!-- RIGHT MAIN WORKSPACE -->
         <div class="main-window">
+            <div class="kpi-overview-header">
+                <div class="kpi-overview-title">&#128202; Quick Overview</div>
+                <button type="button" class="btn-chip" onclick="setFilterPill('ALL')">View All &rarr;</button>
+            </div>
+
+            <!-- MOCKUP 6 GLOWING ICON KPI CARDS -->
             <div class="summary-banner">
-                <div class="summary-card" style="border-left-color: var(--primary);">
-                    <div class="summary-label">Active Clients</div>
-                    <div id="stat-total" class="summary-val">0</div>
+                <div class="kpi-glow-card kpi-glow-cyan" onclick="setFilterPill('ALL')">
+                    <div class="kpi-icon-circle" style="background:rgba(6, 182, 212, 0.18); color:#38bdf8; border:1px solid rgba(6, 182, 212, 0.4);">&#128100;</div>
+                    <div class="kpi-body">
+                        <div class="summary-label">Active Clients</div>
+                        <div class="summary-val-row">
+                            <span id="stat-total" class="summary-val">0</span>
+                            <span id="stat-total-sub" class="summary-sub">Registered</span>
+                        </div>
+                    </div>
                 </div>
-                <div class="summary-card" style="border-left-color: var(--warning);">
-                    <div class="summary-label">Step 1 Pending (R1/IFF)</div>
-                    <div id="stat-r1" class="summary-val" style="color: var(--warning);">0</div>
+
+                <div class="kpi-glow-card kpi-glow-amber" onclick="setFilterPill('3B_PENDING')">
+                    <div class="kpi-icon-circle" style="background:rgba(245, 158, 11, 0.18); color:#fbbf24; border:1px solid rgba(245, 158, 11, 0.4);">&#128337;</div>
+                    <div class="kpi-body">
+                        <div class="summary-label">Pending Returns</div>
+                        <div class="summary-val-row">
+                            <span id="stat-3b" class="summary-val" style="color:#fbbf24;">0</span>
+                            <span class="summary-sub">(3B) &bull; R1: <strong id="stat-r1" style="color:#fde68a;">0</strong></span>
+                        </div>
+                    </div>
                 </div>
-                <div class="summary-card" style="border-left-color: var(--danger);">
-                    <div class="summary-label">Step 2 Pending (3B/PMT)</div>
-                    <div id="stat-3b" class="summary-val" style="color: var(--danger);">0</div>
+
+                <div class="kpi-glow-card kpi-glow-crimson" onclick="setFilterPill('OVERDUE')">
+                    <div class="kpi-icon-circle" style="background:rgba(239, 68, 68, 0.18); color:#f87171; border:1px solid rgba(239, 68, 68, 0.4);">&#9888;</div>
+                    <div class="kpi-body">
+                        <div class="summary-label">Overdue Returns</div>
+                        <div class="summary-val-row">
+                            <span id="stat-overdue" class="summary-val" style="color:#f87171;">0</span>
+                            <span id="stat-overdue-sub" class="summary-sub">(Past Due Date)</span>
+                        </div>
+                    </div>
                 </div>
-                <div class="summary-card" style="border-left-color: #f59e0b;">
-                    <div class="summary-label">Challans Pending (NEFT)</div>
-                    <div id="stat-challan" class="summary-val" style="color: #fcd34d;">0</div>
+
+                <div class="kpi-glow-card kpi-glow-emerald" onclick="setFilterPill('CHALLAN_PENDING')">
+                    <div class="kpi-icon-circle" style="background:rgba(16, 185, 129, 0.18); color:#34d399; border:1px solid rgba(16, 185, 129, 0.4);">&#8377;</div>
+                    <div class="kpi-body">
+                        <div class="summary-label">Challans Pending</div>
+                        <div class="summary-val-row">
+                            <span id="stat-challan" class="summary-val" style="color:#34d399;">0</span>
+                            <span class="summary-sub">(<span id="stat-cash" style="color:#6ee7b7; font-weight:700;">&#8377;0</span> Shortfall)</span>
+                        </div>
+                    </div>
                 </div>
-                <div class="summary-card" style="border-left-color: var(--cyan);">
-                    <div class="summary-label">2B Recon Mismatches</div>
-                    <div id="stat-recon" class="summary-val" style="color: var(--cyan);">0</div>
+
+                <div class="kpi-glow-card kpi-glow-purple" onclick="setFilterPill('FEE_DUE')">
+                    <div class="kpi-icon-circle" style="background:rgba(139, 92, 246, 0.18); color:#c084fc; border:1px solid rgba(139, 92, 246, 0.4);">&#128188;</div>
+                    <div class="kpi-body">
+                        <div class="summary-label">Uncollected Fees</div>
+                        <div class="summary-val-row">
+                            <span id="stat-fees" class="summary-val" style="color:#c4b5fd;">&#8377;0</span>
+                            <span id="stat-fees-collected" class="summary-sub">Paid: &#8377;0</span>
+                        </div>
+                    </div>
                 </div>
-                <div class="summary-card" style="border-left-color: var(--success);">
-                    <div class="summary-label">Net Challan Shortfall</div>
-                    <div id="stat-cash" class="summary-val" style="color: var(--success);">&#8377;0</div>
-                </div>
-                <div class="summary-card" style="border-left-color: var(--purple);">
-                    <div class="summary-label">Uncollected Fees</div>
-                    <div id="stat-fees" class="summary-val" style="color: var(--purple);">&#8377;0</div>
+
+                <div class="kpi-glow-card kpi-glow-blue" onclick="setFilterPill('RECON_MISMATCH')">
+                    <div class="kpi-icon-circle" style="background:rgba(59, 130, 246, 0.18); color:#60a5fa; border:1px solid rgba(59, 130, 246, 0.4);">&#128196;</div>
+                    <div class="kpi-body">
+                        <div class="summary-label">2B &amp; R1-3B Mismatch</div>
+                        <div class="summary-val-row">
+                            <span id="stat-recon" class="summary-val" style="color:#60a5fa;">0</span>
+                            <span id="stat-recon-sub" class="summary-sub">(Audit Alerts)</span>
+                        </div>
+                    </div>
                 </div>
             </div>
 
             <div class="toolbar-card">
                 <div class="header-bar">
                     <div class="search-filter">
-                        <input type="text" id="search-bar" placeholder="Search trade name, GSTIN, CPIN, UTR, state, notice, or tag..." oninput="renderMasterDashboard()">
-                        <select id="sort-select" onchange="renderMasterDashboard()" style="max-width: 220px;">
+                        <div class="search-input-wrap">
+                            <span class="search-icon-prefix">&#128269;</span>
+                            <input type="text" id="search-bar" placeholder="Search client by name, GSTIN, CPIN, UTR, state or tag..." oninput="renderMasterDashboard()">
+                        </div>
+                        <select id="sort-select" onchange="renderMasterDashboard()" style="max-width: 205px;">
                             <option value="NAME_ASC">Sort: Trade Name (A-Z)</option>
                             <option value="CASH_DESC">Sort: Shortfall (High-Low)</option>
                             <option value="FEE_DESC">Sort: Unpaid Fee First</option>
                             <option value="PENDING_FIRST">Sort: Pending Filings First</option>
                         </select>
+                        <div class="view-toggle-group" title="Switch between Mockup Card View and 5-Column Pro Table View">
+                            <button type="button" id="btn-view-cards" class="view-mode-btn active" onclick="setWorkspaceViewMode('CARDS')">&#128450; Cards</button>
+                            <button type="button" id="btn-view-table" class="view-mode-btn" onclick="setWorkspaceViewMode('TABLE')">&#128202; Table</button>
+                        </div>
                     </div>
                     <div style="display:flex; gap:6px; align-items:center; flex-wrap:wrap;">
-                        <button type="button" class="btn-inline btn-ledger-passbook" style="padding:7px 11px; font-weight:700;" onclick="openPortalLedgerModal()">&#128210; Portal Ledgers</button>
-                        <button type="button" class="btn-inline btn-drc03" style="padding:7px 11px; font-weight:700;" onclick="openDrc03Modal()">&#9878; DRC-03 &amp; CMP-08</button>
-                        <button type="button" class="btn-inline btn-rfd01" style="padding:7px 11px; font-weight:700;" onclick="openRfd01Modal()">&#127963; RFD-01 Refund</button>
-                        <button type="button" class="btn-inline" style="padding:7px 11px; border-color:var(--purple); color:#c4b5fd; font-weight:700;" onclick="openFirmAnalyticsModal()">&#128200; Firm Analytics</button>
-                        <div style="font-size: 0.84rem; font-weight: 700; background: var(--surface-input); padding: 7px 12px; border-radius: 6px; border: 1px solid var(--border); white-space: nowrap;">
-                            Period: <span id="current-view-badge" style="color: var(--primary);">--</span>
+                        <div style="font-size: 0.82rem; font-weight: 700; background: var(--surface-input); padding: 6px 12px; border-radius: 8px; border: 1px solid var(--border); white-space: nowrap;">
+                            Period: <span id="current-view-badge" style="color: var(--cyan);">--</span>
                         </div>
                     </div>
                 </div>
@@ -722,6 +973,7 @@
                     <button type="button" class="pill" data-filter="CHALLAN_PENDING" onclick="setFilterPill('CHALLAN_PENDING')">&#127974; Challan Pending</button>
                     <button type="button" class="pill" data-filter="OVERDUE" onclick="setFilterPill('OVERDUE')">Overdue Today</button>
                     <button type="button" class="pill" data-filter="RECON_MISMATCH" onclick="setFilterPill('RECON_MISMATCH')">2B Mismatch</button>
+                    <button type="button" class="pill" data-filter="R1_3B_MISMATCH" onclick="setFilterPill('R1_3B_MISMATCH')">&#9888; R1 vs 3B Diff</button>
                     <button type="button" class="pill" data-filter="CASH_LIABLE" onclick="setFilterPill('CASH_LIABLE')">Cash Shortfall</button>
                     <button type="button" class="pill" data-filter="FEE_DUE" onclick="setFilterPill('FEE_DUE')">Fee Unpaid</button>
                     <button type="button" class="pill" data-filter="HAS_NOTICE" onclick="setFilterPill('HAS_NOTICE')">Active Notice</button>
@@ -741,7 +993,23 @@
                 </div>
             </div>
 
-            <div class="table-container">
+            <!-- CLIENT LIST SECTION HEADER -->
+            <div style="display:flex; justify-content:space-between; align-items:center; padding:0 4px; margin-bottom:-6px;">
+                <div style="font-size:0.94rem; font-weight:800; color:#fff;">
+                    Client List <span id="client-list-count-label" style="font-size:0.78rem; color:var(--text-muted); font-weight:600; margin-left:6px;">0 clients</span>
+                </div>
+                <label style="margin:0; cursor:pointer; font-size:0.74rem; color:var(--text-muted);">
+                    <input type="checkbox" id="select-all-cards-cb" class="row-checkbox" onchange="toggleSelectAllClients(this.checked)"> Select All Visible
+                </label>
+            </div>
+
+            <!-- VIEW 1: MOCKUP CLIENT CARDS VIEW -->
+            <div id="client-cards-view">
+                <div id="client-cards-container"></div>
+            </div>
+
+            <!-- VIEW 2: PRO 5-COLUMN MASTER TABLE VIEW -->
+            <div class="table-container" id="pro-table-view" style="display:none;">
                 <table id="master-table">
                     <thead>
                         <tr>
@@ -749,7 +1017,7 @@
                                 <input type="checkbox" id="select-all-checkbox" class="row-checkbox" onchange="toggleSelectAllClients(this.checked)" title="Select All Visible Clients">
                                 Client Profile &amp; Portal Launch
                             </th>
-                            <th width="17%">Output &amp; RCM Liability</th>
+                            <th width="17%">Output, R1 &amp; RCM Liability</th>
                             <th width="19%">Rule 88A ITC &amp; 2B Recon</th>
                             <th width="20%">Filing &amp; NEFT Challan Tracker</th>
                             <th width="21%">Shortfall, Billing &amp; Actions</th>
@@ -760,6 +1028,30 @@
             </div>
         </div>
     </div>
+
+    <!-- STICKY 5-TAB BOTTOM NAVIGATION BAR (MOCKUP DOCK) -->
+    <nav class="bottom-nav-dock">
+        <button type="button" class="bottom-nav-item active" id="bnav-dashboard" onclick="handleBottomNavClick('DASHBOARD')">
+            <span class="nav-ico">&#127968;</span>
+            <span>Dashboard</span>
+        </button>
+        <button type="button" class="bottom-nav-item" id="bnav-clients" onclick="handleBottomNavClick('CLIENTS')">
+            <span class="nav-ico">&#128101;</span>
+            <span>Clients</span>
+        </button>
+        <button type="button" class="bottom-nav-item" id="bnav-returns" onclick="handleBottomNavClick('RETURNS')">
+            <span class="nav-ico">&#128196;</span>
+            <span>Returns</span>
+        </button>
+        <button type="button" class="bottom-nav-item" id="bnav-challans" onclick="handleBottomNavClick('CHALLANS')">
+            <span class="nav-ico">&#8377;</span>
+            <span>Challans</span>
+        </button>
+        <button type="button" class="bottom-nav-item" id="bnav-settings" onclick="handleBottomNavClick('SETTINGS')">
+            <span class="nav-ico">&#9881;</span>
+            <span>Settings</span>
+        </button>
+    </nav>
     <!-- MODAL 1: DETAILED GSTR-9 WORKING DOSSIER -->
     <div class="modal-backdrop" id="gstr9-modal">
         <div class="modal-card">
@@ -848,33 +1140,76 @@
         </div>
     </div>
 
-    <!-- MODAL 3: PRACTICE DESK & UPI QR SETTINGS -->
+    <!-- MODAL 3: 2-TAB PRACTICE DESK SETTINGS & CLIENT ACTIVITY HISTORY SUITE -->
     <div class="modal-backdrop" id="settings-modal">
-        <div class="modal-card" style="max-width: 480px;">
+        <div class="modal-card" style="max-width: 960px;">
             <div class="modal-header">
-                <h2 style="margin-bottom:0;">Practice Desk &amp; UPI QR Settings</h2>
+                <div>
+                    <h2 style="margin-bottom:2px;">&#9881; Practice Desk Settings &amp; Client Audit History</h2>
+                    <div style="font-size:0.76rem; color:var(--text-muted);">Configure UPI QR Billing, App Lock PIN &amp; Track Every Client Change / Undo Deletions</div>
+                </div>
                 <button type="button" class="modal-close" onclick="closeModal('settings-modal')">Close</button>
             </div>
-            <div class="form-group">
-                <label>Firm / Practice Name (Printed on PDF Challans &amp; Invoices)</label>
-                <input type="text" id="setting-firm-name" placeholder="Tax Compliance Desk">
+
+            <div class="settings-tab-bar">
+                <button type="button" class="settings-tab-btn active" id="stab-btn-desk" onclick="switchSettingsTab('DESK')">&#9881; 1. Practice Desk &amp; Security</button>
+                <button type="button" class="settings-tab-btn" id="stab-btn-history" onclick="switchSettingsTab('HISTORY')">&#128220; 2. Client Activity &amp; Audit History (<span id="audit-log-count-badge">0</span>)</button>
             </div>
-            <div class="form-group">
-                <label>Firm UPI ID (Generates Scan-to-Pay QR on PDF Challan &amp; Fee Invoice)</label>
-                <input type="text" id="setting-upi-id" placeholder="yourname@okaxis">
+
+            <!-- TAB 1: PRACTICE DESK & UPI QR SETTINGS -->
+            <div id="settings-tab-desk">
+                <div class="split-2">
+                    <div class="form-group">
+                        <label>Firm / Practice Name (Printed on PDF Challans &amp; Invoices)</label>
+                        <input type="text" id="setting-firm-name" placeholder="Tax Compliance Desk">
+                    </div>
+                    <div class="form-group">
+                        <label>Firm UPI ID (Generates Scan-to-Pay QR on PDF Challan &amp; Fee Invoice)</label>
+                        <input type="text" id="setting-upi-id" placeholder="yourname@okaxis">
+                    </div>
+                </div>
+                <div class="split-2">
+                    <div class="form-group">
+                        <label>UPI QR Code Amount Mode on Monthly Challan PDF</label>
+                        <select id="setting-qr-mode">
+                            <option value="TOTAL">Collect Total Balance Payable (Shortfall + Unpaid Fee)</option>
+                            <option value="FEE_ONLY">Collect Unpaid Professional Fee Only</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>4-Digit App Startup PIN (Excluded from Cloud/JSON Backups for safety)</label>
+                        <input type="password" id="setting-app-pin" maxlength="4" placeholder="Leave blank to disable PIN lock">
+                    </div>
+                </div>
+                <button type="button" class="btn-primary" onclick="savePracticeSettings()">Save Practice Settings</button>
             </div>
-            <div class="form-group">
-                <label>UPI QR Code Amount Mode on Monthly Challan PDF</label>
-                <select id="setting-qr-mode">
-                    <option value="TOTAL">Collect Total Balance Payable (Shortfall + Unpaid Fee)</option>
-                    <option value="FEE_ONLY">Collect Unpaid Professional Fee Only</option>
-                </select>
+
+                        <!-- TAB 2: CLIENT ACTIVITY & AUDIT HISTORY LOG -->
+            <div id="settings-tab-history" style="display:none;">
+                <div class="gstr9-panel" style="margin-bottom:12px;">
+                    <div class="history-filter-grid">
+                        <input type="text" id="history-search-input" placeholder="Search client, GSTIN, password, ARN, file, or amount..." oninput="renderAuditHistoryTab()">
+
+                        <select id="history-cat-filter" onchange="renderAuditHistoryTab()">
+                            <option value="ALL" selected>Filter: All Events</option>
+                            <option value="AMOUNT">Amount &amp; Tax Changes</option>
+                            <option value="FILING">Filing, Challan &amp; Fee Status</option>
+                            <option value="CREDENTIAL">Username / Password Changes</option>
+                            <option value="SYNC">Files Synced / Imported</option>
+                            <option value="DELETE">Deletions (With Restore)</option>
+                        </select>
+                        <select id="history-sort-select" onchange="renderAuditHistoryTab()">
+                            <option value="NEWEST" selected>Sort: Newest First</option>
+                            <option value="OLDEST">Sort: Oldest First</option>
+                            <option value="CLIENT_AZ">Sort: Client Name (A–Z)</option>
+                            <option value="DELTA_DESC">Sort: Largest Amount Change</option>
+                        </select>
+                        <button type="button" class="btn-success" style="width:auto; padding:8px 12px; font-size:0.75rem;" onclick="exportAuditHistoryCsv()">&#128202; Export CSV</button>
+                        <button type="button" class="btn-inline" style="color:var(--danger); border-color:var(--danger); padding:8px 10px;" onclick="clearAuditHistoryLog()">&#128465; Clear</button>
+                    </div>
+                </div>
+                <div id="audit-history-list" style="max-height:56vh; overflow-y:auto; padding-right:4px;"></div>
             </div>
-            <div class="form-group">
-                <label>4-Digit App Startup PIN (Leave blank to disable PIN lock)</label>
-                <input type="password" id="setting-app-pin" maxlength="4" placeholder="1234">
-            </div>
-            <button type="button" class="btn-primary" onclick="savePracticeSettings()">Save Practice Settings</button>
         </div>
     </div>
 
@@ -1132,7 +1467,7 @@
     <!-- MODAL 9: PORTAL ELECTRONIC CREDIT & CASH LEDGER PASSBOOK + AUTO-RECONSTRUCTOR -->
     <div class="modal-backdrop" id="portal-ledger-modal">
         <div class="modal-card" style="max-width: 1280px;">
-                        <div class="modal-header">
+            <div class="modal-header">
                 <div>
                     <h2 id="portal-ledger-title" style="margin-bottom:2px; color:#6ee7b7;">&#128210; Portal Electronic Credit &amp; Cash Ledger Passbook</h2>
                     <div id="portal-ledger-subtitle" style="font-size:0.76rem; color:var(--text-muted);">Import Official GST Portal Credit &amp; Cash Ledger CSVs to Auto-Set Opening Balance, Monthly ITC, ARNs &amp; Reconstructed Output Tax</div>
@@ -1144,7 +1479,6 @@
                     <button type="button" class="modal-close" onclick="closeModal('portal-ledger-modal')">Close</button>
                 </div>
             </div>
-
 
             <div id="portal-ledger-kpi-grid" class="gstr9-kpi-grid"></div>
 
@@ -1205,7 +1539,8 @@
             <div class="gstr9-panel">
                 <h3>
                     <span>1. Create Form GST DRC-03 Voluntary Payment / Notice Reply Working</span>
-                    <div style="display:flex; gap:6px;">
+                    <div style="display:flex; gap:6px; flex-wrap:wrap;">
+                        <button type="button" class="btn-chip" onclick="autoPullR1Vs3BDiffIntoDrc03()">Pull R1 vs 3B Liability Diff</button>
                         <button type="button" class="btn-chip" onclick="autoPull2BExcessIntoDrc03()">Pull Active Month 2B Excess</button>
                         <button type="button" class="btn-chip" onclick="autoPullAnnualGstr9DiffIntoDrc03()">Pull Annual GSTR-9 8D Variance</button>
                     </div>
@@ -1371,13 +1706,21 @@
             }
         } catch (e) {}
 
+        var auditHistory = [];
+        try {
+            auditHistory = JSON.parse(localStorage.getItem('gst_beast_audit_history')) || [];
+        } catch (e) { auditHistory = []; }
+
         var gDriveAccessToken = null;
         var gDriveTokenExpiry = 0;
         var sessionWarningShown = false;
         var gDriveFileId = localStorage.getItem('gst_drive_file_id');
         var syncTimeout = null;
         var activeFilterPill = 'ALL';
+        var workspaceViewMode = localStorage.getItem('gst_beast_view_mode') || 'CARDS';
+        var expandedCardDrawers = {};
         var revealedPasswords = {};
+        var revealedLogPasswords = {};
         var activeGstr9ClientId = null;
         var activeFeeClientId = null;
         var active2BClientId = null;
@@ -1448,7 +1791,191 @@
             setTimeout(function() { t.classList.remove('show'); }, 2800);
         }
 
-        // --- SMART TURNOVER-TO-TAX AUTO-CALCULATOR ---
+        // --- CLIENT ACTIVITY & AUDIT HISTORY ENGINE ---
+        function logAuditEvent(category, clientName, gstin, period, summary, diffs, deletedSnapshot, amountDelta) {
+            var now = new Date();
+            var entry = {
+                id: Date.now().toString() + "_" + Math.floor(Math.random() * 10000),
+                ts: now.getTime(),
+                timeStr: now.toLocaleDateString('en-IN') + " " + now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
+                category: category || "FILING",
+                clientName: clientName || "System",
+                gstin: gstin || "",
+                period: period || activeTargetPeriod,
+                summary: summary || "",
+                diffs: Array.isArray(diffs) ? diffs : [],
+                amountDelta: Math.abs(Number(amountDelta) || 0),
+                deletedSnapshot: deletedSnapshot || null,
+                restored: false
+            };
+            auditHistory.unshift(entry);
+            if (auditHistory.length > 600) {
+                auditHistory = auditHistory.slice(0, 600);
+            }
+            try {
+                localStorage.setItem('gst_beast_audit_history', JSON.stringify(auditHistory));
+            } catch (e) {}
+            updateAuditCountBadge();
+        }
+
+        function updateAuditCountBadge() {
+            var b = document.getElementById('audit-log-count-badge');
+            if (b) b.textContent = auditHistory.length;
+        }
+
+        window.switchSettingsTab = function(tabMode) {
+            var isHistory = (tabMode === 'HISTORY');
+            document.getElementById('settings-tab-desk').style.display = isHistory ? 'none' : 'block';
+            document.getElementById('settings-tab-history').style.display = isHistory ? 'block' : 'none';
+            document.getElementById('stab-btn-desk').classList.toggle('active', !isHistory);
+            document.getElementById('stab-btn-history').classList.toggle('active', isHistory);
+            if (isHistory) renderAuditHistoryTab();
+        };
+
+        window.toggleLogPassReveal = function(logId) {
+            revealedLogPasswords[logId] = !revealedLogPasswords[logId];
+            renderAuditHistoryTab();
+        };
+
+        window.restoreDeletedClientFromLog = function(logId) {
+            var item = auditHistory.find(function(x) { return x.id === logId; });
+            if (!item || !item.deletedSnapshot) return showToast("Snapshot no longer available");
+            var snap = JSON.parse(JSON.stringify(item.deletedSnapshot));
+            var existingIdx = db.findIndex(function(c) { return c.id === snap.id || c.gstin === snap.gstin; });
+            if (existingIdx !== -1) {
+                if (!confirm("A client with GSTIN " + snap.gstin + " already exists. Overwrite with this deleted snapshot?")) return;
+                db[existingIdx] = snap;
+            } else {
+                db.push(snap);
+            }
+                        item.restored = true;
+            activePortalLedgerClientId = snap.id;
+            activeDrc03ClientId = snap.id;
+            logAuditEvent("FILING", snap.name, snap.gstin, activeTargetPeriod, "Restored deleted client profile & historical ledgers from Audit History", [], null, 0);
+            saveDatabase();
+            renderFinancialYearCalendar();
+            renderMasterDashboard();
+            renderAuditHistoryTab();
+            showToast("Restored " + snap.name + " (" + snap.gstin + ")!");
+        };
+
+        window.renderAuditHistoryTab = function() {
+            updateAuditCountBadge();
+            var listEl = document.getElementById('audit-history-list');
+            if (!listEl) return;
+
+            var q = (document.getElementById('history-search-input').value || "").toLowerCase().trim();
+            var cat = document.getElementById('history-cat-filter').value || "ALL";
+            var sortBy = document.getElementById('history-sort-select').value || "NEWEST";
+
+            var filtered = auditHistory.filter(function(item) {
+                if (cat !== "ALL" && item.category !== cat) return false;
+                if (!q) return true;
+                var diffText = (item.diffs || []).map(function(d) { return d.label + " " + d.before + " " + d.after; }).join(" ").toLowerCase();
+                return (item.clientName || "").toLowerCase().indexOf(q) !== -1 ||
+                       (item.gstin || "").toLowerCase().indexOf(q) !== -1 ||
+                       (item.period || "").toLowerCase().indexOf(q) !== -1 ||
+                       (item.summary || "").toLowerCase().indexOf(q) !== -1 ||
+                       diffText.indexOf(q) !== -1;
+            });
+
+            filtered.sort(function(a, b) {
+                if (sortBy === "OLDEST") return (a.ts || 0) - (b.ts || 0);
+                if (sortBy === "CLIENT_AZ") return (a.clientName || "").localeCompare(b.clientName || "");
+                if (sortBy === "DELTA_DESC") return (b.amountDelta || 0) - (a.amountDelta || 0);
+                return (b.ts || 0) - (a.ts || 0);
+            });
+
+            listEl.innerHTML = "";
+            if (filtered.length === 0) {
+                listEl.innerHTML = "<div style='text-align:center; padding:26px; color:var(--text-muted); font-size:0.82rem;'>No matching client activity records found in Audit History.</div>";
+                return;
+            }
+
+            var catColorMap = {
+                AMOUNT: "var(--cyan)",
+                FILING: "var(--success)",
+                CREDENTIAL: "var(--warning)",
+                SYNC: "var(--purple)",
+                DELETE: "var(--danger)"
+            };
+
+            filtered.forEach(function(item) {
+                var borderCol = catColorMap[item.category] || "var(--primary)";
+                var diffsHtml = "";
+                if (item.diffs && item.diffs.length > 0) {
+                    diffsHtml = "<div style='margin-top:5px;'>" + item.diffs.map(function(d) {
+                        if (d.isPassword && !revealedLogPasswords[item.id]) {
+                            return "<span class='audit-diff-pill'>" + d.label + ": ****** &rarr; ****** <span class='copy-chip' onclick=\"toggleLogPassReveal('" + item.id + "')\">Show</span></span>";
+                        } else if (d.isPassword && revealedLogPasswords[item.id]) {
+                            return "<span class='audit-diff-pill'>" + d.label + ": " + (d.before || 'None') + " &rarr; " + (d.after || 'None') + " <span class='copy-chip' onclick=\"toggleLogPassReveal('" + item.id + "')\">Hide</span></span>";
+                        }
+                        return "<span class='audit-diff-pill'><strong>" + d.label + ":</strong> " + d.before + " &rarr; <span style='color:#6ee7b7; font-weight:700;'>" + d.after + "</span></span>";
+                    }).join("") + "</div>";
+                }
+
+                var actionBtnHtml = "";
+                if (item.category === "DELETE" && item.deletedSnapshot) {
+                    if (item.restored) {
+                        actionBtnHtml = "<span class='badge badge-filed' style='min-width:auto; padding:3px 8px;'>Restored</span>";
+                    } else {
+                        actionBtnHtml = "<button type='button' class='btn-inline' style='border-color:var(--warning); color:#fcd34d; font-weight:700;' onclick=\"restoreDeletedClientFromLog('" + item.id + "')\">&#9194; Undo / Restore Client</button>";
+                    }
+                }
+
+                var card = document.createElement('div');
+                card.className = "audit-log-card";
+                card.style.borderLeftColor = borderCol;
+                card.innerHTML =
+                    "<div style='flex:1; min-width:240px;'>" +
+                        "<div style='display:flex; align-items:center; gap:7px; flex-wrap:wrap;'>" +
+                            "<span class='segment-tag' style='margin:0; border-color:" + borderCol + "; color:#fff;'>" + item.category + "</span>" +
+                            "<strong style='color:#fff; font-size:0.86rem;'>" + item.clientName + "</strong>" +
+                            (item.gstin ? "<span class='gstin-mono'>(" + item.gstin + ")</span>" : "") +
+                            "<span class='state-pill'>Period: " + (item.period || '--') + "</span>" +
+                        "</div>" +
+                        "<div style='color:#cbd5e1; margin-top:4px; line-height:1.4;'>" + item.summary + "</div>" +
+                        diffsHtml +
+                    "</div>" +
+                    "<div style='text-align:right; display:flex; flex-direction:column; align-items:flex-end; gap:6px;'>" +
+                        "<span style='font-size:0.68rem; color:var(--text-muted); font-family:monospace;'>" + item.timeStr + "</span>" +
+                        actionBtnHtml +
+                    "</div>";
+                listEl.appendChild(card);
+            });
+        };
+
+        window.exportAuditHistoryCsv = function() {
+            if (auditHistory.length === 0) return showToast("Audit History is empty");
+            var rows = ["Timestamp,Category,Client Name,GSTIN,Period,Summary,Before -> After Changes"];
+            auditHistory.forEach(function(it) {
+                var diffStr = (it.diffs || []).map(function(d) { return d.label + ": " + d.before + " -> " + d.after; }).join(" | ");
+                rows.push([
+                    '"' + (it.timeStr || '') + '"',
+                    '"' + (it.category || '') + '"',
+                    '"' + (it.clientName || '').replace(/"/g, '""') + '"',
+                    '"' + (it.gstin || '') + '"',
+                    '"' + (it.period || '') + '"',
+                    '"' + (it.summary || '').replace(/"/g, '""') + '"',
+                    '"' + diffStr.replace(/"/g, '""') + '"'
+                ].join(","));
+            });
+            var a = document.createElement('a');
+            a.href = "data:text/csv;charset=utf-8," + encodeURIComponent(rows.join("\n"));
+            a.download = "GST_Beast_Audit_History_" + new Date().toISOString().substring(0, 10) + ".csv";
+            document.body.appendChild(a); a.click(); a.remove();
+            showToast("Audit History CSV Exported");
+        };
+
+        window.clearAuditHistoryLog = function() {
+            if (!confirm("Clear all client activity & audit history logs?")) return;
+            auditHistory = [];
+            localStorage.setItem('gst_beast_audit_history', JSON.stringify(auditHistory));
+            renderAuditHistoryTab();
+            showToast("Audit History Cleared");
+        };
+
+        // --- SMART TURNOVER-TO-TAX AUTO-CALCULATOR & R1 -> 3B COPY ---
         window.applyTurnoverTaxRate = function(ratePercent) {
             var rawVal = parseFloat(document.getElementById('calc-turnover-val').value) || 0;
             if (rawVal <= 0) return showToast("Enter a Turnover amount first");
@@ -1474,21 +2001,38 @@
             showToast("Applied " + ratePercent + "% on Taxable Rs. " + fmtINR(round2(taxableVal)));
         };
 
+        window.copyR1To3BOutput = function() {
+            document.getElementById('out-igst').value = document.getElementById('r1-igst').value || 0;
+            document.getElementById('out-cgst').value = document.getElementById('r1-cgst').value || 0;
+            document.getElementById('out-sgst').value = document.getElementById('r1-sgst').value || 0;
+            showToast("Copied GSTR-1 Liability to GSTR-3B Output Tax");
+        };
+
         // --- SETTINGS & PIN LOCK ---
-        window.openSettingsModal = function() {
+        window.openSettingsModal = function(defaultTab) {
             document.getElementById('setting-firm-name').value = practiceConfig.firmName || '';
             document.getElementById('setting-upi-id').value = practiceConfig.upiId || '';
             document.getElementById('setting-qr-mode').value = practiceConfig.qrMode || 'TOTAL';
             document.getElementById('setting-app-pin').value = practiceConfig.appPin || '';
+            updateAuditCountBadge();
+            switchSettingsTab(defaultTab === 'HISTORY' ? 'HISTORY' : 'DESK');
             document.getElementById('settings-modal').style.display = 'flex';
         };
 
         window.savePracticeSettings = function() {
+            var oldFirm = practiceConfig.firmName;
+            var oldUpi = practiceConfig.upiId;
             practiceConfig.firmName = document.getElementById('setting-firm-name').value.trim() || "Tax Compliance Desk";
             practiceConfig.upiId = document.getElementById('setting-upi-id').value.trim();
             practiceConfig.qrMode = document.getElementById('setting-qr-mode').value || "TOTAL";
             practiceConfig.appPin = document.getElementById('setting-app-pin').value.trim();
             localStorage.setItem('gst_beast_config', JSON.stringify(practiceConfig));
+            if (oldFirm !== practiceConfig.firmName || oldUpi !== practiceConfig.upiId) {
+                logAuditEvent("FILING", practiceConfig.firmName, "", activeTargetPeriod, "Updated Practice Desk Settings", [
+                    { label: "Firm Name", before: oldFirm, after: practiceConfig.firmName },
+                    { label: "UPI ID", before: oldUpi || "None", after: practiceConfig.upiId || "None" }
+                ], null, 0);
+            }
             closeModal('settings-modal');
             showToast("Practice Desk & UPI Settings Saved");
         };
@@ -1509,14 +2053,54 @@
             }
         };
 
+        // --- FULL SYSTEM BACKUP PACKAGE (CLIENTS + SETTINGS + AUDIT HISTORY, EXCLUDING APP LOCK PIN) ---
+        function buildFullSystemBackupPayload() {
+            return {
+                app: "GST_Beast_Pro",
+                version: "3.0",
+                exportedAt: new Date().toISOString(),
+                settings: {
+                    firmName: practiceConfig.firmName || "Tax Compliance Desk",
+                    upiId: practiceConfig.upiId || "",
+                    qrMode: practiceConfig.qrMode || "TOTAL"
+                },
+                clients: db,
+                auditHistory: auditHistory
+            };
+        }
+
+        function applyFullSystemRestorePayload(parsed) {
+            if (Array.isArray(parsed)) {
+                db = parsed;
+            } else if (parsed && Array.isArray(parsed.clients)) {
+                db = parsed.clients;
+                if (parsed.settings) {
+                    practiceConfig.firmName = parsed.settings.firmName || practiceConfig.firmName;
+                    practiceConfig.upiId = parsed.settings.upiId !== undefined ? parsed.settings.upiId : practiceConfig.upiId;
+                    practiceConfig.qrMode = parsed.settings.qrMode || practiceConfig.qrMode;
+                    localStorage.setItem('gst_beast_config', JSON.stringify(practiceConfig));
+                }
+                if (Array.isArray(parsed.auditHistory)) {
+                    auditHistory = parsed.auditHistory;
+                    localStorage.setItem('gst_beast_audit_history', JSON.stringify(auditHistory));
+                }
+            } else {
+                return false;
+            }
+            localStorage.setItem('gst_beast_db', JSON.stringify(db));
+            updateAuditCountBadge();
+            return true;
+        }
+
         function saveDatabase() {
             try {
                 localStorage.setItem('gst_beast_db', JSON.stringify(db));
+                localStorage.setItem('gst_beast_audit_history', JSON.stringify(auditHistory));
             } catch (e) {
                 alert("Storage Quota Alert: Please remove oversized logos or export a JSON backup.");
             }
             if (gDriveAccessToken && Date.now() < gDriveTokenExpiry) {
-                document.getElementById('cloud-status').innerHTML = "Saving...";
+                document.getElementById('cloud-status').innerHTML = "Auto-Sync...";
                 clearTimeout(syncTimeout);
                 syncTimeout = setTimeout(performCloudSync, 2200);
             }
@@ -1557,7 +2141,7 @@
             document.getElementById('remove-logo-btn').style.display = 'none';
         };
 
-        // --- GOOGLE DRIVE CLOUD SYNC & 60-MIN COUNTDOWN ---
+        // --- GOOGLE DRIVE CLOUD SYNC (CONNECT ONLY CONNECTS; BACKUP CREATES OR UPDATES FILE) ---
         window.initializeGoogleAuth = function() {
             try {
                 var tokenClient = google.accounts.oauth2.initTokenClient({
@@ -1605,9 +2189,9 @@
             if (remainingSec <= 0) {
                 gDriveAccessToken = null;
                 gDriveTokenExpiry = 0;
-                badge.textContent = "00:00 (Expired)";
+                badge.textContent = "00:00";
                 badge.className = "cloud-timer-pill timer-expired";
-                document.getElementById('cloud-status').innerHTML = "Session Expired";
+                document.getElementById('cloud-status').innerHTML = "Expired";
                 if (modalCountdown) {
                     modalCountdown.textContent = "00:00";
                     modalCountdown.style.color = "var(--danger)";
@@ -1639,6 +2223,7 @@
         }
 
         async function findDriveFileIdSilent() {
+            if (!gDriveAccessToken) return null;
             try {
                 var res = await fetch("https://www.googleapis.com/drive/v3/files?q=name='GST_Master_Backup.json' and trashed=false&orderBy=modifiedTime desc&fields=files(id)", {
                     headers: { 'Authorization': 'Bearer ' + gDriveAccessToken }
@@ -1647,8 +2232,16 @@
                 if (data.files && data.files.length > 0) {
                     gDriveFileId = data.files[0].id;
                     localStorage.setItem('gst_drive_file_id', gDriveFileId);
+                    return gDriveFileId;
+                } else {
+                    gDriveFileId = null;
+                    localStorage.removeItem('gst_drive_file_id');
+                    return null;
                 }
-            } catch (err) { console.error(err); }
+            } catch (err) {
+                console.error(err);
+                return null;
+            }
         }
 
         window.forceBackupToDrive = function() {
@@ -1656,7 +2249,7 @@
                 document.getElementById('session-warning-modal').style.display = 'flex';
                 return;
             }
-            performCloudSync();
+            performCloudSync(true);
         };
 
         window.restoreFromDrive = async function() {
@@ -1664,43 +2257,44 @@
                 document.getElementById('session-warning-modal').style.display = 'flex';
                 return;
             }
-            if (!confirm("Overwrite local screen data with your Google Drive backup?")) return;
+            if (!confirm("Overwrite local workspace data with your Google Drive backup?")) return;
 
             document.getElementById('cloud-status').innerHTML = "Restoring...";
             try {
-                var searchRes = await fetch("https://www.googleapis.com/drive/v3/files?q=name='GST_Master_Backup.json' and trashed=false&orderBy=modifiedTime desc&fields=files(id)", {
-                    headers: { 'Authorization': 'Bearer ' + gDriveAccessToken }
-                });
-                var searchData = await searchRes.json();
-                if (searchData.files && searchData.files.length > 0) {
-                    gDriveFileId = searchData.files[0].id;
-                    localStorage.setItem('gst_drive_file_id', gDriveFileId);
-                    var dlRes = await fetch("https://www.googleapis.com/drive/v3/files/" + gDriveFileId + "?alt=media", {
+                var foundId = await findDriveFileIdSilent();
+                if (foundId) {
+                    var dlRes = await fetch("https://www.googleapis.com/drive/v3/files/" + foundId + "?alt=media", {
                         headers: { 'Authorization': 'Bearer ' + gDriveAccessToken }
                     });
                     var cloudData = await dlRes.json();
-                    if (Array.isArray(cloudData)) {
-                        db = cloudData;
-                        localStorage.setItem('gst_beast_db', JSON.stringify(db));
+                    if (applyFullSystemRestorePayload(cloudData)) {
+                        generateFYDropdown();
                         renderFinancialYearCalendar();
                         renderMasterDashboard();
                         var d = new Date();
                         document.getElementById('cloud-status').innerHTML = "Restored " + d.getHours() + ":" + String(d.getMinutes()).padStart(2, '0');
-                        showToast("Restored from Google Drive");
+                        showToast("Restored Clients, Settings & History from Google Drive");
                     }
                 } else {
-                    document.getElementById('cloud-status').innerHTML = "No Backup Found";
+                    document.getElementById('cloud-status').innerHTML = "No Backup";
+                    showToast("No GST_Master_Backup.json found in Drive. Press Backup to create it.");
                 }
             } catch (err) {
-                document.getElementById('cloud-status').innerHTML = "Restore Error";
+                document.getElementById('cloud-status').innerHTML = "Restore Err";
             }
         };
 
-        async function performCloudSync() {
+        async function performCloudSync(isManualClick) {
             if (!gDriveAccessToken || Date.now() >= gDriveTokenExpiry) return;
             document.getElementById('cloud-status').innerHTML = "Syncing...";
-            var fileContent = JSON.stringify(db, null, 2);
+            var fullPayload = buildFullSystemBackupPayload();
+            var fileContent = JSON.stringify(fullPayload, null, 2);
+
             try {
+                if (!gDriveFileId) {
+                    await findDriveFileIdSilent();
+                }
+
                 if (gDriveFileId) {
                     var res = await fetch("https://www.googleapis.com/upload/drive/v3/files/" + gDriveFileId + "?uploadType=media", {
                         method: 'PATCH',
@@ -1710,9 +2304,12 @@
                     if (res.status === 404) {
                         gDriveFileId = null;
                         localStorage.removeItem('gst_drive_file_id');
-                        return performCloudSync();
+                        return performCloudSync(isManualClick);
                     }
                     if (!res.ok) throw new Error("Sync failed");
+                    var d1 = new Date();
+                    document.getElementById('cloud-status').innerHTML = "Saved " + d1.getHours() + ":" + String(d1.getMinutes()).padStart(2, '0');
+                    if (isManualClick) showToast("Updated GST_Master_Backup.json on Google Drive!");
                 } else {
                     var metadata = { name: 'GST_Master_Backup.json', mimeType: 'application/json' };
                     var form = new FormData();
@@ -1723,17 +2320,18 @@
                         headers: { 'Authorization': 'Bearer ' + gDriveAccessToken },
                         body: form
                     });
+                    if (!res2.ok) throw new Error("Create failed");
                     var data = await res2.json();
                     if (data.id) {
                         gDriveFileId = data.id;
                         localStorage.setItem('gst_drive_file_id', data.id);
                     }
+                    var d2 = new Date();
+                    document.getElementById('cloud-status').innerHTML = "Created " + d2.getHours() + ":" + String(d2.getMinutes()).padStart(2, '0');
+                    showToast("Created GST_Master_Backup.json on Google Drive!");
                 }
-                var d = new Date();
-                document.getElementById('cloud-status').innerHTML = "Saved " + d.getHours() + ":" + String(d.getMinutes()).padStart(2, '0');
             } catch (err) {
                 document.getElementById('cloud-status').innerHTML = "Sync Failed";
-                gDriveAccessToken = null;
             }
         }
 
@@ -1779,7 +2377,7 @@
 
         function renderFinancialYearCalendar() {
             var startYear = parseInt(document.getElementById('global-fy-select').value, 10);
-            document.getElementById('active-fy-pill').textContent = "FY " + startYear + "-" + String(startYear + 1).substring(2);
+            document.getElementById('active-fy-pill').textContent = startYear + " - " + (startYear + 1);
             var matrixContainer = document.getElementById('fy-calendar-matrix');
             matrixContainer.innerHTML = '';
 
@@ -1887,7 +2485,7 @@
             showToast("Copied GSTR-2B figures to 3B Claimed");
         };
 
-        window.clonePrevMonthFigures = function() {
+                        window.clonePrevMonthFigures = function() {
             var id = document.getElementById('editing-client-id').value;
             if (!id) return showToast("Select a client in Edit mode first");
             var client = db.find(function(c) { return c.id === id; });
@@ -1896,13 +2494,14 @@
             var idx = periods.indexOf(activeTargetPeriod);
             if (idx > 0) {
                 var prev = client.history[periods[idx - 1]];
-                document.getElementById('client-fee').value = prev.feeAmount || client.defaultFee || 0;
-                if (!document.getElementById('month-notes').value) {
-                    document.getElementById('month-notes').value = prev.notes || '';
+                var feeToUse = (prev.feeAmount && prev.feeAmount > 0) ? prev.feeAmount : (client.defaultFee || 0);
+                document.getElementById('client-fee').value = feeToUse;
+                if (!document.getElementById('month-notes').value && prev.notes) {
+                    document.getElementById('month-notes').value = prev.notes;
                 }
-                showToast("Cloned fee & notes from " + periods[idx - 1]);
-            } else if (client.defaultFee) {
-                document.getElementById('client-fee').value = client.defaultFee;
+                showToast("Cloned fee (Rs. " + fmtINR(feeToUse) + ") & notes from " + periods[idx - 1]);
+            } else {
+                document.getElementById('client-fee').value = client.defaultFee || 0;
                 showToast("Loaded client default retainer fee");
             }
         };
@@ -1984,7 +2583,7 @@
             return list;
         }
 
-        // --- NEW: ELECTRONIC CREDIT & CASH LEDGER CSV PARSER & OUTPUT TAX AUTO-RECONSTRUCTOR ---
+        // --- ELECTRONIC CREDIT & CASH LEDGER CSV PARSER & OUTPUT TAX AUTO-RECONSTRUCTOR ---
         function parsePortalPeriodTagToISO(pStr) {
             if (!pStr) return null;
             var clean = String(pStr).replace(/["']/g, '').trim();
@@ -2024,7 +2623,6 @@
         }
 
         function parseGstPortalLedgerCsv(csvText) {
-            // Fix GST Portal Cash Ledger quirk where Date column starts with ""16/04/2026
             var sanitizedText = csvText.replace(/,""/g, ',"');
             var rows = parseCsvPreservingStrings(sanitizedText);
             if (!rows || rows.length < 5) return { docType: 'UNKNOWN' };
@@ -2179,7 +2777,6 @@
             return { docType: 'UNKNOWN' };
         }
 
-        // Synchronizes & Reconstructs Monthly History from Portal Credit & Cash Ledgers
         function syncClientPortalLedgers(client) {
             if (!client.portalLedgers) return;
             var cr = client.portalLedgers.credit;
@@ -2295,7 +2892,6 @@
                     h.rcmSgst = b.cashRcmDebited.s;
                 }
 
-                // Use Credit Ledger Debits if uploaded; otherwise fallback to existing month 3B ITC when reconstructing from Cash Ledger alone
                 var effItcDebI = b.hasCreditRows ? b.itcDebited.i : (h.itcIgst || 0);
                 var effItcDebC = b.hasCreditRows ? b.itcDebited.c : (h.itcCgst || 0);
                 var effItcDebS = b.hasCreditRows ? b.itcDebited.s : (h.itcSgst || 0);
@@ -2330,7 +2926,7 @@
                 }
             });
 
-                        if (pendingDepositQueue.length > 0) {
+            if (pendingDepositQueue.length > 0) {
                 var lastDep = pendingDepositQueue[pendingDepositQueue.length - 1];
                 var pendPk = activeTargetPeriod;
                 if (lastDep.isoDate && lastDep.isoDate.length >= 7) {
@@ -2374,7 +2970,6 @@
                 if (fySel) fySel.value = fySt;
             }
         }
-
 
         // --- UNIFIED GST PORTAL IMPORTER (CREDIT/CASH LEDGER CSV + 2B JSON + 3B/R1/PMT-06 PDF) ---
         function detectPeriodFromPdfText(text) {
@@ -2591,7 +3186,7 @@
             return { docType: 'UNKNOWN', gstin: gstin };
         }
 
-        function applyParsedPortalRecordToDb(rec, populateFormIfSingle) {
+        function applyParsedPortalRecordToDb(rec, populateFormIfSingle, sourceFileName) {
             if (rec.docType === 'CREDIT_LEDGER_CSV' || rec.docType === 'CASH_LEDGER_CSV') {
                 var lClient = rec.gstin ? db.find(function(c) { return c.gstin === rec.gstin; }) : null;
                 if (!lClient && activePortalLedgerClientId) {
@@ -2622,6 +3217,10 @@
                 }
                 syncClientPortalLedgers(lClient);
                 activePortalLedgerClientId = lClient.id;
+                logAuditEvent("SYNC", lClient.name, lClient.gstin, activeTargetPeriod,
+                    "Synced " + (rec.docType === 'CREDIT_LEDGER_CSV' ? "Electronic Credit Ledger CSV" : "Electronic Cash Ledger CSV") + (sourceFileName ? " (" + sourceFileName + ")" : "") + " [" + (rec.transactions ? rec.transactions.length : 0) + " rows]",
+                    [], null, 0
+                );
                 if (populateFormIfSingle) {
                     triggerInlineEdit(lClient.id);
                 }
@@ -2674,7 +3273,8 @@
                         }
                     }
                 } else if (rec.docType === 'R1' || rec.docType === 'R1_JSON') {
-                    if (rec.outIgst + rec.outCgst + rec.outSgst > 0) {
+                    h.r1Igst = rec.outIgst; h.r1Cgst = rec.outCgst; h.r1Sgst = rec.outSgst;
+                    if ((h.outIgst || 0) + (h.outCgst || 0) + (h.outSgst || 0) === 0 && (rec.outIgst + rec.outCgst + rec.outSgst > 0)) {
                         h.outIgst = rec.outIgst; h.outCgst = rec.outCgst; h.outSgst = rec.outSgst;
                     }
                     if (rec.docType === 'R1') {
@@ -2683,6 +3283,11 @@
                         if (rec.arn) h.r1Arn = rec.arn;
                     }
                 }
+
+                logAuditEvent("SYNC", client.name, client.gstin, targetPeriod,
+                    "Synced " + rec.docType.replace('_', ' ') + (sourceFileName ? " (" + sourceFileName + ")" : ""),
+                    [], null, 0
+                );
 
                 if (populateFormIfSingle) {
                     triggerInlineEdit(client.id);
@@ -2696,17 +3301,18 @@
                 if (rec.name && !document.getElementById('client-name').value) {
                     document.getElementById('client-name').value = rec.name;
                 }
-                if (rec.docType === '2B_JSON') {
+               if (rec.docType === '2B_JSON') {
                     document.getElementById('itc-2b-igst').value = rec.itc2bIgst;
                     document.getElementById('itc-2b-cgst').value = rec.itc2bCgst;
                     document.getElementById('itc-2b-sgst').value = rec.itc2bSgst;
+                    window.pendingForm2BInvoices = Array.isArray(rec.inv2bList) ? rec.inv2bList : [];
                     if (rec.rcmIgst + rec.rcmCgst + rec.rcmSgst > 0) {
                         document.getElementById('rcm-igst').value = rec.rcmIgst;
                         document.getElementById('rcm-cgst').value = rec.rcmCgst;
                         document.getElementById('rcm-sgst').value = rec.rcmSgst;
                     }
                 } else if (rec.docType === 'PMT06') {
-                    document.getElementById('challan-status').value = 'Pending';
+                   document.getElementById('challan-status').value = 'Pending';
                     document.getElementById('challan-cpin').value = rec.cpin || '';
                     document.getElementById('challan-date').value = rec.challanDate || '';
                     document.getElementById('challan-mode').value = rec.challanMode || 'NEFT/RTGS';
@@ -2721,6 +3327,9 @@
                     document.getElementById('itc-cgst').value = rec.itcCgst;
                     document.getElementById('itc-sgst').value = rec.itcSgst;
                 } else if (rec.docType === 'R1' || rec.docType === 'R1_JSON') {
+                    document.getElementById('r1-igst').value = rec.outIgst;
+                    document.getElementById('r1-cgst').value = rec.outCgst;
+                    document.getElementById('r1-sgst').value = rec.outSgst;
                     document.getElementById('out-igst').value = rec.outIgst;
                     document.getElementById('out-cgst').value = rec.outCgst;
                     document.getElementById('out-sgst').value = rec.outSgst;
@@ -2730,7 +3339,7 @@
             return false;
         }
 
-                window.handlePortalFileImport = async function(event) {
+        window.handlePortalFileImport = async function(event) {
             var files = event.target.files;
             if (!files || files.length === 0) return;
             var isSingle = (files.length === 1);
@@ -2748,12 +3357,12 @@
                         var csvTxt = await file.text();
                         var ledgerRec = parseGstPortalLedgerCsv(csvTxt);
                         if (ledgerRec.docType !== 'UNKNOWN') {
-                            if (applyParsedPortalRecordToDb(ledgerRec, isSingle)) {
+                            if (applyParsedPortalRecordToDb(ledgerRec, isSingle, file.name)) {
                                 importedCount++;
                                 importedLedgerCsv = true;
                                 lastTypeLabel = (ledgerRec.docType === 'CREDIT_LEDGER_CSV' ? "Electronic Credit Ledger CSV" : "Electronic Cash Ledger CSV") + " (" + ledgerRec.gstin + ")";
                             }
-                                                } else {
+                        } else {
                             var csvRows = parseCsvPreservingStrings(csvTxt);
                             var inv2bArr = parseInwardRowsFromTable(csvRows);
                             if (inv2bArr.length > 0) {
@@ -2771,7 +3380,7 @@
                                     itc2bIgst: round2(iSum), itc2bCgst: round2(cSum), itc2bSgst: round2(sSum),
                                     rcmIgst: 0, rcmCgst: 0, rcmSgst: 0, inv2bList: inv2bArr
                                 };
-                                if (applyParsedPortalRecordToDb(fallbackRec, isSingle)) {
+                                if (applyParsedPortalRecordToDb(fallbackRec, isSingle, file.name)) {
                                     importedCount++;
                                     lastTypeLabel = "GSTR-2B CSV (" + inv2bArr.length + " bills)";
                                 }
@@ -2795,18 +3404,17 @@
                                 itc2bIgst: round2(xi), itc2bCgst: round2(xc), itc2bSgst: round2(xs),
                                 rcmIgst: 0, rcmCgst: 0, rcmSgst: 0, inv2bList: xl2bArr
                             };
-                            if (applyParsedPortalRecordToDb(xlRec, isSingle)) {
+                            if (applyParsedPortalRecordToDb(xlRec, isSingle, file.name)) {
                                 importedCount++;
                                 lastTypeLabel = "GSTR-2B Excel (" + xl2bArr.length + " bills)";
                             }
                         }
-
                     } else if (fName.endsWith('.pdf') || file.type === 'application/pdf') {
                         var arrayBuf = await file.arrayBuffer();
                         var pdfText = await extractTextFromPdfBuffer(arrayBuf);
                         var pdfRec = parseGstPortalPdfText(pdfText);
                         if (pdfRec.docType !== 'UNKNOWN') {
-                            if (applyParsedPortalRecordToDb(pdfRec, isSingle)) {
+                            if (applyParsedPortalRecordToDb(pdfRec, isSingle, file.name)) {
                                 importedCount++;
                                 if (pdfRec.docType === 'PMT06') {
                                     lastTypeLabel = "PMT-06 Challan PDF" + (pdfRec.cpin ? " (CPIN: " + pdfRec.cpin + ")" : "");
@@ -2820,7 +3428,7 @@
                         var jsonObj = JSON.parse(jsonTxt);
                         var jsonRec = parseGstPortalJsonObj(jsonObj);
                         if (jsonRec.docType !== 'UNKNOWN') {
-                            if (applyParsedPortalRecordToDb(jsonRec, isSingle)) {
+                            if (applyParsedPortalRecordToDb(jsonRec, isSingle, file.name)) {
                                 importedCount++;
                                 lastTypeLabel = jsonRec.docType.replace('_', ' ');
                             }
@@ -2847,11 +3455,11 @@
                 showToast("Bulk Import Complete: " + importedCount + " / " + files.length + " files synced!");
             }
         };
-
         window.clearForm = function() {
             var ids = [
                 'editing-client-id','client-name','client-phone','client-gstin','portal-user','portal-pass',
-                'out-igst','out-cgst','out-sgst','rcm-igst','rcm-cgst','rcm-sgst','itc-igst','itc-cgst','itc-sgst',
+                'out-igst','out-cgst','out-sgst','r1-igst','r1-cgst','r1-sgst',
+                'rcm-igst','rcm-cgst','rcm-sgst','itc-igst','itc-cgst','itc-sgst',
                 'itc-2b-igst','itc-2b-cgst','itc-2b-sgst','month-notes','client-fee','client-logo',
                 'client-logo-base64','client-tags','client-notice','init-itc-igst','init-itc-cgst','init-itc-sgst',
                 'cash-ledger-bal','challan-cpin','challan-date','challan-utr','calc-turnover-val'
@@ -2870,21 +3478,22 @@
             document.getElementById('client-gstin').style.borderColor = 'var(--border)';
             document.getElementById('gstin-error').style.display = 'none';
             document.getElementById('gstin-state-badge').textContent = '';
-            document.getElementById('form-title').textContent = "Client & Return Entry";
+            document.getElementById('form-title').innerHTML = "&#128101; Add / Manage Client &amp; Return";
             document.getElementById('save-btn').textContent = "Save Client & Period Ledger";
             document.getElementById('cancel-edit-btn').style.display = 'none';
             handleSchemeUI();
         };
 
-                function ensureMonthStructureInitialized(target, periodKey) {
+        function ensureMonthStructureInitialized(target, periodKey) {
             if (!target.history) target.history = {};
             if (!target.initItc) target.initItc = { igst: 0, cgst: 0, sgst: 0 };
             if (!target.drc03List) target.drc03List = [];
             if (!target.portalLedgers) target.portalLedgers = {};
-            
+
             if (!target.history[periodKey]) {
                 target.history[periodKey] = {
                     outIgst: 0, outCgst: 0, outSgst: 0,
+                    r1Igst: 0, r1Cgst: 0, r1Sgst: 0,
                     rcmIgst: 0, rcmCgst: 0, rcmSgst: 0,
                     itcIgst: 0, itcCgst: 0, itcSgst: 0,
                     itc2bIgst: 0, itc2bCgst: 0, itc2bSgst: 0, notes: "",
@@ -2903,6 +3512,9 @@
                 };
             } else {
                 var h = target.history[periodKey];
+                if (h.r1Igst === undefined) h.r1Igst = 0;
+                if (h.r1Cgst === undefined) h.r1Cgst = 0;
+                if (h.r1Sgst === undefined) h.r1Sgst = 0;
                 if (h.itc2bIgst === undefined) {
                     h.itc2bIgst = 0;
                     h.itc2bCgst = h.itc2b || 0;
@@ -2944,6 +3556,9 @@
                 outIgst: parseFloat(document.getElementById('out-igst').value) || 0,
                 outCgst: parseFloat(document.getElementById('out-cgst').value) || 0,
                 outSgst: parseFloat(document.getElementById('out-sgst').value) || 0,
+                r1Igst: parseFloat(document.getElementById('r1-igst').value) || 0,
+                r1Cgst: parseFloat(document.getElementById('r1-cgst').value) || 0,
+                r1Sgst: parseFloat(document.getElementById('r1-sgst').value) || 0,
                 rcmIgst: parseFloat(document.getElementById('rcm-igst').value) || 0,
                 rcmCgst: parseFloat(document.getElementById('rcm-cgst').value) || 0,
                 rcmSgst: parseFloat(document.getElementById('rcm-sgst').value) || 0,
@@ -2962,11 +3577,12 @@
                 challanCpin: cpinEntered,
                 challanDate: document.getElementById('challan-date').value || "",
                 challanUtr: document.getElementById('challan-utr').value.trim(),
-                r1: "Pending", r1Date: "", r1Arn: "",
+                                r1: "Pending", r1Date: "", r1Arn: "",
                 r3b: "Pending", r3bDate: "", r3bArn: "",
                 waived: false,
-                inv2bList: []
+                inv2bList: Array.isArray(window.pendingForm2BInvoices) ? window.pendingForm2BInvoices.slice() : []
             };
+            window.pendingForm2BInvoices = [];
 
             var initItc = {
                 igst: parseFloat(document.getElementById('init-itc-igst').value) || 0,
@@ -2974,27 +3590,98 @@
                 sgst: parseFloat(document.getElementById('init-itc-sgst').value) || 0
             };
 
+            var newUser = document.getElementById('portal-user').value.trim();
+            var newPass = document.getElementById('portal-pass').value.trim();
+            var newScheme = document.getElementById('client-scheme').value;
+            var newNotice = document.getElementById('client-notice').value.trim();
+
             if (id) {
                 var target = db.find(function(c) { return c.id === id; });
                 if (target) {
+                    ensureMonthStructureInitialized(target, activeTargetPeriod);
+                    var existing = target.history[activeTargetPeriod];
+
+                    // Track Credential Changes
+                    var credDiffs = [];
+                    if ((target.user || '') !== newUser) {
+                        credDiffs.push({ label: "Portal ID", before: target.user || "None", after: newUser || "None" });
+                    }
+                    if ((target.pass || '') !== newPass) {
+                        credDiffs.push({ label: "Portal Password", before: target.pass || "None", after: newPass || "None", isPassword: true });
+                    }
+                    if (credDiffs.length > 0) {
+                        logAuditEvent("CREDENTIAL", name, gstin, activeTargetPeriod, "Updated GST Portal Login Credentials", credDiffs, null, 0);
+                    }
+
+                    // Track Amount & Ledger Changes (Before -> After)
+                    var amtDiffs = [];
+                    var totalDelta = 0;
+                    function checkNumDiff(lbl, oldVal, newVal) {
+                        var o = round2(oldVal || 0);
+                        var n = round2(newVal || 0);
+                        if (Math.abs(o - n) >= 0.01) {
+                            amtDiffs.push({ label: lbl, before: "₹" + fmtINR(o), after: "₹" + fmtINR(n) });
+                            totalDelta += Math.abs(n - o);
+                        }
+                    }
+
+                    checkNumDiff("3B Out IGST", existing.outIgst, payload.outIgst);
+                    checkNumDiff("3B Out CGST", existing.outCgst, payload.outCgst);
+                    checkNumDiff("3B Out SGST", existing.outSgst, payload.outSgst);
+                    checkNumDiff("R1 IGST", existing.r1Igst, payload.r1Igst);
+                    checkNumDiff("R1 CGST", existing.r1Cgst, payload.r1Cgst);
+                    checkNumDiff("R1 SGST", existing.r1Sgst, payload.r1Sgst);
+                    checkNumDiff("RCM IGST", existing.rcmIgst, payload.rcmIgst);
+                    checkNumDiff("RCM CGST", existing.rcmCgst, payload.rcmCgst);
+                    checkNumDiff("RCM SGST", existing.rcmSgst, payload.rcmSgst);
+                    checkNumDiff("3B ITC IGST", existing.itcIgst, payload.itcIgst);
+                    checkNumDiff("3B ITC CGST", existing.itcCgst, payload.itcCgst);
+                    checkNumDiff("3B ITC SGST", existing.itcSgst, payload.itcSgst);
+                    checkNumDiff("2B ITC IGST", existing.itc2bIgst, payload.itc2bIgst);
+                    checkNumDiff("2B ITC CGST", existing.itc2bCgst, payload.itc2bCgst);
+                    checkNumDiff("2B ITC SGST", existing.itc2bSgst, payload.itc2bSgst);
+                    checkNumDiff("Cash Ledger Bal", existing.cashLedgerBal, payload.cashLedgerBal);
+                    checkNumDiff("Retainer Fee", existing.feeAmount, payload.feeAmount);
+                    checkNumDiff("Op. ITC IGST", target.initItc.igst, initItc.igst);
+                    checkNumDiff("Op. ITC CGST", target.initItc.cgst, initItc.cgst);
+                    checkNumDiff("Op. ITC SGST", target.initItc.sgst, initItc.sgst);
+
+                    if (existing.feeStatus !== payload.feeStatus) {
+                        amtDiffs.push({ label: "Fee Status", before: existing.feeStatus, after: payload.feeStatus });
+                    }
+                    if (existing.challanStatus !== payload.challanStatus) {
+                        amtDiffs.push({ label: "Challan Status", before: existing.challanStatus, after: payload.challanStatus });
+                    }
+                    if ((existing.challanCpin || '') !== payload.challanCpin) {
+                        amtDiffs.push({ label: "CPIN/Ref", before: existing.challanCpin || "None", after: payload.challanCpin || "None" });
+                    }
+                    if (target.name !== name) {
+                        amtDiffs.push({ label: "Trade Name", before: target.name, after: name });
+                    }
+                    if ((target.scheme || 'Monthly') !== newScheme) {
+                        amtDiffs.push({ label: "Scheme", before: target.scheme || 'Monthly', after: newScheme });
+                    }
+
+                    if (amtDiffs.length > 0) {
+                        logAuditEvent("AMOUNT", name, gstin, activeTargetPeriod, "Modified client tax figures / period ledger (" + amtDiffs.length + " field(s) updated)", amtDiffs, null, totalDelta);
+                    }
+
                     target.name = name;
                     target.phone = phone;
                     target.gstin = gstin;
-                    target.scheme = document.getElementById('client-scheme').value;
-                    target.user = document.getElementById('portal-user').value.trim();
-                    target.pass = document.getElementById('portal-pass').value.trim();
+                    target.scheme = newScheme;
+                    target.user = newUser;
+                    target.pass = newPass;
                     target.logo = logoData;
                     target.tags = tagsData;
-                    target.notice = document.getElementById('client-notice').value.trim();
+                    target.notice = newNotice;
                     target.initItc = initItc;
                     if (feeEntered > 0) target.defaultFee = feeEntered;
 
-                    ensureMonthStructureInitialized(target, activeTargetPeriod);
-                    var existing = target.history[activeTargetPeriod];
                     payload.r1 = existing.r1; payload.r1Date = existing.r1Date; payload.r1Arn = existing.r1Arn || "";
                     payload.r3b = existing.r3b; payload.r3bDate = existing.r3bDate; payload.r3bArn = existing.r3bArn || "";
-                    payload.waived = existing.waived || false;
-                    payload.inv2bList = existing.inv2bList || [];
+                                        payload.waived = existing.waived || false;
+                    payload.inv2bList = (payload.inv2bList && payload.inv2bList.length > 0) ? payload.inv2bList : (existing.inv2bList || []);
 
                     if (payload.r3b === 'Filed' && (payload.challanStatus === 'Pending' || payload.challanStatus === 'UTR_Sent')) {
                         payload.challanStatus = 'Paid';
@@ -3007,12 +3694,12 @@
                 var newEntry = {
                     id: Date.now().toString(),
                     name: name, phone: phone, gstin: gstin,
-                    scheme: document.getElementById('client-scheme').value,
-                    user: document.getElementById('portal-user').value.trim(),
-                    pass: document.getElementById('portal-pass').value.trim(),
+                    scheme: newScheme,
+                    user: newUser,
+                    pass: newPass,
                     logo: logoData,
                     tags: tagsData,
-                    notice: document.getElementById('client-notice').value.trim(),
+                    notice: newNotice,
                     initItc: initItc,
                     defaultFee: feeEntered,
                     history: {},
@@ -3021,6 +3708,14 @@
                 };
                 newEntry.history[activeTargetPeriod] = payload;
                 db.push(newEntry);
+
+                var initOutTot = round2(payload.outIgst + payload.outCgst + payload.outSgst);
+                var initItcTot = round2(payload.itcIgst + payload.itcCgst + payload.itcSgst);
+                logAuditEvent("FILING", name, gstin, activeTargetPeriod, "Registered new client profile (" + newScheme + ")", [
+                    { label: "Initial Output Tax", before: "₹0", after: "₹" + fmtINR(initOutTot) },
+                    { label: "Initial 3B ITC", before: "₹0", after: "₹" + fmtINR(initItcTot) },
+                    { label: "Retainer Fee", before: "₹0", after: "₹" + fmtINR(feeEntered) }
+                ], null, initOutTot + initItcTot);
                 showToast("Registered " + name);
             }
 
@@ -3061,10 +3756,11 @@
             }
             document.getElementById('client-tags').value = target.tags ? target.tags.join(', ') : '';
 
-            ['out','rcm','itc'].forEach(function(prefix) {
+            ['out','r1','rcm','itc'].forEach(function(prefix) {
                 ['igst','cgst','sgst'].forEach(function(tax) {
                     var key = prefix + tax.charAt(0).toUpperCase() + tax.slice(1);
-                    document.getElementById(prefix + '-' + tax).value = data[key] || '';
+                    var el = document.getElementById(prefix + '-' + tax);
+                    if (el) el.value = data[key] || '';
                 });
             });
             document.getElementById('itc-2b-igst').value = data.itc2bIgst || '';
@@ -3084,13 +3780,13 @@
 
             validateGSTIN();
             handleSchemeUI();
-            document.getElementById('form-title').textContent = "Editing: " + target.name;
+            document.getElementById('form-title').innerHTML = "&#9998; Editing: " + target.name;
             document.getElementById('save-btn').textContent = "Update Client & Period";
             document.getElementById('cancel-edit-btn').style.display = 'block';
             window.scrollTo({ top: 0, behavior: 'smooth' });
         };
 
-        // --- RULE 88A SET-OFF ENGINE & EXACT SHORTFALL CALCULATOR ---
+        // --- RULE 88A SET-OFF ENGINE, R1 VS 3B MISMATCH & SHORTFALL CALCULATOR ---
         function runRule88ASetOff(poolIgst, poolCgst, poolSgst, outIgst, outCgst, outSgst) {
             if (poolIgst > 0 && outIgst > 0) {
                 var off1 = Math.min(poolIgst, outIgst);
@@ -3181,6 +3877,15 @@
             var reconDiff = diffIgst + diffCgst + diffSgst;
             var headMismatch = (diffIgst > 1 || diffCgst > 1 || diffSgst > 1);
 
+            // GSTR-1 vs GSTR-3B Liability Mismatch Check (Rule 88C / DRC-01B)
+            var r1I = data.r1Igst || 0, r1C = data.r1Cgst || 0, r1S = data.r1Sgst || 0;
+            var hasR1Data = (r1I + r1C + r1S) > 0;
+            var r1DiffI = r1I - origOutI;
+            var r1DiffC = r1C - origOutC;
+            var r1DiffS = r1S - origOutS;
+            var r1Vs3bDiff = round2(r1DiffI + r1DiffC + r1DiffS);
+            var r1HeadMismatch = hasR1Data && (Math.abs(r1DiffI) > 1 || Math.abs(r1DiffC) > 1 || Math.abs(r1DiffS) > 1);
+
             var lateFee = 0, interest = 0, delayDays = 0;
             var nowObj = new Date();
             nowObj.setHours(23, 59, 59, 999);
@@ -3222,6 +3927,7 @@
                 cashLedgerBal: cashLedgerBal, cashShortfall: cashShortfall,
                 cpinDaysLeft: cpinDaysLeft,
                 carryCredit: carryCredit, reconDiff: reconDiff, headMismatch: headMismatch,
+                hasR1Data: hasR1Data, r1Vs3bDiff: r1Vs3bDiff, r1HeadMismatch: r1HeadMismatch,
                 lateFee: lateFee, interest: interest, delayDays: delayDays,
                 cashHeads: { igst: cashIgst, cgst: cashCgst, sgst: cashSgst },
                 closingItc: { igst: res.poolIgst, cgst: res.poolCgst, sgst: res.poolSgst },
@@ -3267,15 +3973,17 @@
             };
         }
 
-        // --- WORKFLOW TOGGLES & AUTO-PAID CHALLAN ON 3B FILING ---
+        // --- WORKFLOW TOGGLES WITH AUTOMATIC AUDIT LOGGING ---
         window.toggleReturnStatus = function(id, type) {
             var target = db.find(function(c) { return c.id === id; });
             if (!target) return;
 
             ensureMonthStructureInitialized(target, activeTargetPeriod);
             var h = target.history[activeTargetPeriod];
-            var isFiled = h[type] === 'Filed';
-            h[type] = isFiled ? 'Pending' : 'Filed';
+            var oldStatus = h[type];
+            var isFiled = oldStatus === 'Filed';
+            var newStatus = isFiled ? 'Pending' : 'Filed';
+            h[type] = newStatus;
 
             var today = new Date();
             var todayStr = today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0') + '-' + String(today.getDate()).padStart(2, '0');
@@ -3286,16 +3994,23 @@
                 h[type + 'Date'] = '';
             }
 
+            var returnLabel = (type === 'r1') ? "GSTR-1 / Step 1" : "GSTR-3B / Step 2";
+            var diffs = [{ label: returnLabel, before: oldStatus, after: newStatus }];
+
             if (type === 'r3b') {
                 if (!isFiled) {
                     if (h.challanStatus === 'Pending' || h.challanStatus === 'UTR_Sent' || h.challanCpin) {
+                        diffs.push({ label: "Challan Status", before: h.challanStatus, after: "Paid" });
                         h.challanStatus = 'Paid';
                         showToast("GSTR-3B Filed -> Challan marked Paid!");
                     }
                 } else if (isFiled && h.challanStatus === 'Paid' && h.challanCpin) {
+                    diffs.push({ label: "Challan Status", before: "Paid", after: "Pending" });
                     h.challanStatus = 'Pending';
                 }
             }
+
+            logAuditEvent("FILING", target.name, target.gstin, activeTargetPeriod, "Toggled " + returnLabel + " filing status", diffs, null, 0);
 
             if ((target.scheme === 'QRMP' || target.scheme === 'Composition') && !isFiled) {
                 var parts = activeTargetPeriod.split('-');
@@ -3331,19 +4046,24 @@
             var todayStr = today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0') + '-' + String(today.getDate()).padStart(2, '0');
 
             var cur = h.challanStatus || 'None';
+            var nextStat = 'None';
             if (cur === 'None') {
-                h.challanStatus = 'Pending';
+                nextStat = 'Pending';
                 if (!h.challanDate) h.challanDate = todayStr;
                 showToast("Challan Marked Pending (15-Day Validity)");
             } else if (cur === 'Pending') {
-                h.challanStatus = 'UTR_Sent';
+                nextStat = 'UTR_Sent';
                 showToast("Status: UTR Received from Client");
             } else if (cur === 'UTR_Sent') {
-                h.challanStatus = 'Paid';
+                nextStat = 'Paid';
                 showToast("Challan Marked Paid / Settled");
             } else {
-                h.challanStatus = 'None';
+                nextStat = 'None';
             }
+            h.challanStatus = nextStat;
+            logAuditEvent("FILING", target.name, target.gstin, activeTargetPeriod, "Cycled PMT-06 Challan Status", [
+                { label: "Challan Status", before: cur, after: nextStat }
+            ], null, 0);
             saveDatabase();
             renderMasterDashboard();
         };
@@ -3352,7 +4072,13 @@
             var target = db.find(function(c) { return c.id === id; });
             if (target) {
                 ensureMonthStructureInitialized(target, activeTargetPeriod);
+                var oldVal = target.history[activeTargetPeriod][field] || "";
                 target.history[activeTargetPeriod][field] = val;
+                if (oldVal !== val) {
+                    logAuditEvent("FILING", target.name, target.gstin, activeTargetPeriod, "Updated Filing / Challan Reference (" + field + ")", [
+                        { label: field, before: oldVal || "None", after: val || "None" }
+                    ], null, 0);
+                }
                 saveDatabase();
                 renderMasterDashboard();
             }
@@ -3362,7 +4088,11 @@
             var target = db.find(function(c) { return c.id === id; });
             if (target) {
                 ensureMonthStructureInitialized(target, activeTargetPeriod);
-                target.history[activeTargetPeriod].waived = !target.history[activeTargetPeriod].waived;
+                var oldW = Boolean(target.history[activeTargetPeriod].waived);
+                target.history[activeTargetPeriod].waived = !oldW;
+                logAuditEvent("FILING", target.name, target.gstin, activeTargetPeriod, "Toggled Late Fee / Interest Waiver", [
+                    { label: "Penalty Waiver", before: oldW ? "Waived" : "Active", after: !oldW ? "Waived" : "Active" }
+                ], null, 0);
                 saveDatabase();
                 renderMasterDashboard();
             }
@@ -3373,7 +4103,12 @@
             if (target) {
                 var pKey = customPeriod || activeTargetPeriod;
                 ensureMonthStructureInitialized(target, pKey);
-                target.history[pKey].feeStatus = target.history[pKey].feeStatus === 'Paid' ? 'Due' : 'Paid';
+                var oldFeeStat = target.history[pKey].feeStatus || 'Due';
+                var newFeeStat = oldFeeStat === 'Paid' ? 'Due' : 'Paid';
+                target.history[pKey].feeStatus = newFeeStat;
+                logAuditEvent("FILING", target.name, target.gstin, pKey, "Toggled Professional Retainer Fee Status", [
+                    { label: "Fee Status (₹" + fmtINR(target.history[pKey].feeAmount) + ")", before: oldFeeStat, after: newFeeStat }
+                ], null, target.history[pKey].feeAmount || 0);
                 saveDatabase();
                 renderMasterDashboard();
                 if (customPeriod && activeFeeClientId === id) {
@@ -3382,9 +4117,24 @@
             }
         };
 
-                window.purgeClientProfile = function(id) {
+        window.purgeClientProfile = function(id) {
             var target = db.find(function(c) { return c.id === id; });
-            if (target && confirm("Delete " + target.name + " permanently?")) {
+            if (target && confirm("Delete " + target.name + " permanently? (You can restore it anytime from Settings -> History)")) {
+                var snapshotCopy = JSON.parse(JSON.stringify(target));
+                var curData = (target.history && target.history[activeTargetPeriod]) || {};
+                var outSum = round2((curData.outIgst || 0) + (curData.outCgst || 0) + (curData.outSgst || 0));
+                var itcSum = round2((curData.itcIgst || 0) + (curData.itcCgst || 0) + (curData.itcSgst || 0));
+
+                logAuditEvent("DELETE", target.name, target.gstin, activeTargetPeriod,
+                    "Deleted client profile & historical ledgers (Click 'Undo / Restore Client' to recover)",
+                    [
+                        { label: "Active Period Out Tax", before: "₹" + fmtINR(outSum), after: "Deleted" },
+                        { label: "Active Period 3B ITC", before: "₹" + fmtINR(itcSum), after: "Deleted" }
+                    ],
+                    snapshotCopy,
+                    outSum + itcSum
+                );
+
                 db = db.filter(function(c) { return c.id !== id; });
                 delete selectedClientIds[id];
                 if (document.getElementById('editing-client-id').value === id) {
@@ -3398,10 +4148,9 @@
                 saveDatabase();
                 renderFinancialYearCalendar();
                 renderMasterDashboard();
-                showToast("Client Deleted");
+                showToast("Client Deleted (Undo available in Settings -> History)");
             }
         };
-
 
         window.copyClientCredential = function(id, field) {
             var target = db.find(function(c) { return c.id === id; });
@@ -3437,6 +4186,55 @@
             renderMasterDashboard();
         };
 
+        window.setWorkspaceViewMode = function(mode) {
+            workspaceViewMode = (mode === 'TABLE') ? 'TABLE' : 'CARDS';
+            localStorage.setItem('gst_beast_view_mode', workspaceViewMode);
+            document.getElementById('btn-view-cards').classList.toggle('active', workspaceViewMode === 'CARDS');
+            document.getElementById('btn-view-table').classList.toggle('active', workspaceViewMode === 'TABLE');
+            document.getElementById('client-cards-view').style.display = workspaceViewMode === 'CARDS' ? 'block' : 'none';
+            document.getElementById('pro-table-view').style.display = workspaceViewMode === 'TABLE' ? 'block' : 'none';
+        };
+
+        window.toggleCardDrawer = function(clientId) {
+            expandedCardDrawers[clientId] = !expandedCardDrawers[clientId];
+            var drawer = document.getElementById('mc-drawer-' + clientId);
+            if (drawer) {
+                drawer.classList.toggle('open', Boolean(expandedCardDrawers[clientId]));
+            }
+        };
+
+        window.handleBottomNavClick = function(tab) {
+            var navIds = ['bnav-dashboard','bnav-clients','bnav-returns','bnav-challans','bnav-settings'];
+            navIds.forEach(function(nid) {
+                var el = document.getElementById(nid);
+                if (el) el.classList.remove('active');
+            });
+
+            if (tab === 'DASHBOARD') {
+                document.getElementById('bnav-dashboard').classList.add('active');
+                setFilterPill('ALL');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            } else if (tab === 'CLIENTS') {
+                document.getElementById('bnav-clients').classList.add('active');
+                setFilterPill('ALL');
+                var clEl = document.getElementById('client-list-count-label');
+                if (clEl) clEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            } else if (tab === 'RETURNS') {
+                document.getElementById('bnav-returns').classList.add('active');
+                setFilterPill('3B_PENDING');
+                var clEl2 = document.getElementById('client-list-count-label');
+                if (clEl2) clEl2.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            } else if (tab === 'CHALLANS') {
+                document.getElementById('bnav-challans').classList.add('active');
+                setFilterPill('CHALLAN_PENDING');
+                var clEl3 = document.getElementById('client-list-count-label');
+                if (clEl3) clEl3.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            } else if (tab === 'SETTINGS') {
+                document.getElementById('bnav-settings').classList.add('active');
+                openSettingsModal('DESK');
+            }
+        };
+
         // --- MULTI-CLIENT BATCH ACTIONS ---
         function updateBatchBarVisibility() {
             var ids = Object.keys(selectedClientIds).filter(function(k) { return selectedClientIds[k]; });
@@ -3448,8 +4246,10 @@
                 countSpan.textContent = ids.length;
             } else {
                 bar.style.display = 'none';
-                var selAll = document.getElementById('select-all-checkbox');
-                if (selAll) selAll.checked = false;
+                var selAll1 = document.getElementById('select-all-checkbox');
+                var selAll2 = document.getElementById('select-all-cards-cb');
+                if (selAll1) selAll1.checked = false;
+                if (selAll2) selAll2.checked = false;
             }
         }
 
@@ -3467,6 +4267,10 @@
                 if (isChecked) selectedClientIds[cid] = true;
                 else delete selectedClientIds[cid];
             }
+            var selAll1 = document.getElementById('select-all-checkbox');
+            var selAll2 = document.getElementById('select-all-cards-cb');
+            if (selAll1) selAll1.checked = isChecked;
+            if (selAll2) selAll2.checked = isChecked;
             updateBatchBarVisibility();
         };
 
@@ -3491,8 +4295,9 @@
                 ensureMonthStructureInitialized(c, activeTargetPeriod);
                 var h = c.history[activeTargetPeriod];
 
-                if (actionType === 'NIL_FILED') {
+                                if (actionType === 'NIL_FILED') {
                     h.outIgst = 0; h.outCgst = 0; h.outSgst = 0;
+                    h.r1Igst = 0; h.r1Cgst = 0; h.r1Sgst = 0;
                     h.rcmIgst = 0; h.rcmCgst = 0; h.rcmSgst = 0;
                     h.r1 = 'Filed'; if (!h.r1Date) h.r1Date = todayStr;
                     h.r3b = 'Filed'; if (!h.r3bDate) h.r3bDate = todayStr;
@@ -3514,6 +4319,7 @@
                 }
             });
 
+            logAuditEvent("FILING", "Batch Action (" + count + " Clients)", "", activeTargetPeriod, "Executed batch action: " + actionType, [], null, 0);
             saveDatabase();
             clearBatchSelection();
             renderFinancialYearCalendar();
@@ -3521,11 +4327,72 @@
             showToast("Batch Action Applied to " + count + " Client(s)!");
         };
 
-        // --- MASTER DASHBOARD RENDERER ---
+        // --- STATUTORY DUE-DATE COUNTDOWN & URGENCY BANNER RENDERER ---
+        function renderUrgencyCountdownBanner(overdueCount, expiringCpinCount, r1Vs3bCount) {
+            var stripEl = document.getElementById('urgency-deadlines-strip');
+            var rightEl = document.getElementById('urgency-alerts-right');
+            if (!stripEl || !rightEl) return;
+
+            var parts = activeTargetPeriod.split('-');
+            var yr = parseInt(parts[0], 10);
+            var mo = parseInt(parts[1], 10);
+            var dueMo = mo + 1;
+            var dueYr = yr;
+            if (dueMo > 12) { dueMo = 1; dueYr++; }
+            var dueMoName = getMonthNameByStr(dueMo);
+
+            var todayMid = new Date();
+            todayMid.setHours(0, 0, 0, 0);
+
+            function buildDeadlinePill(label, dayNum) {
+                var dObj = new Date(dueYr, dueMo - 1, dayNum, 0, 0, 0);
+                var diffDays = Math.ceil((dObj - todayMid) / 86400000);
+                var col = "#94a3b8";
+                var statusTxt = "";
+                if (diffDays < 0) {
+                    col = "#fca5a5";
+                    statusTxt = "Passed";
+                } else if (diffDays === 0) {
+                    col = "#fcd34d";
+                    statusTxt = "DUE TODAY!";
+                } else if (diffDays <= 4) {
+                    col = "#fcd34d";
+                    statusTxt = "in " + diffDays + "d";
+                } else {
+                    col = "#6ee7b7";
+                    statusTxt = "in " + diffDays + "d";
+                }
+                return "<span class='urgency-chip' style='border-color:" + col + ";'><strong>" + label + " (" + dayNum + " " + dueMoName + "):</strong> <span style='color:" + col + ";'>" + statusTxt + "</span></span>";
+            }
+
+            stripEl.innerHTML =
+                buildDeadlinePill("GSTR-1", 11) +
+                buildDeadlinePill("IFF / Q-R1", 13) +
+                buildDeadlinePill("CMP-08", 18) +
+                buildDeadlinePill("GSTR-3B", 20) +
+                buildDeadlinePill("PMT-06", 25);
+
+            var alerts = [];
+            if (overdueCount > 0) {
+                alerts.push("<span class='urgency-chip' style='background:rgba(239,68,68,0.18); border-color:var(--danger); color:#fca5a5; cursor:pointer;' onclick=\"setFilterPill('OVERDUE')\">&#9888; " + overdueCount + " Overdue</span>");
+            }
+            if (expiringCpinCount > 0) {
+                alerts.push("<span class='urgency-chip' style='background:rgba(245,158,11,0.18); border-color:var(--warning); color:#fcd34d; cursor:pointer;' onclick=\"setFilterPill('CHALLAN_PENDING')\">&#127974; " + expiringCpinCount + " CPIN Alert</span>");
+            }
+            if (r1Vs3bCount > 0) {
+                alerts.push("<span class='urgency-chip' style='background:rgba(139,92,246,0.18); border-color:var(--purple); color:#c4b5fd; cursor:pointer;' onclick=\"setFilterPill('R1_3B_MISMATCH')\">&#9878; " + r1Vs3bCount + " R1-3B Diff</span>");
+            }
+            rightEl.innerHTML = alerts.join("");
+        }
+
+        // --- MASTER DASHBOARD RENDERER (MOCKUP CLIENT CARDS + PRO 5-COLUMN TABLE) ---
         window.renderMasterDashboard = function() {
             var search = document.getElementById('search-bar').value.toLowerCase().trim();
             var sortMode = document.getElementById('sort-select').value;
             var tbody = document.getElementById('table-body');
+            var cardsContainer = document.getElementById('client-cards-container');
+
+            setWorkspaceViewMode(workspaceViewMode);
 
             var parts = activeTargetPeriod.split('-');
             var targetYear = parseInt(parts[0], 10);
@@ -3533,7 +4400,7 @@
             document.getElementById('current-view-badge').textContent = getMonthNameByStr(targetMonthStr) + " " + targetYear;
 
             var now = new Date();
-            var totalAccounts = 0, r1PendingCount = 0, r3bPendingCount = 0, challanPendingCount = 0, reconMismatchCount = 0, aggregateShortfallNeeded = 0, aggregateUncollectedFees = 0;
+            var totalAccounts = 0, r1PendingCount = 0, r3bPendingCount = 0, overdueAccountsCount = 0, challanPendingCount = 0, reconMismatchCount = 0, r1Vs3bMismatchCount = 0, expiringCpinCount = 0, aggregateShortfallNeeded = 0, aggregateUncollectedFees = 0, aggregateCollectedFees = 0;
 
             var rowsData = [];
             db.forEach(function(client) {
@@ -3549,8 +4416,14 @@
 
                 var isOverdue = (data.r1 === 'Pending' && now > dueInfo.r1DueDate) || (data.r3b === 'Pending' && now > dueInfo.r3bDueDate);
                 var has2B = ((data.itc2bIgst || 0) + (data.itc2bCgst || 0) + (data.itc2bSgst || 0)) > 0;
-                var isMismatch = has2B && (net.reconDiff > 1 || net.headMismatch);
+                var is2BMismatch = has2B && (net.reconDiff > 1 || net.headMismatch);
+                var isR1Vs3BMismatch = net.hasR1Data && (Math.abs(net.r1Vs3bDiff) > 1 || net.r1HeadMismatch);
+                var isMismatch = is2BMismatch || isR1Vs3BMismatch;
                 var isChallanActivePending = (data.challanStatus === 'Pending' || data.challanStatus === 'UTR_Sent' || (data.r3b === 'Pending' && net.cashShortfall > 0 && data.challanStatus !== 'Paid'));
+
+                if ((data.challanStatus === 'Pending' || data.challanStatus === 'UTR_Sent') && net.cpinDaysLeft !== null && net.cpinDaysLeft <= 3) {
+                    expiringCpinCount++;
+                }
 
                 var stName = (GST_STATE_MAP[(client.gstin || '').substring(0, 2)] || "").toLowerCase();
                 var tagMatch = client.tags ? client.tags.some(function(t) { return t.toLowerCase().indexOf(search) !== -1; }) : false;
@@ -3565,22 +4438,33 @@
                 totalAccounts++;
                 if (data.r1 === 'Pending') r1PendingCount++;
                 if (data.r3b === 'Pending') r3bPendingCount++;
+                if (isOverdue) overdueAccountsCount++;
                 if (isChallanActivePending) challanPendingCount++;
                 if (isMismatch) reconMismatchCount++;
+                if (isR1Vs3BMismatch) r1Vs3bMismatchCount++;
                 aggregateShortfallNeeded += net.cashShortfall;
-                if (data.feeAmount > 0 && data.feeStatus === 'Due') aggregateUncollectedFees += data.feeAmount;
+                if (data.feeAmount > 0) {
+                    if (data.feeStatus === 'Due') aggregateUncollectedFees += data.feeAmount;
+                    else aggregateCollectedFees += data.feeAmount;
+                }
 
                 if (activeFilterPill === 'R1_PENDING' && data.r1 !== 'Pending') return;
                 if (activeFilterPill === '3B_PENDING' && data.r3b !== 'Pending') return;
                 if (activeFilterPill === 'CHALLAN_PENDING' && !isChallanActivePending) return;
                 if (activeFilterPill === 'OVERDUE' && !isOverdue) return;
-                if (activeFilterPill === 'RECON_MISMATCH' && !isMismatch) return;
+                if (activeFilterPill === 'RECON_MISMATCH' && !is2BMismatch) return;
+                if (activeFilterPill === 'R1_3B_MISMATCH' && !isR1Vs3BMismatch) return;
                 if (activeFilterPill === 'CASH_LIABLE' && net.cashShortfall <= 0) return;
                 if (activeFilterPill === 'FEE_DUE' && (data.feeAmount === 0 || data.feeStatus === 'Paid')) return;
                 if (activeFilterPill === 'HAS_NOTICE' && !client.notice) return;
 
-                rowsData.push({ client: client, data: data, openingBal: openingBal, dueInfo: dueInfo, net: net, has2B: has2B });
+                rowsData.push({
+                    client: client, data: data, openingBal: openingBal, dueInfo: dueInfo,
+                    net: net, has2B: has2B, isOverdue: isOverdue, is2BMismatch: is2BMismatch, isR1Vs3BMismatch: isR1Vs3BMismatch
+                });
             });
+
+            renderUrgencyCountdownBanner(overdueAccountsCount, expiringCpinCount, r1Vs3bMismatchCount);
 
             rowsData.sort(function(a, b) {
                 if (sortMode === 'CASH_DESC') return b.net.cashShortfall - a.net.cashShortfall;
@@ -3597,7 +4481,15 @@
                 return a.client.name.localeCompare(b.client.name);
             });
 
+            document.getElementById('client-list-count-label').textContent = rowsData.length + (rowsData.length === 1 ? " client" : " clients");
+
             tbody.innerHTML = '';
+            cardsContainer.innerHTML = '';
+
+            if (rowsData.length === 0) {
+                cardsContainer.innerHTML = "<div class='panel-card' style='text-align:center; padding:28px; color:var(--text-muted);'>No client accounts match the current filter. Add a client on the left or upload a Portal Ledger CSV / 2B JSON.</div>";
+            }
+
             rowsData.forEach(function(item) {
                 var client = item.client, data = item.data, openingBal = item.openingBal, dueInfo = item.dueInfo, net = item.net, has2B = item.has2B;
                 var dueMonthName = getMonthNameByStr(dueInfo.dueMo);
@@ -3610,11 +4502,20 @@
                     reconHtml = "<div class='recon-alert' style='background:rgba(148,163,184,0.15); color:var(--text-muted);'>Composition (No ITC)</div>";
                 } else if (has2B) {
                     if (net.reconDiff > 1) {
-                        reconHtml = "<div class='recon-alert' style='background:rgba(239,68,68,0.2); color:#fca5a5;'>Excess Claimed: &#8377;" + fmtINR(net.reconDiff) + "</div>";
+                        reconHtml = "<div class='recon-alert' style='background:rgba(239,68,68,0.2); color:#fca5a5;'>Excess 3B ITC: &#8377;" + fmtINR(net.reconDiff) + "</div>";
                     } else if (net.headMismatch) {
                         reconHtml = "<div class='recon-alert' style='background:rgba(245,158,11,0.2); color:#fcd34d;'>Head Swap vs 2B</div>";
                     } else {
                         reconHtml = "<div class='recon-alert' style='background:rgba(16,185,129,0.2); color:#6ee7b7;'>2B Reconciled</div>";
+                    }
+                }
+
+                var r1Vs3bAlertHtml = "";
+                if (item.isR1Vs3BMismatch) {
+                    if (net.r1Vs3bDiff > 1) {
+                        r1Vs3bAlertHtml = "<div class='recon-alert' style='background:rgba(239,68,68,0.22); color:#fca5a5; border:1px solid var(--danger);'>&#9888; Rule 88C (R1 &gt; 3B): &#8377;" + fmtINR(net.r1Vs3bDiff) + "</div>";
+                    } else {
+                        r1Vs3bAlertHtml = "<div class='recon-alert' style='background:rgba(245,158,11,0.2); color:#fcd34d;'>R1 vs 3B Diff: &#8377;" + fmtINR(net.r1Vs3bDiff) + "</div>";
                     }
                 }
 
@@ -3650,25 +4551,34 @@
                 var cStat = data.challanStatus || 'None';
                 var challanBadgeClass = "badge-challan-none";
                 var challanBadgeText = "Challan: None";
+                var cardChallanChipClass = "smc-cyan";
+                var cardChallanChipText = "No Challan";
 
                 if (data.r3b === 'Filed' && (cStat === 'Paid' || net.totalCash > 0 || data.challanCpin)) {
                     challanBadgeClass = "badge-filed";
                     challanBadgeText = "Challan: Paid (Filed)";
+                    cardChallanChipClass = "smc-green";
+                    cardChallanChipText = "&#10004; Challan Paid";
                 } else if (cStat === 'Paid') {
                     challanBadgeClass = "badge-filed";
                     challanBadgeText = "Challan: Paid";
+                    cardChallanChipClass = "smc-green";
+                    cardChallanChipText = "&#10004; Challan Paid";
                 } else if (cStat === 'UTR_Sent') {
                     challanBadgeClass = "badge-challan-utr";
                     challanBadgeText = "UTR Sent (Link Pending)";
+                    cardChallanChipClass = "smc-cyan";
+                    cardChallanChipText = "&#128337; UTR Received";
                 } else if (cStat === 'Pending') {
                     challanBadgeClass = "badge-challan-warn";
                     challanBadgeText = "Challan Pending (" + (data.challanMode || 'NEFT') + ")";
+                    cardChallanChipClass = "smc-amber";
+                    cardChallanChipText = "&#128337; Challan Pending";
                 } else if (net.cashShortfall > 0) {
                     challanBadgeClass = "badge-pending";
                     challanBadgeText = "Create Challan (Shortfall)";
-                } else {
-                    challanBadgeClass = "badge-challan-none";
-                    challanBadgeText = "No Challan Needed";
+                    cardChallanChipClass = "smc-red";
+                    cardChallanChipText = "&#10071; Challan Pending (&#8377;" + fmtINR(net.cashShortfall) + ")";
                 }
 
                 var cpinExpiryAlert = "";
@@ -3713,6 +4623,112 @@
                 var twoBCount = (data.inv2bList && data.inv2bList.length) ? data.inv2bList.length : 0;
                 var twoBInvoicesBtn = "<button type='button' class='btn-inline' style='border-color:var(--cyan); color:#67e8f9;' onclick=\"open2BInspectorModal('" + client.id + "')\" title='Inspect GSTR-2B Party-Wise Invoices'>&#128269; 2B" + (twoBCount > 0 ? " (" + twoBCount + ")" : "") + "</button>";
 
+                var actionButtonsHtml =
+                    "<div class='action-row'>" +
+                        "<button type='button' class='btn-inline' onclick=\"triggerInlineEdit('" + client.id + "')\">Edit</button>" +
+                        "<button type='button' class='btn-inline btn-ledger-passbook' onclick=\"openPortalLedgerModal('" + client.id + "')\" title='Portal Credit &amp; Cash Ledgers'>&#128210; Ledgers</button>" +
+                        twoBInvoicesBtn +
+                        "<button type='button' class='btn-inline btn-gstr9' onclick=\"openGstr9Modal('" + client.id + "')\">GSTR-9</button>" +
+                        "<button type='button' class='btn-inline btn-rfd01' onclick=\"openRfd01Modal('" + client.id + "')\">RFD-01</button>" +
+                        "<button type='button' class='btn-inline btn-drc03' onclick=\"openDrc03Modal('" + client.id + "')\">DRC-03</button>" +
+                        "<button type='button' class='btn-inline btn-fee-passbook' onclick=\"openFeePassbookModal('" + client.id + "')\">&#128188; Fee</button>" +
+                        "<button type='button' class='btn-inline btn-print' onclick=\"printChallan('" + client.id + "')\">PDF</button>" +
+                        "<button type='button' class='btn-inline btn-whatsapp' onclick=\"openWhatsAppModal('" + client.id + "')\">WA</button>" +
+                        "<button type='button' class='btn-inline' style='color:var(--danger);' onclick=\"purgeClientProfile('" + client.id + "')\">Del</button>" +
+                    "</div>";
+
+                // 1. BUILD MOCKUP CLIENT CARD
+                var overallStatClass = "osp-pending";
+                var overallStatLabel = "Pending";
+                if (data.r1 === 'Filed' && data.r3b === 'Filed') {
+                    overallStatClass = "osp-filed";
+                    overallStatLabel = "Filed";
+                } else if (item.isOverdue) {
+                    overallStatClass = "osp-overdue";
+                    overallStatLabel = "Overdue";
+                }
+
+                var nextDueLabel = (data.r1 === 'Pending')
+                    ? (dueInfo.r1DueDay + " " + dueMonthName + " " + dueInfo.dueYr)
+                    : (data.r3b === 'Pending' ? (dueInfo.r3bDueDay + " " + dueMonthName + " " + dueInfo.dueYr) : "All Filed");
+
+                var r1ChipClass = data.r1 === 'Filed' ? "smc-green" : (now > dueInfo.r1DueDate ? "smc-red" : "smc-amber");
+                var r1ChipIcon = data.r1 === 'Filed' ? "&#10004;" : (now > dueInfo.r1DueDate ? "&#10071;" : "&#128337;");
+                var r1ChipLabel = dueInfo.r1Label + " " + (data.r1 === 'Filed' ? "Filed" : (now > dueInfo.r1DueDate ? "Overdue" : "Pending"));
+
+                var r3bChipClass = data.r3b === 'Filed' ? "smc-green" : (now > dueInfo.r3bDueDate ? "smc-red" : "smc-amber");
+                var r3bChipIcon = data.r3b === 'Filed' ? "&#10004;" : (now > dueInfo.r3bDueDate ? "&#10071;" : "&#128337;");
+                var r3bChipLabel = dueInfo.r3bLabel + " " + (data.r3b === 'Filed' ? "Filed" : (now > dueInfo.r3bDueDate ? "Overdue" : "Pending"));
+
+                var avatarHtml = client.logo ? "<img src='" + client.logo + "' alt='Logo'>" : "&#127970;";
+                var drawerOpenClass = expandedCardDrawers[client.id] ? "mc-drawer open" : "mc-drawer";
+
+                var cardEl = document.createElement('div');
+                cardEl.className = "mockup-client-card";
+                cardEl.innerHTML =
+                    "<div class='mc-top-row'>" +
+                        "<div class='mc-left-info'>" +
+                            "<input type='checkbox' class='row-checkbox client-row-cb' data-cid='" + client.id + "' " + (isChecked ? "checked" : "") + " onchange=\"toggleClientBatchSelect('" + client.id + "', this.checked)\">" +
+                            "<div class='mc-avatar'>" + avatarHtml + "</div>" +
+                            "<div>" +
+                                "<div class='mc-title'>" +
+                                    "<span>" + client.name + "</span>" +
+                                    "<span class='state-pill'>" + stLabel + "</span>" +
+                                    "<span style='font-size:0.65rem; background:rgba(59,130,246,0.15); padding:2px 7px; border-radius:4px; color:#93c5fd;'>" + (client.scheme || 'Monthly') + "</span>" +
+                                "</div>" +
+                                "<div class='mc-sub'>GSTIN: " + client.gstin + (client.phone ? " &bull; +91 " + client.phone : "") + "</div>" +
+                            "</div>" +
+                        "</div>" +
+                        "<div class='mc-right-meta'>" +
+                            "<span class='overall-status-pill " + overallStatClass + "'>" + overallStatLabel + "</span>" +
+                            "<div class='mc-due-box'>" +
+                                "<span>&#128197; Next Due</span>" +
+                                "<strong>" + nextDueLabel + "</strong>" +
+                            "</div>" +
+                            "<button type='button' class='btn-inline' style='padding:6px 10px; font-weight:700; color:#93c5fd; border-color:var(--primary);' onclick=\"toggleCardDrawer('" + client.id + "')\">&#9776; Details &#9662;</button>" +
+                        "</div>" +
+                    "</div>" +
+                    "<div class='mc-chip-row'>" +
+                        "<div class='mc-status-chips'>" +
+                            "<span class='status-mini-chip " + r1ChipClass + "' onclick=\"toggleReturnStatus('" + client.id + "', 'r1')\" title='Click to toggle " + dueInfo.r1Label + "'>" + r1ChipIcon + " " + r1ChipLabel + "</span>" +
+                            "<span class='status-mini-chip " + r3bChipClass + "' onclick=\"toggleReturnStatus('" + client.id + "', 'r3b')\" title='Click to toggle " + dueInfo.r3bLabel + "'>" + r3bChipIcon + " " + r3bChipLabel + "</span>" +
+                            "<span class='status-mini-chip " + cardChallanChipClass + "' onclick=\"toggleChallanStatus('" + client.id + "')\" title='Click to cycle Challan Status'>" + cardChallanChipText + "</span>" +
+                            (data.feeAmount > 0 ? "<span class='status-mini-chip " + (data.feeStatus === 'Paid' ? 'smc-green' : 'smc-amber') + "' onclick=\"toggleFeeStatus('" + client.id + "')\">&#128188; Fee: &#8377;" + fmtINR(data.feeAmount) + " (" + data.feeStatus + ")</span>" : "") +
+                            reconHtml +
+                            r1Vs3bAlertHtml +
+                        "</div>" +
+                        actionButtonsHtml +
+                    "</div>" +
+                    "<div id='mc-drawer-" + client.id + "' class='" + drawerOpenClass + "'>" +
+                        "<div>" +
+                            "<div class='ledger-box'><strong>3B Output Liability:</strong><br>I: &#8377;" + fmtINR(data.outIgst) + " | C: &#8377;" + fmtINR(data.outCgst) + " | S: &#8377;" + fmtINR(data.outSgst) + "</div>" +
+                            (net.hasR1Data ? "<div class='ledger-box' style='margin-top:5px; border-color:var(--purple);'><strong>GSTR-1 Liability:</strong><br>I: &#8377;" + fmtINR(data.r1Igst) + " | C: &#8377;" + fmtINR(data.r1Cgst) + " | S: &#8377;" + fmtINR(data.r1Sgst) + "</div>" : "") +
+                            (rcmActive ? "<div class='ledger-box' style='margin-top:5px; border-color:var(--danger);'><strong>RCM (Cash):</strong><br>I: &#8377;" + fmtINR(data.rcmIgst) + " | C: &#8377;" + fmtINR(data.rcmCgst) + " | S: &#8377;" + fmtINR(data.rcmSgst) + "</div>" : "") +
+                        "</div>" +
+                        "<div>" +
+                            "<div class='ledger-box' style='margin-bottom:4px;'><strong>Op. ITC Bal:</strong> I:&#8377;" + fmtINR(openingBal.igst) + " | C:&#8377;" + fmtINR(openingBal.cgst) + " | S:&#8377;" + fmtINR(openingBal.sgst) + "</div>" +
+                            "<div class='ledger-box' style='border-color:var(--success);'><strong>3B ITC Claimed:</strong> I:&#8377;" + fmtINR(data.itcIgst) + " | C:&#8377;" + fmtINR(data.itcCgst) + " | S:&#8377;" + fmtINR(data.itcSgst) + "</div>" +
+                            (has2B ? "<div style='font-size:0.68rem; color:var(--text-muted); margin-top:3px;'>2B: I:&#8377;" + fmtINR(data.itc2bIgst) + " | C:&#8377;" + fmtINR(data.itc2bCgst) + " | S:&#8377;" + fmtINR(data.itc2bSgst) + "</div>" : "") +
+                        "</div>" +
+                        "<div>" +
+                            "<div class='ledger-box'><strong>Filing Dates &amp; ARNs:</strong>" + r1SubHtml + r3bSubHtml + challanMetaInputs + cpinExpiryAlert + penaltyHtml + "</div>" +
+                        "</div>" +
+                        "<div>" +
+                            "<div class='ledger-box' style='margin-bottom:5px;'>" + netBoxSummary + "</div>" +
+                            "<div class='credential-bar' style='margin-top:0; width:100%; justify-content:space-between;'>" +
+                                "<span>ID: " + (client.user || 'N/A') + "</span>" +
+                                "<span class='copy-chip' onclick=\"copyClientCredential('" + client.id + "', 'user')\">Copy</span>" +
+                                "<span>| PW: " + passDisplay + "</span>" +
+                                "<span class='copy-chip' onclick=\"togglePassMask('" + client.id + "')\">Show</span>" +
+                                "<span class='copy-chip' onclick=\"copyClientCredential('" + client.id + "', 'pass')\">Copy</span>" +
+                                "<span class='portal-launch-chip' onclick=\"launchGstPortal('" + client.id + "')\">&#128640; Portal</span>" +
+                            "</div>" +
+                            (data.notes ? "<div style='font-size:0.71rem; color:#fcd34d; margin-top:5px;'>Note: " + data.notes + "</div>" : "") +
+                        "</div>" +
+                    "</div>";
+                cardsContainer.appendChild(cardEl);
+
+                // 2. BUILD PRO 5-COLUMN MASTER TABLE ROW
                 var row = document.createElement('tr');
                 row.innerHTML =
                     "<td>" +
@@ -3738,7 +4754,9 @@
                         (data.notes ? "<div style='font-size:0.72rem; color:#fcd34d; background:rgba(245,158,11,0.08); border:1px dashed rgba(245,158,11,0.3); padding:5px 7px; border-radius:5px; margin-top:6px;'>" + data.notes + "</div>" : "") +
                     "</td>" +
                     "<td>" +
-                        "<div class='ledger-box'><strong>Output:</strong><br>I: &#8377;" + fmtINR(data.outIgst) + " | C: &#8377;" + fmtINR(data.outCgst) + " | S: &#8377;" + fmtINR(data.outSgst) + "</div>" +
+                        "<div class='ledger-box'><strong>3B Output:</strong><br>I: &#8377;" + fmtINR(data.outIgst) + " | C: &#8377;" + fmtINR(data.outCgst) + " | S: &#8377;" + fmtINR(data.outSgst) + "</div>" +
+                        (net.hasR1Data ? "<div class='ledger-box' style='margin-top:5px; border-color:var(--purple);'><strong>GSTR-1 Out:</strong><br>I: &#8377;" + fmtINR(data.r1Igst) + " | C: &#8377;" + fmtINR(data.r1Cgst) + " | S: &#8377;" + fmtINR(data.r1Sgst) + "</div>" : "") +
+                        r1Vs3bAlertHtml +
                         (rcmActive ? "<div class='ledger-box' style='margin-top:5px; border-color:var(--danger);'><strong>RCM (Cash):</strong><br>I: &#8377;" + fmtINR(data.rcmIgst) + " | C: &#8377;" + fmtINR(data.rcmCgst) + " | S: &#8377;" + fmtINR(data.rcmSgst) + "</div>" : "") +
                     "</td>" +
                     "<td>" +
@@ -3772,29 +4790,22 @@
                             "<div><strong>Fee: &#8377;" + fmtINR(data.feeAmount) + "</strong>" + (data.feeStatus === 'Paid' ? " <span style='font-size:0.65rem; color:var(--success);'>(Cleared)</span>" : "") + "</div>" +
                             "<span class='badge " + (data.feeStatus === 'Paid' ? 'badge-filed' : 'badge-pending') + "' style='min-width:70px; padding:2px 6px;' onclick=\"toggleFeeStatus('" + client.id + "')\">" + data.feeStatus + "</span>" +
                         "</div>" +
-                        "<div class='action-row'>" +
-                            "<button type='button' class='btn-inline' onclick=\"triggerInlineEdit('" + client.id + "')\">Edit</button>" +
-                            "<button type='button' class='btn-inline btn-ledger-passbook' onclick=\"openPortalLedgerModal('" + client.id + "')\" title='Portal Credit &amp; Cash Ledgers'>&#128210; Ledgers</button>" +
-                            twoBInvoicesBtn +
-                            "<button type='button' class='btn-inline btn-gstr9' onclick=\"openGstr9Modal('" + client.id + "')\">GSTR-9</button>" +
-                            "<button type='button' class='btn-inline btn-rfd01' onclick=\"openRfd01Modal('" + client.id + "')\">RFD-01</button>" +
-                            "<button type='button' class='btn-inline btn-drc03' onclick=\"openDrc03Modal('" + client.id + "')\">DRC-03</button>" +
-                            "<button type='button' class='btn-inline btn-fee-passbook' onclick=\"openFeePassbookModal('" + client.id + "')\">&#128188; Fee</button>" +
-                            "<button type='button' class='btn-inline btn-print' onclick=\"printChallan('" + client.id + "')\">PDF</button>" +
-                            "<button type='button' class='btn-inline btn-whatsapp' onclick=\"openWhatsAppModal('" + client.id + "')\">WA</button>" +
-                            "<button type='button' class='btn-inline' style='color:var(--danger);' onclick=\"purgeClientProfile('" + client.id + "')\">Del</button>" +
-                        "</div>" +
+                        actionButtonsHtml +
                     "</td>";
                 tbody.appendChild(row);
             });
 
             document.getElementById('stat-total').textContent = totalAccounts;
+            document.getElementById('stat-total-sub').textContent = "of " + db.length + " Total";
             document.getElementById('stat-r1').textContent = r1PendingCount;
             document.getElementById('stat-3b').textContent = r3bPendingCount;
+            document.getElementById('stat-overdue').textContent = overdueAccountsCount;
             document.getElementById('stat-challan').textContent = challanPendingCount;
             document.getElementById('stat-recon').textContent = reconMismatchCount;
+            document.getElementById('stat-recon-sub').textContent = r1Vs3bMismatchCount > 0 ? ("(" + r1Vs3bMismatchCount + " R1-3B Diff)") : "(Audit Alerts)";
             document.getElementById('stat-cash').innerHTML = '&#8377;' + fmtINR(aggregateShortfallNeeded);
             document.getElementById('stat-fees').innerHTML = '&#8377;' + fmtINR(aggregateUncollectedFees);
+            document.getElementById('stat-fees-collected').innerHTML = 'Paid: &#8377;' + fmtINR(aggregateCollectedFees);
         };
         // --- MODAL 6: GSTR-2B PARTY-WISE & INVOICE-WISE INSPECTOR ---
         window.open2BInspectorModal = function(clientId) {
@@ -3852,7 +4863,7 @@
             var tbody = document.getElementById('gstr2b-inspector-tbody');
             tbody.innerHTML = '';
             if (filtered.length === 0) {
-                tbody.innerHTML = "<tr><td colspan='12' style='text-align:center; color:var(--text-muted); padding:20px;'>No invoice-level GSTR-2B records stored for this period. Import the client's GSTR-2B JSON file to inspect party-wise bills.</td></tr>";
+                tbody.innerHTML = "<tr><td colspan='12' style='text-align:center; color:var(--text-muted); padding:20px;'>No invoice-level GSTR-2B records stored for this period. Import the client's GSTR-2B JSON/CSV/Excel file to inspect party-wise bills.</td></tr>";
                 return;
             }
 
@@ -4514,7 +5525,6 @@
                 launchPrint();
             }
         };
-
         // --- MODAL 8: RFD-01 INVERTED DUTY STRUCTURE (INVITC) REFUND ARCHITECT ---
         function formatDateDDMMYYYY(raw) {
             if (!raw) return "";
@@ -4864,9 +5874,11 @@
             var files = event.target.files;
             if (!files || files.length === 0) return;
             var parsedList = [];
+            var fileNames = [];
 
             for (var i = 0; i < files.length; i++) {
                 var file = files[i];
+                fileNames.push(file.name);
                 var fName = file.name.toLowerCase();
                 try {
                     if (fName.endsWith('.json') || file.type === 'application/json') {
@@ -4886,6 +5898,13 @@
             }
             if (parsedList.length > 0) {
                 rfdState.inwardRaw = parsedList;
+                var rfdGstin = document.getElementById('rfd-gstin').value.trim().toUpperCase();
+                var rfdName = document.getElementById('rfd-name').value.trim() || "RFD-01 Claim";
+                logAuditEvent("SYNC", rfdName, rfdGstin, document.getElementById('rfd-from-fp').value + "-" + document.getElementById('rfd-to-fp').value,
+                    "Ingested " + parsedList.length + " RFD-01 Inward (GSTR-2B) records from: " + fileNames.join(", "),
+                    [], null, 0
+                );
+                saveDatabase();
                 showToast("RFD-01: Ingested " + parsedList.length + " GSTR-2B inward records!");
                 runRfd01Calculation();
             } else {
@@ -4898,9 +5917,11 @@
             var files = event.target.files;
             if (!files || files.length === 0) return;
             var parsedList = [];
+            var fileNames = [];
 
             for (var i = 0; i < files.length; i++) {
                 var file = files[i];
+                fileNames.push(file.name);
                 var fName = file.name.toLowerCase();
                 try {
                     if (fName.endsWith('.json') || file.type === 'application/json') {
@@ -4941,6 +5962,13 @@
             }
             if (parsedList.length > 0) {
                 rfdState.outwardRaw = parsedList;
+                var rfdGstin = document.getElementById('rfd-gstin').value.trim().toUpperCase();
+                var rfdName = document.getElementById('rfd-name').value.trim() || "RFD-01 Claim";
+                logAuditEvent("SYNC", rfdName, rfdGstin, document.getElementById('rfd-from-fp').value + "-" + document.getElementById('rfd-to-fp').value,
+                    "Ingested " + parsedList.length + " RFD-01 Outward (GSTR-1) records from: " + fileNames.join(", "),
+                    [], null, 0
+                );
+                saveDatabase();
                 showToast("RFD-01: Ingested " + parsedList.length + " GSTR-1 outward records!");
                 runRfd01Calculation();
             } else {
@@ -5214,13 +6242,25 @@
             var cleanStr = String(newVal || "").trim();
             if (direction === 'IN' && rfdState.lastResult.eligibleInward[idx]) {
                 var inRec = rfdState.lastResult.eligibleInward[idx];
+                var oldInum = inRec.inum;
                 inRec.inum = cleanStr;
                 if (inRec._src) inRec._src.inum = cleanStr;
+                logAuditEvent("FILING", rfdState.lastResult.name || "RFD-01 Claim", rfdState.lastResult.gstin, rfdState.lastResult.fromFp,
+                    "Edited RFD-01 Inward Invoice Number (#" + (idx + 1) + ")",
+                    [{ label: "Inward Inv #", before: oldInum, after: cleanStr }], null, 0
+                );
+                saveDatabase();
                 showToast("Updated Inward Inv #" + (idx + 1) + " to \"" + cleanStr + "\"");
             } else if (direction === 'OUT' && rfdState.lastResult.eligibleOutward[idx]) {
                 var outRec = rfdState.lastResult.eligibleOutward[idx];
+                var oldOnum = outRec.inum;
                 outRec.inum = cleanStr;
                 if (outRec._src) outRec._src.inum = cleanStr;
+                logAuditEvent("FILING", rfdState.lastResult.name || "RFD-01 Claim", rfdState.lastResult.gstin, rfdState.lastResult.fromFp,
+                    "Edited RFD-01 Outward Invoice Number (#" + (idx + 1) + ")",
+                    [{ label: "Outward Inv #", before: oldOnum, after: cleanStr }], null, 0
+                );
+                saveDatabase();
                 showToast("Updated Outward Inv #" + (idx + 1) + " to \"" + cleanStr + "\"");
             }
         };
@@ -5446,7 +6486,7 @@
                 }, 600);
             }, 200);
         };
-        // --- MODAL 9: PORTAL ELECTRONIC CREDIT & CASH LEDGER PASSBOOK + SAMPLE LOADER ---
+        // --- MODAL 9: PORTAL ELECTRONIC CREDIT & CASH LEDGER PASSBOOK ---
         window.openPortalLedgerModal = function(clientId) {
             var sel = document.getElementById('ledger-client-select');
             sel.innerHTML = '<option value="">-- Select Client Profile --</option>';
@@ -5469,24 +6509,23 @@
             document.getElementById('portal-ledger-modal').style.display = 'flex';
         };
 
-                window.renderPortalLedgerModal = function() {
+        window.renderPortalLedgerModal = function() {
             var sel = document.getElementById('ledger-client-select');
             if (sel) activePortalLedgerClientId = sel.value || null;
             var client = activePortalLedgerClientId ? db.find(function(c) { return c.id === activePortalLedgerClientId; }) : null;
-
 
             var kpiGrid = document.getElementById('portal-ledger-kpi-grid');
             var reconTbody = document.getElementById('portal-ledger-recon-tbody');
             var crRawTbody = document.getElementById('portal-credit-raw-tbody');
             var caRawTbody = document.getElementById('portal-cash-raw-tbody');
 
-                        if (!client) {
+            if (!client) {
                 kpiGrid.innerHTML = "";
                 reconTbody.innerHTML = "<tr><td colspan='9' style='text-align:center; padding:18px; color:var(--text-muted);'>Upload ElectronicCreditLedger.csv &amp; Electronic_Cash_Ledger.csv to view reconstructed monthly ledgers.</td></tr>";
                 crRawTbody.innerHTML = "<tr><td colspan='9' style='text-align:center; padding:14px; color:var(--text-muted);'>No Credit Ledger loaded.</td></tr>";
                 caRawTbody.innerHTML = "<tr><td colspan='9' style='text-align:center; padding:14px; color:var(--text-muted);'>No Cash Ledger loaded.</td></tr>";
                 return;
-            }            
+            }
 
             ensureMonthStructureInitialized(client, activeTargetPeriod);
             var pl = client.portalLedgers || {};
@@ -5537,7 +6576,6 @@
                     "<div style='font-size:0.7rem; color:#6ee7b7;'>ITC Set-Off + Cash Paid Verified</div>" +
                 "</div>";
 
-            // Render Reconstructed Period-Wise Table
             var periods = Object.keys(client.history || {}).sort();
             reconTbody.innerHTML = '';
             var activeRows = 0;
@@ -5572,7 +6610,6 @@
                 reconTbody.innerHTML = "<tr><td colspan='9' style='text-align:center; padding:18px; color:var(--text-muted);'>No active ledger periods found for this client yet. Upload Credit/Cash Ledger CSVs above.</td></tr>";
             }
 
-            // Render Raw Credit Ledger Passbook
             crRawTbody.innerHTML = '';
             if (cr && Array.isArray(cr.transactions) && cr.transactions.length > 0) {
                 cr.transactions.forEach(function(tx) {
@@ -5594,7 +6631,6 @@
                 crRawTbody.innerHTML = "<tr><td colspan='9' style='text-align:center; padding:14px; color:var(--text-muted);'>Upload ElectronicCreditLedger.csv to inspect raw credit &amp; debit entries.</td></tr>";
             }
 
-            // Render Raw Cash Ledger Passbook
             caRawTbody.innerHTML = '';
             if (ca && Array.isArray(ca.transactions) && ca.transactions.length > 0) {
                 ca.transactions.forEach(function(tx) {
@@ -5614,9 +6650,8 @@
                 });
             } else {
                 caRawTbody.innerHTML = "<tr><td colspan='9' style='text-align:center; padding:14px; color:var(--text-muted);'>Upload Electronic_Cash_Ledger.csv to inspect challan deposits &amp; cash debits.</td></tr>";
-            }            
+            }
         };
-
 
         window.exportPortalLedgerReconCsv = function() {
             var client = db.find(function(c) { return c.id === activePortalLedgerClientId; });
@@ -5676,7 +6711,7 @@
             document.getElementById('drc03-modal').style.display = 'flex';
         };
 
-                window.loadClientIntoDrc03 = function() {
+        window.loadClientIntoDrc03 = function() {
             var sel = document.getElementById('drc-client-select');
             if (sel) activeDrc03ClientId = sel.value || null;
             var client = activeDrc03ClientId ? db.find(function(c) { return c.id === activeDrc03ClientId; }) : null;
@@ -5695,7 +6730,6 @@
                 document.getElementById('drc-ref-arn').value = client.notice;
             }
 
-            // Render DRC-03 Register
             var list = client.drc03List || [];
             drcTbody.innerHTML = '';
             if (list.length === 0) {
@@ -5718,7 +6752,6 @@
                 });
             }
 
-            // Render 4-Quarter CMP-08 Summary for Selected FY
             var startYear = parseInt(document.getElementById('global-fy-select').value, 10);
             var quarters = [
                 { q: "Q1 (Apr–Jun)", months: [startYear + "-04", startYear + "-05", startYear + "-06"], m3: startYear + "-06" },
@@ -5769,6 +6802,26 @@
 
         window.recalcDrc03Preview = function() {
             autoCalcDrc03Interest();
+        };
+
+        window.autoPullR1Vs3BDiffIntoDrc03 = function() {
+            var client = db.find(function(c) { return c.id === activeDrc03ClientId; });
+            if (!client) return showToast("Select a client first");
+            ensureMonthStructureInitialized(client, activeTargetPeriod);
+            var d = client.history[activeTargetPeriod];
+
+            var diffI = Math.max(0, round2((d.r1Igst || 0) - (d.outIgst || 0)));
+            var diffC = Math.max(0, round2((d.r1Cgst || 0) - (d.outCgst || 0)));
+            var diffS = Math.max(0, round2((d.r1Sgst || 0) - (d.outSgst || 0)));
+
+            document.getElementById('drc-cause').value = 'Liability_Mismatch';
+            document.getElementById('drc-period').value = activeTargetPeriod;
+            document.getElementById('drc-tax-i').value = diffI.toFixed(2);
+            document.getElementById('drc-tax-c').value = diffC.toFixed(2);
+            document.getElementById('drc-tax-s').value = diffS.toFixed(2);
+            document.getElementById('drc-remarks').value = "Voluntary discharge of GSTR-1 vs GSTR-3B outward tax liability difference (Rule 88C / DRC-01B) for period " + activeTargetPeriod;
+            autoCalcDrc03Interest();
+            showToast("Pulled R1 vs 3B Liability Diff (Rs. " + fmtINR(diffI + diffC + diffS) + ")");
         };
 
         window.autoPull2BExcessIntoDrc03 = function() {
@@ -5833,7 +6886,13 @@
                 createdAt: new Date().toLocaleDateString('en-IN')
             };
 
+            var totDrcAmt = round2(entry.taxI + entry.taxC + entry.taxS + entry.interest + entry.penalty);
             client.drc03List.push(entry);
+            logAuditEvent("AMOUNT", client.name, client.gstin, entry.period,
+                "Logged Form GST DRC-03 Voluntary Payment (" + entry.cause + " - Sec " + entry.section + ")",
+                [{ label: "DRC-03 Total (" + entry.payMode + ")", before: "₹0", after: "₹" + fmtINR(totDrcAmt) }],
+                null, totDrcAmt
+            );
             saveDatabase();
             loadClientIntoDrc03();
             showToast("Form GST DRC-03 Record Logged!");
@@ -5841,8 +6900,15 @@
 
         window.deleteDrc03Entry = function(idx) {
             var client = db.find(function(c) { return c.id === activeDrc03ClientId; });
-            if (!client || !client.drc03List) return;
+            if (!client || !client.drc03List || !client.drc03List[idx]) return;
+            var rem = client.drc03List[idx];
+            var remTot = round2((rem.taxI || 0) + (rem.taxC || 0) + (rem.taxS || 0) + (rem.interest || 0) + (rem.penalty || 0));
             client.drc03List.splice(idx, 1);
+            logAuditEvent("DELETE", client.name, client.gstin, rem.period || activeTargetPeriod,
+                "Deleted Form GST DRC-03 entry (" + rem.cause + ")",
+                [{ label: "DRC-03 Amount", before: "₹" + fmtINR(remTot), after: "Deleted" }],
+                null, remTot
+            );
             saveDatabase();
             loadClientIntoDrc03();
             showToast("DRC-03 Record Removed");
@@ -6175,12 +7241,12 @@
             }
         };
 
-        // --- CSV EXPORT & JSON BACKUP ---
+        // --- CSV EXPORT & FULL-SYSTEM JSON BACKUP / RESTORE (EXCLUDING APP LOCK PIN) ---
         window.exportMasterWorkbook = function() {
             if (db.length === 0) return alert("Nothing to export.");
             var headers = [
                 "Trade Name","Mobile","GSTIN","State","Scheme","Period",
-                "Total Out","Total RCM","Opening ITC","Claimed ITC",
+                "Total 3B Out","Total R1 Out","R1 vs 3B Diff","Total RCM","Opening ITC","Claimed ITC",
                 "2B IGST","2B CGST","2B SGST","Recon Diff","Gross Cash Tax",
                 "Cash Ledger Bal","Net Cash Shortfall","Challan Status","Challan Mode","CPIN","Challan Date","Bank UTR",
                 "Closing ITC Carry","Late Fees","Interest","Step 1 Status",
@@ -6197,6 +7263,7 @@
                 var net = computeTaxEngine(d, due.r3bDueDate, opItc, c.scheme);
 
                 var outSum = (d.outIgst||0) + (d.outCgst||0) + (d.outSgst||0);
+                var r1Sum = (d.r1Igst||0) + (d.r1Cgst||0) + (d.r1Sgst||0);
                 var rcmSum = (d.rcmIgst||0) + (d.rcmCgst||0) + (d.rcmSgst||0);
                 var opSum = opItc.igst + opItc.cgst + opItc.sgst;
                 var itcSum = (d.itcIgst||0) + (d.itcCgst||0) + (d.itcSgst||0);
@@ -6206,7 +7273,7 @@
                 var cols = [
                     '"' + (c.name || '') + '"', '"' + (c.phone || '') + '"', '"' + (c.gstin || '') + '"',
                     '"' + stName + '"', '"' + (c.scheme || 'Monthly') + '"', '"' + activeTargetPeriod + '"',
-                    outSum, rcmSum, opSum, itcSum, d.itc2bIgst || 0, d.itc2bCgst || 0, d.itc2bSgst || 0,
+                    outSum, r1Sum, net.r1Vs3bDiff, rcmSum, opSum, itcSum, d.itc2bIgst || 0, d.itc2bCgst || 0, d.itc2bSgst || 0,
                     net.reconDiff, net.totalCash, net.cashLedgerBal, net.cashShortfall,
                     '"' + (d.challanStatus || 'None') + '"', '"' + (d.challanMode || 'NEFT/RTGS') + '"',
                     '"' + (d.challanCpin || '') + '"', '"' + (d.challanDate || '') + '"', '"' + (d.challanUtr || '') + '"',
@@ -6227,12 +7294,13 @@
         };
 
         window.backupSystemDatabase = function() {
-            if (db.length === 0) return alert("Database is empty.");
+            if (db.length === 0 && auditHistory.length === 0) return alert("Database is empty.");
+            var fullPackage = buildFullSystemBackupPayload();
             var a = document.createElement('a');
-            a.href = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(db, null, 2));
-            a.download = "GST_DB_" + new Date().toISOString().substring(0, 10) + ".json";
+            a.href = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(fullPackage, null, 2));
+            a.download = "GST_Master_Backup_" + new Date().toISOString().substring(0, 10) + ".json";
             document.body.appendChild(a); a.click(); a.remove();
-            showToast("JSON Backup Downloaded");
+            showToast("Full System JSON Backup Downloaded (Settings + Clients + History)");
         };
 
         window.restoreSystemDatabase = function(e) {
@@ -6242,23 +7310,26 @@
             reader.onload = function(evt) {
                 try {
                     var parsed = JSON.parse(evt.target.result);
-                    if (Array.isArray(parsed)) {
-                        db = parsed;
+                    if (applyFullSystemRestorePayload(parsed)) {
                         saveDatabase();
                         generateFYDropdown();
                         renderFinancialYearCalendar();
                         renderMasterDashboard();
-                        showToast("Database Restored Successfully!");
+                        showToast("Database, Settings & History Restored Successfully!");
+                    } else {
+                        alert("Unrecognized JSON backup structure.");
                     }
                 } catch(err) { alert("Invalid JSON backup file."); }
             };
             reader.readAsText(file);
+            e.target.value = '';
         };
 
         window.addEventListener('DOMContentLoaded', function() {
             if (practiceConfig.appPin && practiceConfig.appPin.length === 4) {
                 document.getElementById('pin-lock-overlay').style.display = 'flex';
             }
+            updateAuditCountBadge();
             generateFYDropdown();
             renderFinancialYearCalendar();
             renderMasterDashboard();

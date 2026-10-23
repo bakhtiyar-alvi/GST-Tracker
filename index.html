@@ -1779,8 +1779,57 @@
             return n.toLocaleString('en-IN', { maximumFractionDigits: 2 });
         }
 
-        function round2(val) {
+                function round2(val) {
             return Math.round((Number(val) || 0) * 100) / 100;
+        }
+
+        function escHtml(str) {
+            return String(str === undefined || str === null ? '' : str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
+        function getPrevPeriodKey(client, targetPeriod) {
+            var parts = String(targetPeriod || '').split('-');
+            if (parts.length === 2) {
+                var yr = parseInt(parts[0], 10);
+                var mo = parseInt(parts[1], 10) - 1;
+                if (mo === 0) { mo = 12; yr -= 1; }
+                var immPrev = yr + '-' + String(mo).padStart(2, '0');
+                if (client && client.history && client.history[immPrev]) return immPrev;
+            }
+            if (client && client.history) {
+                var earlier = Object.keys(client.history).sort().filter(function(p) { return p < targetPeriod; });
+                if (earlier.length > 0) return earlier[earlier.length - 1];
+            }
+            return null;
+        }
+
+        function cascadeQuarterlyFilingMonths(client, periodKey, returnType, filingDateStr) {
+            if (!client || (client.scheme !== 'QRMP' && client.scheme !== 'Composition')) return;
+            var parts = String(periodKey || '').split('-');
+            if (parts.length !== 2) return;
+            var yr = parts[0], mo = parts[1];
+            if (['06', '09', '12', '03'].indexOf(mo) === -1) return;
+
+            var m1 = mo === '06' ? '04' : mo === '09' ? '07' : mo === '12' ? '10' : '01';
+            var m2 = mo === '06' ? '05' : mo === '09' ? '08' : mo === '12' ? '11' : '02';
+            var fDate = filingDateStr || new Date().toISOString().substring(0, 10);
+
+            [yr + '-' + m1, yr + '-' + m2].forEach(function(p) {
+                ensureMonthStructureInitialized(client, p);
+                if (client.history[p][returnType] !== 'Filed') {
+                    client.history[p][returnType] = 'Filed';
+                    client.history[p][returnType + 'Date'] = fDate;
+                    client.history[p].waived = true;
+                    if (returnType === 'r3b' && client.history[p].challanStatus === 'Pending') {
+                        client.history[p].challanStatus = 'Paid';
+                    }
+                }
+            });
         }
 
         function showToast(msg) {
@@ -2485,21 +2534,20 @@
             showToast("Copied GSTR-2B figures to 3B Claimed");
         };
 
-                        window.clonePrevMonthFigures = function() {
+                                window.clonePrevMonthFigures = function() {
             var id = document.getElementById('editing-client-id').value;
             if (!id) return showToast("Select a client in Edit mode first");
             var client = db.find(function(c) { return c.id === id; });
             if (!client) return;
-            var periods = Object.keys(client.history || {}).sort();
-            var idx = periods.indexOf(activeTargetPeriod);
-            if (idx > 0) {
-                var prev = client.history[periods[idx - 1]];
+            var prevKey = getPrevPeriodKey(client, activeTargetPeriod);
+            if (prevKey && client.history[prevKey]) {
+                var prev = client.history[prevKey];
                 var feeToUse = (prev.feeAmount && prev.feeAmount > 0) ? prev.feeAmount : (client.defaultFee || 0);
                 document.getElementById('client-fee').value = feeToUse;
                 if (!document.getElementById('month-notes').value && prev.notes) {
                     document.getElementById('month-notes').value = prev.notes;
                 }
-                showToast("Cloned fee (Rs. " + fmtINR(feeToUse) + ") & notes from " + periods[idx - 1]);
+                showToast("Cloned fee (Rs. " + fmtINR(feeToUse) + ") & notes from " + prevKey);
             } else {
                 document.getElementById('client-fee').value = client.defaultFee || 0;
                 showToast("Loaded client default retainer fee");
@@ -2584,7 +2632,7 @@
         }
 
         // --- ELECTRONIC CREDIT & CASH LEDGER CSV PARSER & OUTPUT TAX AUTO-RECONSTRUCTOR ---
-        function parsePortalPeriodTagToISO(pStr) {
+                function parsePortalPeriodTagToISO(pStr) {
             if (!pStr) return null;
             var clean = String(pStr).replace(/["']/g, '').trim();
             if (!clean || clean === '-') return null;
@@ -2592,6 +2640,17 @@
                 jan: "01", feb: "02", mar: "03", apr: "04", may: "05", jun: "06",
                 jul: "07", aug: "08", sep: "09", oct: "10", nov: "11", dec: "12"
             };
+            // Match Quarterly ranges like "Jul-Sep 2025", "Jul - Sep 25", "Apr-Jun 2025-26" -> map to Quarter-Ending Month
+            var qRange = clean.match(/^([A-Za-z]{3})[a-z]*\s*(?:[-–\/]|to)\s*([A-Za-z]{3})[a-z]*[\s\-\/]+(\d{2,4})(?:\s*[-–\/]\s*(\d{2,4}))?$/i);
+            if (qRange) {
+                var endMo = mMap[qRange[2].toLowerCase()];
+                var yrRaw = qRange[3].length === 2 ? ("20" + qRange[3]) : qRange[3];
+                if (endMo) {
+                    var yrInt = parseInt(yrRaw, 10);
+                    if (qRange[4] && endMo === "03") yrInt += 1;
+                    return yrInt + "-" + endMo;
+                }
+            }
             var m = clean.match(/^([A-Za-z]{3})[a-z]*[\s\-\/]+(\d{2,4})$/i);
             if (m) {
                 var mo = mMap[m[1].toLowerCase()];
@@ -2896,18 +2955,22 @@
                 var effItcDebC = b.hasCreditRows ? b.itcDebited.c : (h.itcCgst || 0);
                 var effItcDebS = b.hasCreditRows ? b.itcDebited.s : (h.itcSgst || 0);
 
-                var totDebitI = round2(effItcDebI + b.cashOutDebited.i);
+                                var totDebitI = round2(effItcDebI + b.cashOutDebited.i);
                 var totDebitC = round2(effItcDebC + b.cashOutDebited.c);
                 var totDebitS = round2(effItcDebS + b.cashOutDebited.s);
+                var existingOutSum = round2((h.outIgst || 0) + (h.outCgst || 0) + (h.outSgst || 0));
 
-                if (b.cashOutDebited.i > 0 && b.cashOutDebited.c === 0 && b.cashOutDebited.s === 0 && effItcDebI === 0 && (effItcDebC > 0 || effItcDebS > 0)) {
-                    h.outIgst = round2(b.cashOutDebited.i + effItcDebC + effItcDebS);
-                    h.outCgst = 0;
-                    h.outSgst = 0;
-                } else if (totDebitI + totDebitC + totDebitS > 0 || b.hasCreditRows) {
-                    h.outIgst = totDebitI;
-                    h.outCgst = totDebitC;
-                    h.outSgst = totDebitS;
+                // Only reconstruct output tax from ledger debits if no 3B/R1 output tax is already recorded
+                if (existingOutSum === 0) {
+                    if (b.cashOutDebited.i > 0 && b.cashOutDebited.c === 0 && b.cashOutDebited.s === 0 && effItcDebI === 0 && (effItcDebC > 0 || effItcDebS > 0)) {
+                        h.outIgst = round2(b.cashOutDebited.i + effItcDebC + effItcDebS);
+                        h.outCgst = 0;
+                        h.outSgst = 0;
+                    } else if (totDebitI + totDebitC + totDebitS > 0 || b.hasCreditRows) {
+                        h.outIgst = totDebitI;
+                        h.outCgst = totDebitC;
+                        h.outSgst = totDebitS;
+                    }
                 }
 
                 if (b.arn3b || b.filingDate || (totDebitI + totDebitC + totDebitS > 0)) {
@@ -2972,7 +3035,7 @@
         }
 
         // --- UNIFIED GST PORTAL IMPORTER (CREDIT/CASH LEDGER CSV + 2B JSON + 3B/R1/PMT-06 PDF) ---
-        function detectPeriodFromPdfText(text) {
+                        function detectPeriodFromPdfText(text) {
             var monthMap = {
                 "january": "01", "jan": "01", "february": "02", "feb": "02", "march": "03", "mar": "03",
                 "april": "04", "apr": "04", "may": "05", "june": "06", "jun": "06",
@@ -2984,33 +3047,78 @@
                 "quarter 4": "03", "q4": "03", "jan-mar": "03"
             };
 
-            var fyMatch = text.match(/20(\d{2})\s*[-–/]\s*(?:20)?(\d{2})/);
+            var headerText = String(text || "").substring(0, 1500);
+            var fyMatch = headerText.match(/20(\d{2})\s*[-–—\/]\s*(?:20)?(\d{2})/);
             var startYr = fyMatch ? parseInt("20" + fyMatch[1], 10) : null;
 
-            var pMatch = text.match(/(?:Period|Month)\s*[:\-]?\s*([A-Za-z]+)(?:\s*[-–,]?\s*(20\d{2}))?/i);
+            function resolveYearAndMonth(mStr, explicitYr) {
+                if (explicitYr) {
+                    var yClean = String(explicitYr).length === 2 ? ("20" + explicitYr) : String(explicitYr);
+                    return yClean + "-" + mStr;
+                }
+                if (startYr) {
+                    var mInt = parseInt(mStr, 10);
+                    var calcYr = (mInt <= 3) ? (startYr + 1) : startYr;
+                    return calcYr + "-" + mStr;
+                }
+                var fallbackYr = activeTargetPeriod ? parseInt(activeTargetPeriod.split('-')[0], 10) : currentYearInt;
+                return fallbackYr + "-" + mStr;
+            }
+
+            // 1. Direct Quarter Month-Range anywhere in header (e.g., "Jul-Sep", "July - September", "Apr - Jun", "Year Period 2025-26 Jul-Sep")
+            var directQtrRange = headerText.match(/\b(Apr(?:il)?|Jul(?:y)?|Oct(?:ober)?|Jan(?:uary)?)\s*(?:[-–—\/]|to)\s*(Jun(?:e)?|Sep(?:t(?:ember)?)?|Dec(?:ember)?|Mar(?:ch)?)\b(?:\s*[-–—,\']?\s*(20\d{2}|\d{2}))?/i);
+            if (directQtrRange) {
+                var qEndKey = directQtrRange[2].toLowerCase().substring(0, 3);
+                var qEndMStr = monthMap[qEndKey];
+                if (qEndMStr) {
+                    var resDirect = resolveYearAndMonth(qEndMStr, directQtrRange[3]);
+                    if (resDirect) return resDirect;
+                }
+            }
+
+                        // 2. General Month-Range after Period/Month/Quarter (e.g., "Period: May - Jun")
+            var rangeMatch = headerText.match(/(?:Period|Month|Quarter)\s*(?:\/\s*Quarter)?\s*[:\-]?\s*(?:20\d{2}\s*[-–—\/]\s*(?:20)?\d{2}\s+)?(?:Quarter\s*[1-4]\s*\(\s*|Q[1-4]\s*\(\s*)?([A-Za-z]{3,9})\s*(?:[-–—\/]|to)\s*([A-Za-z]{3,9})\)?(?:\s*[-–—,]?\s*(20\d{2}))?/i);
+            if (rangeMatch) {
+                var endMonthKey = rangeMatch[2].toLowerCase();
+                var endMStr = monthMap[endMonthKey] || monthMap[endMonthKey.substring(0, 3)];
+                if (endMStr) {
+                    var resRange = resolveYearAndMonth(endMStr, rangeMatch[3]);
+                    if (resRange) return resRange;
+                }
+            }
+
+            // 3. Explicit Quarter labels (e.g., "Period: Quarter 2", "Quarter: Q2")
+            var qtrMatch = headerText.match(/(?:Period|Month|Quarter)\s*[:\-]?\s*(?:20\d{2}\s*[-–—\/]\s*(?:20)?\d{2}\s+)?(Quarter\s*[1-4]|Q[1-4])\b(?:\s*[-–—,]?\s*(20\d{2}))?/i);
+            if (qtrMatch) {
+                var qKey = qtrMatch[1].toLowerCase().replace(/\s+/g, ' ');
+                var qMStr = monthMap[qKey];
+                if (qMStr) {
+                    var resQtr = resolveYearAndMonth(qMStr, qtrMatch[2]);
+                    if (resQtr) return resQtr;
+                }
+            }
+
+            // 4. Standard Single Month (including 2-row table "Year Period 2025-26 September")
+            var pMatch = headerText.match(/(?:Period|Month)\s*[:\-]?\s*(?:20\d{2}\s*[-–—\/]\s*(?:20)?\d{2}\s+)?([A-Za-z]{3,9})\b(?:\s*[-–—,\']?\s*(20\d{2}))?/i);
             if (pMatch) {
                 var mName = pMatch[1].toLowerCase();
-                var mStr = monthMap[mName];
+                var mStr = monthMap[mName] || monthMap[mName.substring(0, 3)];
                 if (mStr) {
-                    if (pMatch[2]) return pMatch[2] + "-" + mStr;
-                    if (startYr) {
-                        var mInt = parseInt(mStr, 10);
-                        var calcYr = (mInt <= 3) ? (startYr + 1) : startYr;
-                        return calcYr + "-" + mStr;
-                    }
+                    var resSingle = resolveYearAndMonth(mStr, pMatch[2]);
+                    if (resSingle) return resSingle;
                 }
             }
             return null;
-        }
+        }        
 
         function extractRowNumbersAfterAnchor(text, anchorRegex, expectedMinCols) {
             var m = text.match(anchorRegex);
             if (!m) return null;
             var snippet = text.substring(m.index + m[0].length, m.index + m[0].length + 420);
-            var numMatches = snippet.match(/-?\d[\d,]*\.\d{2}/g);
+            var numMatches = snippet.match(/(?:^|\s)(-?\d[\d,]*\.\d{2}|0(?:\.0+)?)(?=\s|$)/g);
             if (!numMatches || numMatches.length < expectedMinCols) return null;
             return numMatches.map(function(s) {
-                return Math.max(0, parseFloat(s.replace(/,/g, '')) || 0);
+                return Math.max(0, parseFloat(s.trim().replace(/,/g, '')) || 0);
             });
         }
 
@@ -3140,14 +3248,28 @@
                 };
             }
 
-            if (root.sup_details || root.itc_elg) {
+                        if (root.sup_details || root.itc_elg) {
                 var o = (root.sup_details && root.sup_details.osup_det) || {};
                 var rv = (root.sup_details && root.sup_details.isup_rev) || {};
                 var ii = 0, cc = 0, ss = 0;
-                if (root.itc_elg && Array.isArray(root.itc_elg.itc_avl)) {
-                    root.itc_elg.itc_avl.forEach(function(row) {
-                        ii += (row.iamt || 0); cc += (row.camt || 0); ss += (row.samt || 0);
-                    });
+                if (root.itc_elg) {
+                    if (root.itc_elg.itc_net && root.itc_elg.itc_net.iamt !== undefined) {
+                        ii = Number(root.itc_elg.itc_net.iamt || 0);
+                        cc = Number(root.itc_elg.itc_net.camt || 0);
+                        ss = Number(root.itc_elg.itc_net.samt || 0);
+                    } else {
+                        if (Array.isArray(root.itc_elg.itc_avl)) {
+                            root.itc_elg.itc_avl.forEach(function(row) {
+                                ii += (row.iamt || 0); cc += (row.camt || 0); ss += (row.samt || 0);
+                            });
+                        }
+                        if (Array.isArray(root.itc_elg.itc_rev)) {
+                            root.itc_elg.itc_rev.forEach(function(row) {
+                                ii -= (row.iamt || 0); cc -= (row.camt || 0); ss -= (row.samt || 0);
+                            });
+                        }
+                        ii = Math.max(0, ii); cc = Math.max(0, cc); ss = Math.max(0, ss);
+                    }
                 }
                 return {
                     docType: '3B_JSON', gstin: gstin, periodKey: periodKey,
@@ -3161,9 +3283,9 @@
                     itcCgst: Number(cc.toFixed(2)),
                     itcSgst: Number(ss.toFixed(2))
                 };
-            }
+            }            
 
-            if (root.b2b || root.b2cs) {
+                        if (root.b2b || root.b2cs || root.b2cl || root.exp || root.cdnr || root.cdnur) {
                 var i1 = 0, c1 = 0, s1 = 0;
                 (root.b2b || []).forEach(function(party) {
                     (party.inv || []).forEach(function(inv) {
@@ -3173,14 +3295,45 @@
                         });
                     });
                 });
+                (root.b2cl || []).forEach(function(pos) {
+                    (pos.inv || []).forEach(function(inv) {
+                        (inv.itms || []).forEach(function(it) {
+                            var d = it.itm_det || {};
+                            i1 += (d.iamt || 0);
+                        });
+                    });
+                });
+                (root.exp || []).forEach(function(expGrp) {
+                    (expGrp.inv || []).forEach(function(inv) {
+                        (inv.itms || []).forEach(function(it) {
+                            i1 += (it.iamt || 0);
+                        });
+                    });
+                });
                 (root.b2cs || []).forEach(function(row) {
                     i1 += (row.iamt || 0); c1 += (row.camt || 0); s1 += (row.samt || 0);
                 });
+                (root.cdnr || []).forEach(function(party) {
+                    (party.nt || []).forEach(function(nt) {
+                        var sign = (nt.ntty === 'C') ? -1 : 1;
+                        (nt.itms || []).forEach(function(it) {
+                            var d = it.itm_det || {};
+                            i1 += sign * (d.iamt || 0); c1 += sign * (d.camt || 0); s1 += sign * (d.samt || 0);
+                        });
+                    });
+                });
+                (root.cdnur || []).forEach(function(nt) {
+                    var sign = (nt.ntty === 'C') ? -1 : 1;
+                    (nt.itms || []).forEach(function(it) {
+                        var d = it.itm_det || {};
+                        i1 += sign * (d.iamt || 0);
+                    });
+                });
                 return {
                     docType: 'R1_JSON', gstin: gstin, periodKey: periodKey,
-                    outIgst: Number(i1.toFixed(2)),
-                    outCgst: Number(c1.toFixed(2)),
-                    outSgst: Number(s1.toFixed(2))
+                    outIgst: Number(Math.max(0, i1).toFixed(2)),
+                    outCgst: Number(Math.max(0, c1).toFixed(2)),
+                    outSgst: Number(Math.max(0, s1).toFixed(2))
                 };
             }
             return { docType: 'UNKNOWN', gstin: gstin };
@@ -3260,7 +3413,7 @@
                     if (rec.cpin) h.challanCpin = rec.cpin;
                     if (rec.challanDate) h.challanDate = rec.challanDate;
                     if (rec.challanMode) h.challanMode = rec.challanMode;
-                } else if (rec.docType === '3B' || rec.docType === '3B_JSON') {
+                                } else if (rec.docType === '3B' || rec.docType === '3B_JSON') {
                     h.outIgst = rec.outIgst; h.outCgst = rec.outCgst; h.outSgst = rec.outSgst;
                     h.rcmIgst = rec.rcmIgst; h.rcmCgst = rec.rcmCgst; h.rcmSgst = rec.rcmSgst;
                     h.itcIgst = rec.itcIgst; h.itcCgst = rec.itcCgst; h.itcSgst = rec.itcSgst;
@@ -3271,6 +3424,7 @@
                         if (h.challanStatus === 'Pending' || h.challanStatus === 'UTR_Sent' || h.challanCpin) {
                             h.challanStatus = 'Paid';
                         }
+                        cascadeQuarterlyFilingMonths(client, targetPeriod, 'r3b', rec.filingDate);
                     }
                 } else if (rec.docType === 'R1' || rec.docType === 'R1_JSON') {
                     h.r1Igst = rec.outIgst; h.r1Cgst = rec.outCgst; h.r1Sgst = rec.outSgst;
@@ -3281,6 +3435,7 @@
                         h.r1 = 'Filed';
                         if (rec.filingDate) h.r1Date = rec.filingDate;
                         if (rec.arn) h.r1Arn = rec.arn;
+                        cascadeQuarterlyFilingMonths(client, targetPeriod, 'r1', rec.filingDate);
                     }
                 }
 
@@ -3301,7 +3456,7 @@
                 if (rec.name && !document.getElementById('client-name').value) {
                     document.getElementById('client-name').value = rec.name;
                 }
-               if (rec.docType === '2B_JSON') {
+                if (rec.docType === '2B_JSON') {
                     document.getElementById('itc-2b-igst').value = rec.itc2bIgst;
                     document.getElementById('itc-2b-cgst').value = rec.itc2bCgst;
                     document.getElementById('itc-2b-sgst').value = rec.itc2bSgst;
@@ -3312,7 +3467,7 @@
                         document.getElementById('rcm-sgst').value = rec.rcmSgst;
                     }
                 } else if (rec.docType === 'PMT06') {
-                   document.getElementById('challan-status').value = 'Pending';
+                    document.getElementById('challan-status').value = 'Pending';
                     document.getElementById('challan-cpin').value = rec.cpin || '';
                     document.getElementById('challan-date').value = rec.challanDate || '';
                     document.getElementById('challan-mode').value = rec.challanMode || 'NEFT/RTGS';
@@ -3326,6 +3481,12 @@
                     document.getElementById('itc-igst').value = rec.itcIgst;
                     document.getElementById('itc-cgst').value = rec.itcCgst;
                     document.getElementById('itc-sgst').value = rec.itcSgst;
+                    if (rec.docType === '3B') {
+                        window.pendingFormFilingMeta = window.pendingFormFilingMeta || {};
+                        window.pendingFormFilingMeta.r3b = 'Filed';
+                        window.pendingFormFilingMeta.r3bDate = rec.filingDate || '';
+                        window.pendingFormFilingMeta.r3bArn = rec.arn || '';
+                    }
                 } else if (rec.docType === 'R1' || rec.docType === 'R1_JSON') {
                     document.getElementById('r1-igst').value = rec.outIgst;
                     document.getElementById('r1-cgst').value = rec.outCgst;
@@ -3333,6 +3494,12 @@
                     document.getElementById('out-igst').value = rec.outIgst;
                     document.getElementById('out-cgst').value = rec.outCgst;
                     document.getElementById('out-sgst').value = rec.outSgst;
+                    if (rec.docType === 'R1') {
+                        window.pendingFormFilingMeta = window.pendingFormFilingMeta || {};
+                        window.pendingFormFilingMeta.r1 = 'Filed';
+                        window.pendingFormFilingMeta.r1Date = rec.filingDate || '';
+                        window.pendingFormFilingMeta.r1Arn = rec.arn || '';
+                    }
                 }
                 return true;
             }
@@ -3362,27 +3529,40 @@
                                 importedLedgerCsv = true;
                                 lastTypeLabel = (ledgerRec.docType === 'CREDIT_LEDGER_CSV' ? "Electronic Credit Ledger CSV" : "Electronic Cash Ledger CSV") + " (" + ledgerRec.gstin + ")";
                             }
-                        } else {
+                                                } else {
                             var csvRows = parseCsvPreservingStrings(csvTxt);
                             var inv2bArr = parseInwardRowsFromTable(csvRows);
                             if (inv2bArr.length > 0) {
                                 var iSum = 0, cSum = 0, sSum = 0;
+                                var periodSet = {};
                                 inv2bArr.forEach(function(it) {
                                     if (it.itcAvl !== 'N') { iSum += it.igst; cSum += it.cgst; sSum += it.sgst; }
+                                    if (it.returnPeriod2B && /^\d{2}-\d{4}$/.test(it.returnPeriod2B)) {
+                                        var isoP = it.returnPeriod2B.substring(3, 7) + "-" + it.returnPeriod2B.substring(0, 2);
+                                        periodSet[isoP] = true;
+                                    }
                                 });
-                                var csvPrd = activeTargetPeriod;
-                                if (inv2bArr[0].returnPeriod2B && /^\d{2}-\d{4}$/.test(inv2bArr[0].returnPeriod2B)) {
-                                    csvPrd = inv2bArr[0].returnPeriod2B.substring(3, 7) + "-" + inv2bArr[0].returnPeriod2B.substring(0, 2);
+                                var topCsvText = csvRows.slice(0, 18).map(function(r) { return r.join(" "); }).join(" ");
+                                var metaCsvPrd = detectPeriodFromPdfText(topCsvText);
+                                var sortedCsvPrds = Object.keys(periodSet).sort();
+                                var csvPrd = metaCsvPrd || (sortedCsvPrds.length > 0 ? sortedCsvPrds[sortedCsvPrds.length - 1] : activeTargetPeriod);
+                                if (sortedCsvPrds.length > 1 && !metaCsvPrd) {
+                                    var maxP = sortedCsvPrds[sortedCsvPrds.length - 1].split('-');
+                                    var mNum = parseInt(maxP[1], 10);
+                                    var qEnd = mNum <= 3 ? "03" : mNum <= 6 ? "06" : mNum <= 9 ? "09" : "12";
+                                    csvPrd = maxP[0] + "-" + qEnd;
                                 }
+                                var csvGstinMatch = topCsvText.match(/(?:GSTIN|Taxpayer\s+GSTIN)\s*[:\-]?\s*([0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1})/i);
+                                var csvGstin = (csvGstinMatch ? csvGstinMatch[1] : document.getElementById('client-gstin').value.trim()).toUpperCase();
                                 var fallbackRec = {
-                                    docType: '2B_JSON', gstin: document.getElementById('client-gstin').value.trim().toUpperCase(),
+                                    docType: '2B_JSON', gstin: csvGstin,
                                     periodKey: csvPrd,
                                     itc2bIgst: round2(iSum), itc2bCgst: round2(cSum), itc2bSgst: round2(sSum),
                                     rcmIgst: 0, rcmCgst: 0, rcmSgst: 0, inv2bList: inv2bArr
                                 };
                                 if (applyParsedPortalRecordToDb(fallbackRec, isSingle, file.name)) {
                                     importedCount++;
-                                    lastTypeLabel = "GSTR-2B CSV (" + inv2bArr.length + " bills)";
+                                    lastTypeLabel = "GSTR-2B CSV (" + inv2bArr.length + " bills -> " + csvPrd + ")";
                                 }
                             }
                         }
@@ -3391,25 +3571,39 @@
                         var xl2bArr = parseInwardRowsFromTable(xlRows);
                         if (xl2bArr.length > 0) {
                             var xi = 0, xc = 0, xs = 0;
+                            var xlPeriodSet = {};
                             xl2bArr.forEach(function(it) {
                                 if (it.itcAvl !== 'N') { xi += it.igst; xc += it.cgst; xs += it.sgst; }
+                                if (it.returnPeriod2B && /^\d{2}-\d{4}$/.test(it.returnPeriod2B)) {
+                                    var isoXlP = it.returnPeriod2B.substring(3, 7) + "-" + it.returnPeriod2B.substring(0, 2);
+                                    xlPeriodSet[isoXlP] = true;
+                                }
                             });
-                            var xlPrd = activeTargetPeriod;
-                            if (xl2bArr[0].returnPeriod2B && /^\d{2}-\d{4}$/.test(xl2bArr[0].returnPeriod2B)) {
-                                xlPrd = xl2bArr[0].returnPeriod2B.substring(3, 7) + "-" + xl2bArr[0].returnPeriod2B.substring(0, 2);
+                            var topXlText = xlRows.slice(0, 45).map(function(r) { return (r || []).join(" "); }).join(" ");
+                            var metaXlPrd = detectPeriodFromPdfText(topXlText);
+                            var sortedXlPrds = Object.keys(xlPeriodSet).sort();
+                            var xlPrd = metaXlPrd || (sortedXlPrds.length > 0 ? sortedXlPrds[sortedXlPrds.length - 1] : activeTargetPeriod);
+                            if (sortedXlPrds.length > 1 && !metaXlPrd) {
+                                var maxXlP = sortedXlPrds[sortedXlPrds.length - 1].split('-');
+                                var mXlNum = parseInt(maxXlP[1], 10);
+                                var qXlEnd = mXlNum <= 3 ? "03" : mXlNum <= 6 ? "06" : mXlNum <= 9 ? "09" : "12";
+                                xlPrd = maxXlP[0] + "-" + qXlEnd;
                             }
+                            var xlGstinMatch = topXlText.match(/(?:GSTIN|Taxpayer\s+GSTIN)\s*[:\-]?\s*([0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1})/i);
+                            var xlGstin = (xlGstinMatch ? xlGstinMatch[1] : document.getElementById('client-gstin').value.trim()).toUpperCase();
                             var xlRec = {
-                                docType: '2B_JSON', gstin: document.getElementById('client-gstin').value.trim().toUpperCase(),
+                                docType: '2B_JSON', gstin: xlGstin,
                                 periodKey: xlPrd,
                                 itc2bIgst: round2(xi), itc2bCgst: round2(xc), itc2bSgst: round2(xs),
                                 rcmIgst: 0, rcmCgst: 0, rcmSgst: 0, inv2bList: xl2bArr
                             };
-                            if (applyParsedPortalRecordToDb(xlRec, isSingle, file.name)) {
+                                                        if (applyParsedPortalRecordToDb(xlRec, isSingle, file.name)) {
                                 importedCount++;
-                                lastTypeLabel = "GSTR-2B Excel (" + xl2bArr.length + " bills)";
+                                lastTypeLabel = "GSTR-2B Excel (" + xl2bArr.length + " bills -> " + xlPrd + ")";
                             }
                         }
                     } else if (fName.endsWith('.pdf') || file.type === 'application/pdf') {
+
                         var arrayBuf = await file.arrayBuffer();
                         var pdfText = await extractTextFromPdfBuffer(arrayBuf);
                         var pdfRec = parseGstPortalPdfText(pdfText);
@@ -3480,7 +3674,9 @@
             document.getElementById('gstin-state-badge').textContent = '';
             document.getElementById('form-title').innerHTML = "&#128101; Add / Manage Client &amp; Return";
             document.getElementById('save-btn').textContent = "Save Client & Period Ledger";
-            document.getElementById('cancel-edit-btn').style.display = 'none';
+                        document.getElementById('cancel-edit-btn').style.display = 'none';
+            window.pendingForm2BInvoices = [];
+            window.pendingFormFilingMeta = null;
             handleSchemeUI();
         };
 
@@ -3577,12 +3773,17 @@
                 challanCpin: cpinEntered,
                 challanDate: document.getElementById('challan-date').value || "",
                 challanUtr: document.getElementById('challan-utr').value.trim(),
-                                r1: "Pending", r1Date: "", r1Arn: "",
-                r3b: "Pending", r3bDate: "", r3bArn: "",
+                                                r1: (window.pendingFormFilingMeta && window.pendingFormFilingMeta.r1) || "Pending",
+                r1Date: (window.pendingFormFilingMeta && window.pendingFormFilingMeta.r1Date) || "",
+                r1Arn: (window.pendingFormFilingMeta && window.pendingFormFilingMeta.r1Arn) || "",
+                r3b: (window.pendingFormFilingMeta && window.pendingFormFilingMeta.r3b) || "Pending",
+                r3bDate: (window.pendingFormFilingMeta && window.pendingFormFilingMeta.r3bDate) || "",
+                r3bArn: (window.pendingFormFilingMeta && window.pendingFormFilingMeta.r3bArn) || "",
                 waived: false,
                 inv2bList: Array.isArray(window.pendingForm2BInvoices) ? window.pendingForm2BInvoices.slice() : []
             };
             window.pendingForm2BInvoices = [];
+            window.pendingFormFilingMeta = null;
 
             var initItc = {
                 igst: parseFloat(document.getElementById('init-itc-igst').value) || 0,
@@ -3898,11 +4099,19 @@
                 delayDays = Math.floor((nowObj - r3bDueDate) / 86400000);
             }
 
+                        var isNonQuarterEnd = (r3bDueDate && r3bDueDate.isM3 === false);
+            if (isComp && isNonQuarterEnd) {
+                // Composition (CMP-08) is strictly quarterly; M1 and M2 have no separate return due date
+                delayDays = 0;
+            }
             if (delayDays > 0) {
                 var isNil = (origOutI + origOutC + origOutS + rcmIgst + rcmCgst + rcmSgst) === 0;
-                var rawFee = delayDays * (isNil ? 20 : 50);
-                var maxCap = isNil ? 500 : 2000;
-                lateFee = Math.min(rawFee, maxCap);
+                // PMT-06 (QRMP M1 & M2) does not attract Sec 47 Late Fee, only Sec 50 Interest
+                if (!(scheme === 'QRMP' && isNonQuarterEnd)) {
+                    var rawFee = delayDays * (isNil ? 20 : 50);
+                    var maxCap = isNil ? 500 : 2000;
+                    lateFee = Math.min(rawFee, maxCap);
+                }
                 if (totalCash > 0) interest = Math.round(totalCash * 0.18 * (delayDays / 365));
             }
 
@@ -3959,17 +4168,29 @@
                     r3bLabel = "Q-GSTR-3B";
                     r3bDueDay = QRMP_GROUP_A_STATES.indexOf(stCode) !== -1 ? 22 : 24;
                 }
-            } else if (client.scheme === 'Composition') {
-                r1Label = "Sales Log"; r1DueDay = 10;
+                        } else if (client.scheme === 'Composition') {
+                r1Label = "Sales Log"; r1DueDay = 18;
                 r3bLabel = isM3 ? "CMP-08" : "CMP (Qtr)";
                 r3bDueDay = 18;
+                if (!isM3) {
+                    // Point M1 & M2 of Composition to the Quarter-End CMP-08 due month
+                    var qEndMo = mo <= 3 ? 3 : mo <= 6 ? 6 : mo <= 9 ? 9 : 12;
+                    dueMo = qEndMo + 1;
+                    dueYr = yr;
+                    if (dueMo > 12) { dueMo = 1; dueYr++; }
+                }
             }
+
+            var r1DateObj = new Date(dueYr, dueMo - 1, r1DueDay, 23, 59, 59);
+            var r3bDateObj = new Date(dueYr, dueMo - 1, r3bDueDay, 23, 59, 59);
+            r1DateObj.isM3 = isM3;
+            r3bDateObj.isM3 = isM3;
 
             return {
                 r1Label: r1Label, r3bLabel: r3bLabel, r1DueDay: r1DueDay, r3bDueDay: r3bDueDay,
-                dueMo: dueMo, dueYr: dueYr,
-                r1DueDate: new Date(dueYr, dueMo - 1, r1DueDay, 23, 59, 59),
-                r3bDueDate: new Date(dueYr, dueMo - 1, r3bDueDay, 23, 59, 59)
+                dueMo: dueMo, dueYr: dueYr, isM3: isM3,
+                r1DueDate: r1DateObj,
+                r3bDueDate: r3bDateObj
             };
         }
 
@@ -4253,9 +4474,13 @@
             }
         }
 
-        window.toggleClientBatchSelect = function(id, isChecked) {
+                window.toggleClientBatchSelect = function(id, isChecked) {
             if (isChecked) selectedClientIds[id] = true;
             else delete selectedClientIds[id];
+            var matchingBoxes = document.querySelectorAll('.client-row-cb[data-cid="' + id + '"]');
+            for (var i = 0; i < matchingBoxes.length; i++) {
+                matchingBoxes[i].checked = isChecked;
+            }
             updateBatchBarVisibility();
         };
 
@@ -4295,19 +4520,20 @@
                 ensureMonthStructureInitialized(c, activeTargetPeriod);
                 var h = c.history[activeTargetPeriod];
 
-                                if (actionType === 'NIL_FILED') {
+                                                if (actionType === 'NIL_FILED') {
                     h.outIgst = 0; h.outCgst = 0; h.outSgst = 0;
                     h.r1Igst = 0; h.r1Cgst = 0; h.r1Sgst = 0;
                     h.rcmIgst = 0; h.rcmCgst = 0; h.rcmSgst = 0;
                     h.r1 = 'Filed'; if (!h.r1Date) h.r1Date = todayStr;
                     h.r3b = 'Filed'; if (!h.r3bDate) h.r3bDate = todayStr;
                     h.challanStatus = 'None';
-                    count++;
-                } else if (actionType === 'CLONE_FEE') {
-                    var periods = Object.keys(c.history || {}).sort();
-                    var idx = periods.indexOf(activeTargetPeriod);
-                    if (idx > 0 && c.history[periods[idx - 1]].feeAmount > 0) {
-                        h.feeAmount = c.history[periods[idx - 1]].feeAmount;
+                    cascadeQuarterlyFilingMonths(c, activeTargetPeriod, 'r1', todayStr);
+                    cascadeQuarterlyFilingMonths(c, activeTargetPeriod, 'r3b', todayStr);
+                    count++;                    
+                                } else if (actionType === 'CLONE_FEE') {
+                    var prevKey = getPrevPeriodKey(c, activeTargetPeriod);
+                    if (prevKey && c.history[prevKey] && c.history[prevKey].feeAmount > 0) {
+                        h.feeAmount = c.history[prevKey].feeAmount;
                         count++;
                     } else if (c.defaultFee > 0) {
                         h.feeAmount = c.defaultFee;
@@ -4601,10 +4827,14 @@
                         "</div>";
                 }
 
-                var rcmActive = ((data.rcmIgst || 0) + (data.rcmCgst || 0) + (data.rcmSgst || 0)) > 0;
-                var passDisplay = revealedPasswords[client.id] ? (client.pass || 'N/A') : (client.pass ? '******' : 'N/A');
+                                var rcmActive = ((data.rcmIgst || 0) + (data.rcmCgst || 0) + (data.rcmSgst || 0)) > 0;
+                var passDisplay = revealedPasswords[client.id] ? escHtml(client.pass || 'N/A') : (client.pass ? '******' : 'N/A');
+                var safeClientName = escHtml(client.name);
+                var safeUser = escHtml(client.user || 'N/A');
+                var safeNotes = escHtml(data.notes || '');
+                var safeNotice = escHtml(client.notice || '');
                 var tagsHtml = (client.tags && client.tags.length > 0)
-                    ? client.tags.map(function(t) { return "<span class='segment-tag'>" + t + "</span>"; }).join('') + "<br>"
+                    ? client.tags.map(function(t) { return "<span class='segment-tag'>" + escHtml(t) + "</span>"; }).join('') + "<br>"
                     : "";
 
                 var netBoxSummary = "";
@@ -4671,8 +4901,8 @@
                             "<input type='checkbox' class='row-checkbox client-row-cb' data-cid='" + client.id + "' " + (isChecked ? "checked" : "") + " onchange=\"toggleClientBatchSelect('" + client.id + "', this.checked)\">" +
                             "<div class='mc-avatar'>" + avatarHtml + "</div>" +
                             "<div>" +
-                                "<div class='mc-title'>" +
-                                    "<span>" + client.name + "</span>" +
+                                                                "<div class='mc-title'>" +
+                                    "<span>" + safeClientName + "</span>" +
                                     "<span class='state-pill'>" + stLabel + "</span>" +
                                     "<span style='font-size:0.65rem; background:rgba(59,130,246,0.15); padding:2px 7px; border-radius:4px; color:#93c5fd;'>" + (client.scheme || 'Monthly') + "</span>" +
                                 "</div>" +
@@ -4716,14 +4946,14 @@
                         "<div>" +
                             "<div class='ledger-box' style='margin-bottom:5px;'>" + netBoxSummary + "</div>" +
                             "<div class='credential-bar' style='margin-top:0; width:100%; justify-content:space-between;'>" +
-                                "<span>ID: " + (client.user || 'N/A') + "</span>" +
+                                "<span>ID: " + safeUser + "</span>" +
                                 "<span class='copy-chip' onclick=\"copyClientCredential('" + client.id + "', 'user')\">Copy</span>" +
                                 "<span>| PW: " + passDisplay + "</span>" +
                                 "<span class='copy-chip' onclick=\"togglePassMask('" + client.id + "')\">Show</span>" +
                                 "<span class='copy-chip' onclick=\"copyClientCredential('" + client.id + "', 'pass')\">Copy</span>" +
                                 "<span class='portal-launch-chip' onclick=\"launchGstPortal('" + client.id + "')\">&#128640; Portal</span>" +
                             "</div>" +
-                            (data.notes ? "<div style='font-size:0.71rem; color:#fcd34d; margin-top:5px;'>Note: " + data.notes + "</div>" : "") +
+                            (safeNotes ? "<div style='font-size:0.71rem; color:#fcd34d; margin-top:5px;'>Note: " + safeNotes + "</div>" : "") +
                         "</div>" +
                     "</div>";
                 cardsContainer.appendChild(cardEl);
@@ -4735,23 +4965,23 @@
                         "<div style='display:flex; align-items:center; justify-content:space-between; gap:6px;'>" +
                             "<div>" +
                                 "<input type='checkbox' class='row-checkbox client-row-cb' data-cid='" + client.id + "' " + (isChecked ? "checked" : "") + " onchange=\"toggleClientBatchSelect('" + client.id + "', this.checked)\">" +
-                                "<strong style='color:#fff; font-size:0.94rem;'>" + client.name + "</strong>" +
+                                "<strong style='color:#fff; font-size:0.94rem;'>" + safeClientName + "</strong>" +
                             "</div>" +
                             "<span style='font-size:0.68rem; background:rgba(59,130,246,0.15); padding:2px 7px; border-radius:4px; color:#93c5fd; font-weight:700;'>" + (client.scheme || 'Monthly') + "</span>" +
                         "</div>" +
                         "<div style='margin-top:3px;'><span class='gstin-mono'>" + client.gstin + "</span><span class='state-pill'>" + stLabel + "</span></div>" +
                         (client.phone ? "<div style='font-size:0.71rem; color:var(--text-muted); margin-top:2px;'>+91 " + client.phone + "</div>" : "") +
-                        (client.notice ? "<div class='notice-tag'>" + client.notice + "</div><br>" : "") +
+                        (safeNotice ? "<div class='notice-tag'>" + safeNotice + "</div><br>" : "") +
                         tagsHtml +
                         "<div class='credential-bar'>" +
-                            "<span>ID: " + (client.user || 'N/A') + "</span>" +
+                            "<span>ID: " + safeUser + "</span>" +
                             "<span class='copy-chip' onclick=\"copyClientCredential('" + client.id + "', 'user')\">Copy</span>" +
                             "<span>| PW: " + passDisplay + "</span>" +
                             "<span class='copy-chip' onclick=\"togglePassMask('" + client.id + "')\">Show</span>" +
                             "<span class='copy-chip' onclick=\"copyClientCredential('" + client.id + "', 'pass')\">Copy</span>" +
                             "<span class='portal-launch-chip' onclick=\"launchGstPortal('" + client.id + "')\" title='Copy ID &amp; Open GST Portal'>&#128640; Portal</span>" +
                         "</div>" +
-                        (data.notes ? "<div style='font-size:0.72rem; color:#fcd34d; background:rgba(245,158,11,0.08); border:1px dashed rgba(245,158,11,0.3); padding:5px 7px; border-radius:5px; margin-top:6px;'>" + data.notes + "</div>" : "") +
+                        (safeNotes ? "<div style='font-size:0.72rem; color:#fcd34d; background:rgba(245,158,11,0.08); border:1px dashed rgba(245,158,11,0.3); padding:5px 7px; border-radius:5px; margin-top:6px;'>" + safeNotes + "</div>" : "") +
                     "</td>" +
                     "<td>" +
                         "<div class='ledger-box'><strong>3B Output:</strong><br>I: &#8377;" + fmtINR(data.outIgst) + " | C: &#8377;" + fmtINR(data.outCgst) + " | S: &#8377;" + fmtINR(data.outSgst) + "</div>" +
@@ -5556,7 +5786,7 @@
             return clean;
         }
 
-        function formatReturnPeriod2B(raw) {
+                function formatReturnPeriod2B(raw) {
             if (!raw) return "06-2025";
             var s = String(raw).trim();
             var mMap = {
@@ -5571,6 +5801,13 @@
             }
             if (/^\d{4}-\d{2}$/.test(s)) {
                 return s.substring(5, 7) + "-" + s.substring(0, 4);
+            }
+            // Match Quarterly range first (e.g., "Jul-Sep 2025" or "Apr-Jun 25") -> use end month
+            var qMatch = s.match(/([A-Za-z]{3})[a-z]*\s*(?:[-–\/]|to)\s*([A-Za-z]{3})[a-z]*[\s\'\-\/]*(\d{2,4})/i);
+            if (qMatch) {
+                var qEndCode = mMap[qMatch[2].toLowerCase()] || "09";
+                var qYearCode = qMatch[3].length === 2 ? ("20" + qMatch[3]) : qMatch[3];
+                return qEndCode + "-" + qYearCode;
             }
             var mMatch = s.match(/([A-Za-z]{3})[a-z]*[\s\'\-\/]*(\d{2,4})/);
             if (mMatch) {
@@ -5633,30 +5870,36 @@
             return [];
         }
 
-        function parseInwardRowsFromTable(rows) {
+                function parseInwardRowsFromTable(rows) {
             var list = [];
             var hIdx = -1;
             var colMap = {};
 
-            for (var i = 0; i < Math.min(rows.length, 25); i++) {
+            for (var i = 0; i < Math.min(rows.length, 250); i++) {
                 var rStr = (rows[i] || []).join(" ").toLowerCase();
-                if (rStr.indexOf("gstin") !== -1 && (rStr.indexOf("invoice") !== -1 || rStr.indexOf("taxable") !== -1)) {
+                var nextStr = (rows[i + 1] || []).join(" ").toLowerCase();
+                if (rStr.indexOf("gstin") !== -1 && (rStr.indexOf("invoice") !== -1 || rStr.indexOf("taxable") !== -1 || nextStr.indexOf("invoice number") !== -1)) {
                     hIdx = i;
-                    (rows[i] || []).forEach(function(cell, cIdx) {
-                        var h = String(cell || "").toLowerCase().trim();
+                    var maxCols = Math.max((rows[i] || []).length, (rows[i + 1] || []).length);
+                    var hasSubHeader = (nextStr.indexOf("invoice number") !== -1 || nextStr.indexOf("integrated tax") !== -1);
+                    for (var cIdx = 0; cIdx < maxCols; cIdx++) {
+                        var h1 = String((rows[i] && rows[i][cIdx]) || "").toLowerCase().trim();
+                        var h2 = hasSubHeader ? String((rows[i + 1] && rows[i + 1][cIdx]) || "").toLowerCase().trim() : "";
+                        var h = (h1 + " " + h2).trim();
                         if (h.indexOf("gstin") !== -1 && colMap.stin === undefined) colMap.stin = cIdx;
                         else if ((h.indexOf("trade") !== -1 || h.indexOf("legal") !== -1 || h.indexOf("supplier") !== -1) && colMap.sname === undefined) colMap.sname = cIdx;
-                        else if ((h.indexOf("invoice no") !== -1 || h.indexOf("invoice number") !== -1 || h === "inum" || h.indexOf("note no") !== -1) && colMap.inum === undefined) colMap.inum = cIdx;
+                        else if ((h.indexOf("invoice no") !== -1 || h.indexOf("invoice number") !== -1 || h === "inum" || h.indexOf("note no") !== -1 || h.indexOf("note number") !== -1) && colMap.inum === undefined) colMap.inum = cIdx;
                         else if ((h.indexOf("invoice date") !== -1 || h === "idt" || h.indexOf("note date") !== -1) && colMap.idt === undefined) colMap.idt = cIdx;
                         else if (h.indexOf("taxable") !== -1 && colMap.txval === undefined) colMap.txval = cIdx;
                         else if ((h.indexOf("integrated") !== -1 || h === "igst") && colMap.igst === undefined) colMap.igst = cIdx;
                         else if ((h.indexOf("central") !== -1 || h === "cgst") && colMap.cgst === undefined) colMap.cgst = cIdx;
                         else if ((h.indexOf("state") !== -1 || h.indexOf("ut tax") !== -1 || h === "sgst") && colMap.sgst === undefined) colMap.sgst = cIdx;
-                        else if (h.indexOf("rate") !== -1 && colMap.rt === undefined) colMap.rt = cIdx;
-                        else if ((h.indexOf("period") !== -1 || h.indexOf("filing") !== -1) && colMap.prd === undefined) colMap.prd = cIdx;
+                        else if (h.indexOf("rate") !== -1 && h.indexOf("applicable") === -1 && colMap.rt === undefined) colMap.rt = cIdx;
+                        else if (h.indexOf("period") !== -1 && colMap.prd === undefined) colMap.prd = cIdx;
                         else if ((h.indexOf("availability") !== -1 || h.indexOf("eligible") !== -1) && colMap.itcAvl === undefined) colMap.itcAvl = cIdx;
                         else if ((h.indexOf("supply type") !== -1 || h.indexOf("category") !== -1 || h.indexOf("goods") !== -1 || h.indexOf("invoice type") !== -1) && colMap.gType === undefined) colMap.gType = cIdx;
-                    });
+                    }
+                    if (hasSubHeader) hIdx = i + 1;
                     break;
                 }
             }
@@ -5790,8 +6033,8 @@
             }
         };
 
-        window.loadSampleRfd01Data = function(silent) {
-            document.getElementById('rfd-gstin').value = "09HVSPS7502B1Z4";
+                window.loadSampleRfd01Data = function(silent) {
+            document.getElementById('rfd-gstin').value = "09AAAAA0000A1Z5";
             document.getElementById('rfd-legal-name').value = "Sample Packaging Industries";
             document.getElementById('rfd-name').value = "Apex Corrugated & Packaging Works";
             document.getElementById('rfd-from-fp').value = "052025";
@@ -6305,8 +6548,11 @@
                 stmtArray.push(obj);
             }
 
+                        if (!res.gstin || res.gstin.length !== 15) {
+                return alert("Please enter a valid 15-character GSTIN before exporting Statement 1A.json.");
+            }
             var payload = {
-                gstin: res.gstin || "09HVSPS7502B1Z4",
+                gstin: res.gstin,
                 fromFp: res.fromFp || "052025",
                 toFp: res.toFp || "032026",
                 refundRsn: "INVITC",
@@ -6344,8 +6590,11 @@
                 });
             });
 
+                        if (!res.gstin || res.gstin.length !== 15) {
+                return alert("Please enter a valid 15-character GSTIN before exporting Annexure B.json.");
+            }
             var payload = {
-                gstin: res.gstin || "09HVSPS7502B1Z4",
+                gstin: res.gstin,
                 fromFp: res.fromFp || "052025",
                 toFp: res.toFp || "032026",
                 version: "1.0",
